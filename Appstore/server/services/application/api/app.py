@@ -25,5 +25,5 @@ app.register_blueprint(applicationBP, url_prefix="/application")
 
 
 #	When you need to create a local postgres database for testing
-#with app.app_context():
-#    db.create_all()
+with app.app_context():
+    db.create_all()
