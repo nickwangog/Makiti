@@ -12,6 +12,8 @@ class AppRequest(db.Model):
     admin = db.Column(db.Integer)
     dateclosed = db.Column(db.DateTime)
     datecreated = db.Column(db.DateTime, server_default=sa.func.now())
+    status = db.Column(db.Integer, nullable=False, server_default='1')
+    admincomment = db.Column(db.Text)
 
     def __init__(self, requesttype, application, developer):
         self.requesttype = requesttype

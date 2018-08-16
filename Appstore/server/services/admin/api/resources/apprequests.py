@@ -22,3 +22,42 @@ class apiAppRequest(Resource):
         db.session.add(apprequest)
         db.session.commit()
         return res.postSuccess("Request succesfully created.", apprequest_schema.dump(apprequest).data)
+
+#   /api/admin/apprequest/:appId
+class apiAppRequests(Resource):
+    def get(self, appId):
+        query = AppRequest.query.filter_by(application=appId).all()
+        if not query:
+            return res.getSuccess(data=None)
+        apprequests, error = apprequests_schema.dump(query)
+        if error:
+            return res.internalServiceError(error)
+        return res.getSuccess("Requests for app {} retrieved".format(appId), apprequests)
+
+#   /api/admin/apprequest/:developerId
+class apiDeveloperRequests(Resource):
+    def get(self, developerId):
+        query = AppRequest.query.filter_by(developer=developerId).all()
+        if not query:
+            return res.getSuccess(data=None)
+        developerrequests, error = apprequests_schema.dump(query)
+        if error:
+            return res.internalServiceError(error)
+        return res.getSuccess("Requests made by developer {} retrieved".format(developerId), developerrequests)
+
+#   /api/admin/apprequest/:requestId/action
+#   This endpoint is called from admin portal when request is approved, denied, etc.
+#   Need to provide action (Integer ranging from (1 - 5)) in body
+#   1 = Pending, 2 = Approved, 3 = "Denied", 4 = "Error", 5 = "Corrupted (error, virus)"
+#   Example: {"action": 1, comment: "whatever"}
+#   comment accepts empty
+class apiAppRequestAction(Resource):
+    def put(self, requestId):
+        data = request.get_json()
+        if not data or not data.get("action"):
+            return res.badRequestError("Missing data to proccess action on app request")
+        if data.get("action") < 1 or data.get("action") > 5: # ********* too hardcoded change later
+            return res.badRequestError("Invalid Action")
+        apprequest = AppRequest.query.filter_by(id=requestId).first()
+        apprequest.status = data.get("action")
+        return res.putSuccess("Succesfully submitted action for request {}.".format(requestId))
