@@ -10,14 +10,13 @@ from api.response import Response as res
 class apiApplication(Resource):
     def post(self):
         data = request.get_json()
-
         #   checks data has neccesary information to create app before initial review
         return res.getSuccess()
 
-#   /api/application/:appid
+#   /api/application/:appId
 class apiApplicationbyId(Resource):
-    def get(self, appid):
-        query = Application.query.filter_by(id=appid).first()
+    def get(self, appId):
+        query = Application.query.filter_by(id=appId).first()
 
         if not query:
             return res.resourceMissing("No application found")
@@ -26,13 +25,15 @@ class apiApplicationbyId(Resource):
     
     def put(self, appid):
         #   when updating version
-        a = 1
+        res.getSuccess()
     
     def delete(self, appid):
-        a = 1
+        res.getSuccess()
 
 
-#   /api/application/:developeremail
+#   /api/application/developeradd/:appId
+#   Requires in request to provide developer email in request body to allow developer access to the specified app
+#   Example: { "developerEmail": whatever@gmail.com }
 class apiAddDevelopertoApp(Resource):
     def post(self, developeremail):
         return res.getSuccess()
