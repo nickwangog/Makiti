@@ -1,1 +1,7 @@
-Appstore/server/services/*/api/env
+Appstore/server/services/customer/customerapienv
+*env*
+*__pycache__*
+*.DS_Store
+._.DS_Store
+.vscode
+.vscode/*
