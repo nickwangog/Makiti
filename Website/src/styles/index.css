@@ -1,11 +1,21 @@
+/* Installed css classes */
 @import "basscss";
 @import "basscss-colors";
 @import "basscss-background-colors";
 
-/* --lime is the default lime variable of basscss */
-/*Redefine class values here*/
+/* My Custom css classes */
+@import "./borders";
+@import "./extra";
+@import "./fonts";
+
+/* Redefine class values here */
 :root {
-	--h1: 35px;
+	--h1: 40px;
+	--h2: 30px;
+	--h3: 26px;
+	--h4: 22px;
+	--h5: 18px;
+	--h6: 15px;
 	--black: #222;
 	--darkgray: #383838;
 	--mediumgray: #808080;
@@ -24,6 +34,6 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
 	margin: 0.4em 0.2em;
-	font-family: 'Oswald', sans-serif;
+	font-family: 'Roboto Condensed', sans-serif;
 	color: var(--orange);
 }

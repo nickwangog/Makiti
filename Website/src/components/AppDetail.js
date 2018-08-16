@@ -1,4 +1,6 @@
 import React from 'react';
+import classNames from 'classnames';
+
 // import AppIcon from '../static/images/appicon.png';
 
 // Controls the Right-Hand side Detail view of an App from the Database
@@ -9,7 +11,7 @@ class AppDetail extends React.Component {
 		if (!this.props.app) {
 			return (
 				<p	style={this.props.style}
-					className="h3 p2 bg-white italic center"
+					className={classNames("h4 bg-white italic center", this.props.className)}
 				>
 					Please select an App to see the Details
 				</p>
@@ -17,9 +19,13 @@ class AppDetail extends React.Component {
 
 		// Handle regular state
 		return (
-			<div style={this.props.style}>
-				<h2>{this.props.app.name}</h2>
-				<img src={this.props.app.image}/>
+			<div
+				style={this.props.style}
+				className={classNames("bg-white", this.props.className)}
+			>
+				<h3 className="h3">{this.props.app.name}</h3>
+				<img className="fit" src={this.props.app.image}/
+				>
 				<div>
 					<span>{this.props.app.description}</span>
 					<span>{this.props.app.category}</span>

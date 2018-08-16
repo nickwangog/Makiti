@@ -13,11 +13,13 @@ class AppList extends React.Component {
 	render() {
 		return (
 			<div style={this.props.style}>
-				<h2>List of Apps</h2>
-				<ul>
+				<h2 className="h2">List of Apps</h2>
+				<ul className="list-reset">
 					{this.props.apps.map(app => (
 						<li key={app.id}
-							onClick={ () => this.props.onClick(app.id)}>
+							onClick={ () => this.props.onClick(app.id)}
+							className="py3 border-bottom border-bottom-smoke pointer"
+						>
 							<span>{app.name}</span>
 							<span>{app.description}</span>
 						</li>

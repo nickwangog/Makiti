@@ -59,6 +59,7 @@ class App extends React.Component {
 	}
 
 	render() {
+
 		const { apps, currentApp } = this.state
 
 		return (
@@ -71,7 +72,7 @@ class App extends React.Component {
 						onClick={this.onAppListClick} />
 					<AppDetail
 						app={ currentApp }
-						className="pl2"
+						className="ml4 p2"
 						style={{ flex: 5 }} />
 				</main>
 			</div>
