@@ -13,9 +13,9 @@ class Application(db.Model):
     datelastupdate = db.Column(db.DateTime)
     version = db.Column(db.DECIMAL(10, 2), nullable=False)
     checksum = db.Column(db.Text)
-    active = db.Column(db.Boolean, nullable=False, server_default=sa.sql.expression.true())
+    active = db.Column(db.Boolean, nullable=False, server_default=sa.sql.expression.false())
 
-    def __init__(self, appname, appzipb, version=0):
+    def __init__(self, appname, appzipb, version=1):
         self.appname = appname
         self.appzipb = appzipb
         self.version = version
