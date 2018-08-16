@@ -6,7 +6,6 @@ class Header extends React.Component {
 		return (
 			<header>
 				<img style={{height: 200 }} src={BannerImg}/>
-				<h1 className="h1">Apps that will be in the App Store, Yippee!</h1>
 			</header>
 		);
 	}

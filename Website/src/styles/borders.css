@@ -1,0 +1,7 @@
+/* Custom css definitions */
+
+.border-bottom-smoke {
+	border-bottom-style: ridge;
+	border-color: WhiteSmoke;
+	border-width: 5px;
+}
