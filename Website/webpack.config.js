@@ -29,6 +29,9 @@ module.exports = {
 			}
 		]
 	},
+	devServer: {
+		historyApiFallback: true, // If server receives a 'not found' request, it will redirect to index.html
+	},
 	plugins: [
 		new HtmlWebpackPlugin({
 			template: 'index.html',

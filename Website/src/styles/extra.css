@@ -3,3 +3,11 @@
 .pointer {
 	cursor: pointer;
 }
+
+.banner-image {
+	width: 70%;
+	height: 50%;
+	max-width: 800px; 
+	max-height: 300px;
+	box-shadow: 0 0 8px 8px grey inset;
+}
