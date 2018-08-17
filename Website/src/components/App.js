@@ -1,5 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch} from 'react-router-dom';
+import {
+	BrowserRouter, Route, Switch, Redirect,
+} from 'react-router-dom';
 
 // React pages
 import Header from './Header';
@@ -24,11 +26,13 @@ class App extends React.Component {
 				<main>
 					<Header />
 					<Switch>
-						<Route exact path="/" component={Home}/>
-						<Route path="/developer" component={Developer}/>
-						<Route path="/admin" component={Admin}/>
-						<Route path="/client" component={Client}/>
-						<Route component={NotFound}/>
+						<Route exact path="/" component={Home} />
+						<Redirect from="/home" to="/" />
+						<Route path="/home" component={Home} />
+						<Route path="/developer" component={Developer} />
+						<Route path="/admin" component={Admin} />
+						<Route path="/client" component={Client} />
+						<Route component={NotFound} />
 					</Switch>
 				</main>
 			</BrowserRouter>
