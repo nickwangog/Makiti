@@ -133,7 +133,8 @@ RUN apk update; \
 
 WORKDIR /${PWD}
 ADD . /${PWD}
-RUN pip install futures
-RUN pip install -r requirements.txt
+RUN python setup.py install
+RUN python -m pip install --upgrade pip; \
+RUN pip3 install -r requirements.txt
 
 CMD ["python3"]
