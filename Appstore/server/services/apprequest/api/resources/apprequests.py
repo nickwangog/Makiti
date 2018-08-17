@@ -6,7 +6,7 @@ from api.models import Admin, admin_schema, admins_schema
 from api.models import AppRequest, apprequest_schema, apprequests_schema
 from api.response import Response as res
 
-#   /api/admin/apprequest
+#   /api/apprequest/
 #   Request body should contain developerid, appid, requesttype
 #   Example: {"developer": 14, "application": 3, "requesttype" : 1}
 #   For requesttype: 1 = Create, 2 = Update
@@ -23,7 +23,7 @@ class apiAppRequest(Resource):
         db.session.commit()
         return res.postSuccess("Request succesfully created.", apprequest_schema.dump(apprequest).data)
 
-#   /api/admin/apprequest/:appId
+#   /api/apprequest/:appId
 class apiAppRequests(Resource):
     def get(self, appId):
         query = AppRequest.query.filter_by(application=appId).all()
@@ -34,7 +34,7 @@ class apiAppRequests(Resource):
             return res.internalServiceError(error)
         return res.getSuccess("Requests for app {} retrieved".format(appId), apprequests)
 
-#   /api/admin/apprequest/:developerId
+#   /api/apprequest/:developerId
 class apiDeveloperRequests(Resource):
     def get(self, developerId):
         query = AppRequest.query.filter_by(developer=developerId).all()
@@ -45,7 +45,7 @@ class apiDeveloperRequests(Resource):
             return res.internalServiceError(error)
         return res.getSuccess("Requests made by developer {} retrieved".format(developerId), developerrequests)
 
-#   /api/admin/apprequest/:requestId/action
+#   /api/apprequest/:requestId/action
 #   This endpoint is called from admin portal when request is approved, denied, etc.
 #   Need to provide action (Integer ranging from (1 - 5)) in body
 #   1 = Pending, 2 = Approved, 3 = "Denied", 4 = "Error", 5 = "Corrupted (error, virus)"

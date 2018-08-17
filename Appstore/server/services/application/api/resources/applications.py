@@ -1,4 +1,5 @@
 #import json
+import requests
 from flask import request
 from flask_restful import Resource
 from api.app import db
@@ -8,12 +9,13 @@ from api.response import Response as res
 
 #   /api/application
 #   Requires in request body to provide app: name, zipbinary, version
-#   Example {"appname": "Makiti", "appzipb": binary, "version": 0.01}
+#   Example {"developerid": 5, "appname": "Makiti", "appzipb": binary, "version": 0.01}
 class apiApplication(Resource):
     def post(self):
         data = request.get_json()
-        if not data or not data.get('appname') or not data.get('appzipb'):
+        if not data or not data.get('developerid') or not data.get('appname') or not data.get('appzipb'):
             return res.badRequestError("Missing data to process request")
+        
         #   check app name if already exists
         query = Application.query.filter_by(appname=data.get('appname')).first()
         if query is not None:
@@ -22,13 +24,31 @@ class apiApplication(Resource):
         #   -----------------
         #   Call service to validate security of binary
         #   -----------------
-
+        
+        #   Validate data and save application to database
         appdetails = {"appname": data.get('appname'), "appzipb": data.get('appzipb'), "version": data.get('version')}
         newapp, error = application_schema.load(appdetails)
         if error:
             return res.internalServiceError(error)
         db.session.add(newapp)
         db.session.commit()
+        query = Application.query.filter_by(appname=data.get('appname')).first()
+        if not query:
+            return res.internalServiceError("Unable to create application {}.".format(data.get("appname")))
+        
+        #   Add permission to developer over created application
+        appdeveloperdetails = { "appid": query.id, "developerid" :data.get("developerid")}
+        newappdeveloper, error = application_schema.load(appdeveloperdetails)
+        if error:
+            return res.badRequestError(error)
+        db.session.add(newappdeveloper)
+        db.session.commit()
+
+        #   -------------------
+        #   Call service apprequest to create a request to review app
+        apprequestRes = requests.post("url to apprequest service")
+        #   -------------------
+
         return res.getSuccess("Succesfully created application.", application_schema.dump(newapp).data)
 
 #   /api/application/:appId
@@ -43,7 +63,7 @@ class apiApplicationbyId(Resource):
 
         return res.getSuccess(application_schema.dump(query).data)
     
-    #   Requires in request body to provide app: zipbinary, version
+    #   Requires in request body to provide app: zipbinary, configfile, version
     #   Example {"appzipb": binary, "version": 0.01}
     def put(self, appId):
         data = request.get_json()
@@ -60,10 +80,18 @@ class apiApplicationbyId(Resource):
         app.version = data.get('version')
         #   -----------------
         #   Call service to validate security of binary
+        requests.post("url to servicevalidate binary")
         #   -----------------
         app.appzipb = data.get('appzipb')
         app.checksum = "hey" # replace with the return of the call service to validate binary
+
         db.session.commit()
+        
+        #   -------------------
+        #   Call service apprequest to create a request to review app
+        apprequestRes = requests.post("url to apprequest service")
+        #   -------------------
+        
         return res.getSuccess("{} data uploaded successfully.".format(app.appname))
 
     
@@ -93,7 +121,7 @@ class apiAppLaunch(Resource):
         app.active = True
         db.session.commit()
 
-        return res.putSuccess("{} v.{} succesfully launched. Details in MakitiAppStore".format(app.appname, app.version))
+        return res.putSuccess("{} v.{} succesfully launched. Available in MakitiAppStore".format(app.appname, app.version))
 
 #   /api/application/developeradd/:appId
 #   Requires in request to provide developer email in request body to allow developer access to the specified app
