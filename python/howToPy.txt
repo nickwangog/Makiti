@@ -1,0 +1,7 @@
+How to run the py
+
+1 open the terminal run
+
+ssh makitipi.local
+user pi
+password: ....
