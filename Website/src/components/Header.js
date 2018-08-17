@@ -8,7 +8,7 @@ import BannerImg from '../static/images/Makiti_Banner_LargerFont.png';
 const HeaderLink = ({ children, ...props }) => (
 	<NavLink
 		exact
-		className="p1 mx2 black text-decoration-none rounded"
+		className="p1 mx1 gray text-decoration-none rounded"
 		activeClassName="bg-blue"
 		{...props}
 	>
