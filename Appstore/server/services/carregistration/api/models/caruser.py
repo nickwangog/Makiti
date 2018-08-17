@@ -7,8 +7,8 @@ class CarUser(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     car = db.Column(db.Integer, nullable=False)
-    user = db.Column(db.Integer, nullable=False)
-    usercreated = db.Column(db.Datetime, nullable=False, server_default=sa.func.now())
+    customer = db.Column(db.Integer, nullable=False)
+    created = db.Column(db.Datetime, nullable=False, server_default=sa.func.now())
 
     def __init__(self, car, user):
         self.car = car
