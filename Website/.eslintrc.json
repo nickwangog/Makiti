@@ -1,0 +1,25 @@
+{
+    "extends": [
+    	"airbnb"
+    ],
+	"parser": "babel-eslint",
+	"env": {
+		"es6": true,
+		"browser": true
+	},
+	"globals": {
+		"API_URL": true
+	},
+	"rules": {
+		"react/destructuring-assignment": 0, // MAYBE DELETE THIS ONE LATER
+		"jsx-a11y/click-events-have-key-events": 0,
+		"jsx-a11y/no-noninteractive-element-interactions": 0,
+		"react/jsx-filename-extension": 0,
+		"react/forbid-prop-types": 0,
+		"react/require-default-props": 0,
+		"react/jsx-indent": [1, "tab"],
+		"react/jsx-indent-props": [1, "tab"],
+		"no-tabs": 0,
+		"indent": [1, "tab"]
+	}
+}
