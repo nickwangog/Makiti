@@ -11,16 +11,16 @@ configure(app, 'test')
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-customerBP = Blueprint('admin', __name__)
-customerAPI = Api(customerBP)
+adminBP = Blueprint('admin', __name__)
+adminAPI = Api(adminBP)
 
 from .routes import initRoutes
 
 #	Initialize Customer API routes
-initRoutes(customerAPI)
+initRoutes(adminAPI)
 
 #	Register blueprints
-app.register_blueprint(customerBP, url_prefix="/admin")
+app.register_blueprint(adminBP, url_prefix="/admin")
 
 #	When you need to create a local postgres database for testing
 with app.app_context():
