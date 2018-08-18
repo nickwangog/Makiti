@@ -5,3 +5,9 @@
 	border-color: WhiteSmoke;
 	border-width: 5px;
 }
+
+.border-grey {
+	border-style: inset;
+	border-color: darkgrey;
+	border-width: 5px;
+}
