@@ -5,7 +5,7 @@
 #
 
 FROM alpine:3.8
-
+LABEL maintainer="Lamine kaba laminekaba@outlook.com"
 # ensure local python is preferred over distribution python
 ENV PATH /usr/local/bin:$PATH
 
@@ -129,12 +129,19 @@ RUN set -ex; \
 RUN apk update; \
 	apk upgrade; \
 	apk add build-base; \
-	ln -s /usr/include/locale.h /usr/include/xlocale.h
+	ln -s /usr/include/locale.h /usr/include/xlocale.h;\
+	apk add git
+	
+RUN apk add --update \
+      vim \
+    && rm -fr /var/cache/apk/*
 
 WORKDIR /${PWD}
 ADD . /${PWD}
-RUN python setup.py install
-RUN python -m pip install --upgrade pip; \
-RUN pip3 install -r requirements.txt
+
+RUN apk update \
+  && apk add --virtual build-deps gcc python3-dev musl-dev \
+  && apk add postgresql-dev &&\
+  pip install -r requirements.txt
 
 CMD ["python3"]
