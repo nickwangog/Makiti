@@ -1,1 +1,1 @@
-from .admins import *
+from .accounts import *
