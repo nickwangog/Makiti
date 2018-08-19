@@ -1,10 +1,12 @@
 from keywords import keywords
 
-def checkLine(s, line_number):
+
+def checkLine(s, line_number, path):
     for key in keywords:
         if s.find(key) != -1:
-            print "Restricted code found in line", line_number
-            quit()
+            print "Restricted code found in line", line_number, "of", path
+            return 0
+    return 1
 
 def checkFile(path):
     with open(path, 'r') as test_file:
@@ -13,6 +15,6 @@ def checkFile(path):
         i = 0
         for s in line:
             i += 1
-            checkLine(s, i)
-
-checkFile("sample.py")
+            if checkLine(s, i, path) == 0:
+                return 0
+    return 1
