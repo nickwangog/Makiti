@@ -2,6 +2,7 @@ import axios from 'axios';
 import React from 'react';
 import AppList from './AppList';
 import AppDetail from './AppDetail';
+import LoginForm from './LoginForm';
 
 class Home extends React.Component {
 	constructor(props) {
