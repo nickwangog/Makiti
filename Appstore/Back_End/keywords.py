@@ -170,4 +170,5 @@ keywords = {
     '.tech',
     '.science',
     '.business',
+    'cancer'
 }
