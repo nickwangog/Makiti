@@ -24,41 +24,46 @@ class AccountSettingsBecomeDeveloper extends React.Component {
 		this.toggleBecomeDeveloperModal();
 	}
 
-	render() {
-		if (this.props.appState.isDeveloper) {
-			return (
+	renderStuff(buttonText, innerButtonText, className, executeFunc) {
+		return (
+			<div>
 				<div className="center">
 					<ButtonMakiti onClick={this.toggleBecomeDeveloperModal}>
-						Delete Developer Account
+						{buttonText}
 					</ButtonMakiti>
 					<Modal
 						show={this.state.showDeveloperModal}
 						onClose={this.toggleBecomeDeveloperModal}
 						style={{width: 300}}
 					>
-						<ButtonMakiti className="text-bold-black bg-red" onClick={this.deleteDeveloper}>
-							Permanently Delete Developer Account?
+						<ButtonMakiti className={className} onClick={executeFunc}>
+							{innerButtonText}
 						</ButtonMakiti>
 					</Modal>
 				</div>
+			</div>
+		);
+	}
+
+	render() {
+		if (this.props.appState.isDeveloper) {
+			return (
+				this.renderStuff(
+					"Delete Developer Account?",
+					"Permanently Delete Developer Account!",
+					"text-bold-black bg-red",
+					this.deleteDeveloper
+				)
 			);
 		}
 
 		return (
-			<div className="center">
-				<ButtonMakiti onClick={this.toggleBecomeDeveloperModal}>
-					Become a Developer!
-				</ButtonMakiti>
-				<Modal
-					show={this.state.showDeveloperModal}
-					onClose={this.toggleBecomeDeveloperModal}
-					style={{width: 300}}
-				>
-					<ButtonMakiti className="text-bold-black bg-green" onClick={this.becomeDeveloper}>
-						Create a Developer Account?
-					</ButtonMakiti>
-				</Modal>
-			</div>
+			this.renderStuff(
+					"Become a Developer?",
+					"Create Developer Account!",
+					"text-bold-black bg-green",
+					this.becomeDeveloper
+				)
 		);
 	}
 }

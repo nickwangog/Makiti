@@ -27,9 +27,12 @@ class AccountSettings extends React.Component {
 		}
 
 		return (
-			<div className="flex flex-column justify-center">
-				<AccountSettingsDelete appState={appState} onDelete={this.toggleRedirect} />
-				<AccountSettingsBecomeDeveloper appState={appState} />
+			<div>
+				<h2 className="h2">Account Settings</h2>
+				<div className="flex flex-column justify-center">
+					<AccountSettingsDelete appState={appState} onDelete={this.toggleRedirect} />
+					<AccountSettingsBecomeDeveloper appState={appState} />
+				</div>
 			</div>
 		);
 	}
