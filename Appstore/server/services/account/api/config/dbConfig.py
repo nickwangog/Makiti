@@ -1,10 +1,10 @@
 class dbTest ():
     module = "postgresql+psycopg2://"
     username = "dmontoya:"
-    password = ""
-    address = "@127.0.0.1"
+    password = "Makiti@2019"
+    address = "@192.168.99.100"
     port = ":5432"
-    dbname = "/adminservice"
+    dbname = "/accountservice"
     environment = "test"
 
 class dbProduction ():
@@ -32,3 +32,5 @@ def dbConnection(environment):
         return (dbProduction.module + dbProduction.username + dbProduction.password + dbProduction.address + dbProduction.port + dbProduction.dbname)
     else:
         return (dbTest.module + dbTest.username + dbTest.password + dbTest.address + dbTest.port + dbTest.dbname)
+#docker-machine makiti ip
+#docker exec -it postgres-mki bash
