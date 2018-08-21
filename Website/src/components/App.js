@@ -8,11 +8,17 @@ import {
 
 // React pages
 import PrivateRoute from './PrivateRoute';
+
 import Header from './Header';
+
+// Main Routes
 import Home from './Home';
+import Client from './Client';
 import Developer from './Developer';
 import Admin from './Admin';
-import Client from './Client';
+import AccountSettings from './AccountSettings';
+
+// Not found route
 import NotFound from './NotFound';
 
 
@@ -25,6 +31,9 @@ class App extends React.Component {
 			isClient: false,
 			isDeveloper: false,
 			isAdmin: false,
+			logout: this.logout,
+			becomeDeveloper: this.becomeDeveloper,
+			deleteDeveloper: this.deleteDeveloper,
 		};
 	}
 
@@ -73,6 +82,23 @@ class App extends React.Component {
 		));
 	}
 
+	logout = () => {
+		this.setState({
+			isClient: false,
+			isDeveloper: false,
+			isAdmin: false,
+		})
+	}
+
+	becomeDeveloper = () => {
+		// Insert functionality to become developer
+		this.setState(() => ({ isDeveloper: true }));
+	}
+
+	deleteDeveloper = () => {
+		this.setState(() => ({ isDeveloper: false }))
+	}
+
 	render() {
 		const { isClient, isDeveloper, isAdmin } = this.state;
 		const authFunc = {
@@ -83,6 +109,7 @@ class App extends React.Component {
 			authAdmin: this.authenticateAdmin,
 			deAuthAdmin: this.deAuthenticateAdmin,
 		}
+		const isClientOrDev = isClient || isDeveloper;
 
 		return (
 			<Router>
@@ -91,9 +118,10 @@ class App extends React.Component {
 					<Switch>
 						<Route exact path="/" component={Home} />
 						<Redirect from="/home" to="/" />
-						<PrivateRoute path="/client" component={Client} accessCheck={isClient} />
-						<PrivateRoute path="/developer" component={Developer} accessCheck={isDeveloper} />
-						<PrivateRoute path="/admin" component={Admin} accessCheck={isAdmin} />
+						<PrivateRoute path="/client" accessCheck={isClient} component={Client} />
+						<PrivateRoute path="/developer" accessCheck={isDeveloper} component={Developer} />
+						<PrivateRoute path="/admin" accessCheck={isAdmin} component={Admin}  />
+						<PrivateRoute path="/accountsettings" accessCheck={isClient} render={() => (<AccountSettings appState={this.state} />)} accessCheck={isClientOrDev} />
 						<Route component={NotFound} />
 					</Switch>
 				</main>
