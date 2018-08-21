@@ -20,6 +20,7 @@ class PrivateRoute extends React.Component {
 				<Redirect to='/home' />
 			);
 		}
+
 		return (
 			<Route {...routeStuff} />
 		);
