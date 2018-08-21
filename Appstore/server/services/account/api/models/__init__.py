@@ -1,2 +1,1 @@
-from .admin import *
-from .apprequest import *
+from .account import *
