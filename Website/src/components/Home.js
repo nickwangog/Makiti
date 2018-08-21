@@ -2,6 +2,7 @@ import axios from 'axios';
 import React from 'react';
 import AppList from './AppList';
 import AppDetail from './AppDetail';
+import LoginForm from './LoginForm';
 
 class Home extends React.Component {
 	constructor(props) {
@@ -58,7 +59,7 @@ class Home extends React.Component {
 
 		return (
 			<div>
-				<main className="px2 flex">
+				<main className="p2 flex">
 					<AppList
 						apps={apps}
 						style={{ flex: 3 }}
