@@ -1,3 +1,10 @@
+/* Installed css classes */
+@import "basscss";
+@import "basscss-colors";
+@import "basscss-background-colors";
+
+@import "./fonts";
+
 /* Any other, extra custom css styles you want to add to basscss */
 
 .pointer {
@@ -9,5 +16,68 @@
 	height: 50%;
 	max-width: 800px; 
 	max-height: 300px;
-	box-shadow: 0 0 8px 8px grey inset;
+}
+
+/*	MODAL WINDOW HANDLING */
+
+.modal-background {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgba(0,0,0,0.4);
+	padding-top: 20%;
+}
+
+.modal-window {
+	background-color: #4a4a4a;
+	border-radius: 15px;
+	margin: 0 auto;
+	padding: 20px;
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+    from {opacity:0} 
+    to {opacity:1}
+}
+
+@keyframes animatetop {
+    from {opacity:0}
+    to {opacity:1}
+}
+
+.modal-header {
+	text-align: right;
+}
+
+.login-input {
+	width: 100%;
+	font-family: 'Montserrat';
+	font-size: 1.4em;
+}
+
+.button-makiti {
+	padding: 8px 14px 8px 14px;
+	margin: 8px 14px 8px 14px;
+	color: gray;
+	text-decoration: none;
+	border: 2px solid darkgray;
+	border-radius: 8px;
+	cursor: pointer;
+	font-family: 'Montserrat';
+	font-size: 0.8em;
+}
+
+/* custom colors */
+
+.bg-mediumgray {
+	background-color: #303030;
+}
+
+.bg-lightgray {
+	background-color: #dddddd;
 }

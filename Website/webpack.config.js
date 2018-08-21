@@ -9,7 +9,8 @@ module.exports = {
 	entry: './index.js',
 	output: {
 		path: path.join(__dirname, 'dist'),
-		filename: './bundle.js'
+		filename: './bundle.js',
+		publicPath: '/'
 	},
 	mode: 'development',
 	module: {
@@ -17,7 +18,7 @@ module.exports = {
 			{
 				test: /\.js$/,
 				loader: 'babel-loader',
-				exclude: /node_modules/
+				exclude: /node_modules/,
 			},
 			{
 				test: /\.css$/,
@@ -40,5 +41,5 @@ module.exports = {
 		new webpack.DefinePlugin({
 			API_URL: JSON.stringify(process.env.API_URL)
 		})
-	]
+	],
 }
