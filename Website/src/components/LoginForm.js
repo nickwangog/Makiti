@@ -6,10 +6,10 @@ const LoginInput = ({
 }) => {
 	const { name } = {...props}
 	return (
-		<div className="px2 fit max-width-1">
+		<div className="fit">
 			<h5 className="h5">{name}</h5>
 			<input
-				className=""
+				className="login-input"
 				{...props}
 			/>
 		</div>
@@ -24,7 +24,10 @@ class LoginForm extends React.Component {
 		this.state = {
 			username: '',
 			password: '',
-			errors: {},
+			errors: {
+				username: null,
+				password: null,
+			},
 		}
 	}
 
@@ -32,6 +35,15 @@ class LoginForm extends React.Component {
 		e.preventDefault();
 		const { authClient, authDeveloper, authAdmin } = this.props.authFunc;
 		authClient(this.state.username, this.state.password);
+		// If successful close the parent modal
+		if (true) { // success placeholder)
+			this.props.onSuccess();
+		}
+	}
+
+	signUp = (e) => {
+		e.preventDefault();
+		console.log(e);
 	}
 
 	onChange = (e) => {
@@ -44,10 +56,10 @@ class LoginForm extends React.Component {
 
 	render () {
 		const { username, password, errors } = this.state;
- 
+
 		return (
 			<form>
-				<h2 className="h2 px2 flex">Login</h2>
+				<h2 className="h2">Login</h2>
 				<LoginInput
 					autoFocus
 					name="username"
@@ -60,12 +72,22 @@ class LoginForm extends React.Component {
 					value={password}
 					onChange={this.onChange}
 				/>
-				<button
-					className="btn btn-primary button-makiti"
-					onClick={this.onSubmit}
-				>
-					Login
-				</button>
+				<div className="flex justify-around">
+					<button
+						className="btn btn-primary button-makiti"
+						onClick={this.onSubmit}
+					>
+						Login
+					</button>
+					<button
+						className="btn btn-primary button-makiti"
+						onClick={this.signUp}
+					>
+						Sign Up
+					</button>
+				</div>
+				<div className="error-text">
+				</div>
 			</form>
 		);
 	}

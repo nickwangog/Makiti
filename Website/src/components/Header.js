@@ -15,8 +15,8 @@ const HeaderLink = ({
 	show ?
 		<NavLink
 			exact
-			className="p1 mx1 gray text-decoration-none rounded"
-			activeClassName="bg-blue"
+			className="button-makiti"
+			activeClassName="bg-white"
 			{...props}
 		>
 			{children}
@@ -36,7 +36,7 @@ const LogInModalButton = (props) => {
 			className="button-makiti"
 			onClick={props.toggleLoginModal}
 		>
-			Log in!
+			Log in / Sign Up
 		</button>
 	);
 }
@@ -56,17 +56,19 @@ class LogOutButton extends React.Component {
 	render() {
 		const { show, authFunc } = this.props;
 
-		return (
-			show ? 
+		if (show) {
+			return (
 				<button
 					type="button"
-					className="p1 mx1 gray text-decoration-none rounded pointer"
+					className="button-makiti"
 					onClick={this.logOut}
 				>
 					Log out!
 				</button>
-				: null
-		);
+			);
+		}
+
+		return null;
 	}
 }
 
@@ -89,21 +91,19 @@ class Header extends React.Component {
 
 		return (
 			<header className="justify-center">
-				<div className="center">
+				<div className="center bg-black">
 					<img
 						className="banner-image"
 						src={BannerImg}
 						alt="BannerImg"
 					/>
 				</div>
-				<div className="flex justify-around py1">
-					<LogInModalButton
-						show={!(isC || isD || isA)}
-						toggleLoginModal={this.toggleLoginModal}
-					/>
+				<div className="flex justify-around py1 bg-mediumgray">
+					<LogInModalButton show={!(isC || isD || isA)} toggleLoginModal={this.toggleLoginModal} />
 					<Modal
 						show={this.state.loginModalIsOpen}
 						onClose={this.toggleLoginModal}
+						style={{ width: 300 }}
 					>
 						<LoginForm {...this.props} onSuccess={this.toggleLoginModal} />
 					</Modal>

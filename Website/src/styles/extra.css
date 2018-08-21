@@ -18,6 +18,8 @@
 	max-height: 300px;
 }
 
+/*	MODAL WINDOW HANDLING */
+
 .modal-background {
 	position: fixed;
 	top: 0;
@@ -25,15 +27,37 @@
 	left: 0;
 	right: 0;
 	background-color: rgba(0,0,0,0.4);
-	padding: 50;
+	padding-top: 20%;
 }
 
 .modal-window {
 	background-color: #4a4a4a;
-	border-radius: 5px;
-	max-width: 500px;
-	margin:  0 auto;
-	padding: 30px;
+	border-radius: 15px;
+	margin: 0 auto;
+	padding: 20px;
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+    from {opacity:0} 
+    to {opacity:1}
+}
+
+@keyframes animatetop {
+    from {opacity:0}
+    to {opacity:1}
+}
+
+.modal-header {
+	text-align: right;
+}
+
+.login-input {
+	width: 100%;
+	font-family: 'Montserrat';
+	font-size: 1.4em;
 }
 
 .button-makiti {
@@ -46,4 +70,14 @@
 	cursor: pointer;
 	font-family: 'Montserrat';
 	font-size: 0.8em;
+}
+
+/* custom colors */
+
+.bg-mediumgray {
+	background-color: #303030;
+}
+
+.bg-lightgray {
+	background-color: #dddddd;
 }

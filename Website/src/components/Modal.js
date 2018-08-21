@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 
 class Modal extends React.Component {
 	constructor(props) {
@@ -11,16 +12,15 @@ class Modal extends React.Component {
 		}
 
 		return (
-			<div className="modal-background flex">
-				<div className="modal-window">
-					{this.props.children}
-					<div className="footer">
-						<button
-							onClick={this.props.onClose}
-							className="button-makiti"
-						>
-							Close
+			<div className="modal-background">
+				<div className="modal-window" style={this.props.style}>
+					<div className="modal-header">
+						<button onClick={this.props.onClose} className="button-makiti">
+							X
 						</button>
+					</div>
+					<div>
+						{React.cloneElement(this.props.children, { modalProps: this.props })}
 					</div>
 				</div>
 			</div>

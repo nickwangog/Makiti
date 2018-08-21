@@ -59,7 +59,7 @@ class Home extends React.Component {
 
 		return (
 			<div>
-				<main className="px2 flex">
+				<main className="p2 flex">
 					<AppList
 						apps={apps}
 						style={{ flex: 3 }}
