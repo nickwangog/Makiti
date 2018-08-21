@@ -5,10 +5,12 @@ import {
 	Switch,
 	Redirect,
 } from 'react-router-dom';
+import axios from 'axios';
 
 // React pages
 import PrivateRoute from './PrivateRoute';
 
+// Header
 import Header from './Header';
 
 // Main Routes
@@ -22,7 +24,6 @@ import AccountSettings from './AccountSettings';
 import NotFound from './NotFound';
 
 
-
 // Main App handles the Routing
 class App extends React.Component {
 	constructor(props) {
@@ -31,20 +32,41 @@ class App extends React.Component {
 			isClient: false,
 			isDeveloper: false,
 			isAdmin: false,
+			accountDetails: {
+				id: 0,
+				username: null,
+				firstname: null,
+				lastname: null,
+			},
 			logout: this.logout,
 			becomeDeveloper: this.becomeDeveloper,
 			deleteDeveloper: this.deleteDeveloper,
 		};
 	}
 
-	authenticateClient = (login, pass, cb) => {
+	authenticateClient = (login, pass) => {
 		// Do something to check login and pass
-		this.setState((state) => (
-			{ isClient: true }
-		));
-		if (this.state.isClient == true) {
-			cb();
-		}
+		axios.post(`${API_URL}/account/login`, {
+				username: login,
+				password: pass,
+			})
+			.then(response => {
+				const { data } = response.data;
+				this.setState(() => ({
+					isClient: data.customer,
+					isDeveloper: data.developer,
+					isAdmin: data.admin,
+					accountDetails: {
+						id: data.id,
+						username: data.login,
+						firstname: data.firstname,
+						lastname: data.lastname,
+					}
+				}));
+			})
+			.catch(err => {
+				console.log("ERROR", err)
+			});
 	}
 
 	deAuthenticateClient = () => {
@@ -83,11 +105,17 @@ class App extends React.Component {
 	}
 
 	logout = () => {
-		this.setState({
+		this.setState(() => ({
 			isClient: false,
 			isDeveloper: false,
 			isAdmin: false,
-		})
+			accountDetails: {
+				id: 0,
+				username: null,
+				firstname: null,
+				lastname: null,
+			},
+		}))
 	}
 
 	becomeDeveloper = () => {
