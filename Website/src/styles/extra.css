@@ -70,12 +70,19 @@
 	cursor: pointer;
 	font-family: 'Montserrat';
 	font-size: 0.8em;
+	text-align: center;
 }
 
 /* custom colors */
 
 .bg-mediumgray {
 	background-color: #303030;
+}
+
+.text-bold-black {
+	font-style: bold;
+	font-size: 1.1em;
+	color: black;
 }
 
 .bg-lightgray {

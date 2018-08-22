@@ -56,19 +56,19 @@ class LogOutButton extends React.Component {
 	render() {
 		const { show, authFunc } = this.props;
 
-		if (show) {
-			return (
-				<button
-					type="button"
-					className="button-makiti"
-					onClick={this.logOut}
-				>
-					Log out!
-				</button>
-			);
+		if (!show) {
+			return null;
 		}
 
-		return null;
+		return (
+			<button
+				type="button"
+				className="button-makiti"
+				onClick={this.logOut}
+			>
+				Log out!
+			</button>
+		);
 	}
 }
 
@@ -107,31 +107,22 @@ class Header extends React.Component {
 					>
 						<LoginForm {...this.props} onSuccess={this.toggleLoginModal} />
 					</Modal>
-					<LogOutButton show={isC || isD || isA} authFunc={authFunc} />
-					<HeaderLink
-						to="/"
-						show={isC || isD || isA}
-					>
+					<HeaderLink to="/" show={isC || isD || isA}>
 						Home
 					</HeaderLink>
-					<HeaderLink
-						to="/Client"
-						show={isC}
-					>
+					<HeaderLink to="/Client" show={isC}>
 						My Apps
 					</HeaderLink>
-					<HeaderLink
-						to="/Developer"
-						show={isD}
-					>
+					<HeaderLink to="/Developer" show={isD}>
 						Developers
 					</HeaderLink>
-					<HeaderLink
-						to="/Admin"
-						show={isA}
-					>
+					<HeaderLink to="/Admin" show={isA}>
 						Admin
 					</HeaderLink>
+					<HeaderLink to="/AccountSettings" show={isC}>
+						Account Settings
+					</HeaderLink>
+					<LogOutButton show={isC || isD || isA} authFunc={authFunc} />
 				</div>
 			</header>
 		);
