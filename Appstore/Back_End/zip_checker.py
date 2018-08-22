@@ -4,6 +4,7 @@ import authenticate
 import gzip
 import shutil
 
+os.system("pip install --upgrade pip")
 path ='/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder'
 list_of_zips = open('test.txt', 'r+w')
 contents = list_of_zips.readlines()
@@ -18,7 +19,6 @@ for filename in glob.glob(os.path.join(path, '*.gz')):
         zip_contents.write("%s\n" % file_content)
         f.close()
         if authenticate.checkFile("zip_contents.txt") == 1:
-             print ("installed " + filename)
-            #install it 
+            os.system("pip install " + filename)
+            print ("installed " + filename)
    
-# print(contents)
