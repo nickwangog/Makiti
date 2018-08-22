@@ -8,12 +8,14 @@ class Car(db.Model):
     vin = db.Column(db.Text, nullable=False)
     carmodel = db.Column(db.Integer, nullable=False)
     raspbpi = db.Column(db.Integer, nullable=False)
+    piIP = db.Column(db.String(25), nullable=False)
     registereddate = db.Column(db.Datetime)
 
-    def __init__(self, vin, carmodel, raspbpi):
+    def __init__(self, vin, carmodel, raspbpi, piIP):
         self.vin = vin
         self.carmodel = carmodel
         self.raspbpi = raspbpi
+        self.piIP = piIP
 
 class CarSchema(ma.ModelSchema):
     class Meta:

@@ -14,7 +14,6 @@ class apiAccount(Resource):
         data = request.get_json()
         if not data or not data.get("firstname") or not data.get("lastname") or not data.get("username") or not data.get("password"):
             return res.badRequestError("Missing information to process account creation.")
-        
         #   check username is unique
         query = Account.query.filter_by(username=data.get("username")).first()
         if query:
@@ -26,7 +25,7 @@ class apiAccount(Resource):
             return res.internalServiceError(error)
         db.session.add(newAccount)
         db.session.commit()
-        return res.postSuccess("Account succesfully created for username {}.".format(newAccount.username), newAccount)
+        return res.postSuccess("Account succesfully created for username {}.".format(newAccount.username), account_schema.dump(newAccount).data)
 
 #   /api/account/login
 #   Requires in request body: username, password
@@ -37,11 +36,12 @@ class apiLogin(Resource):
         data = request.get_json()
         if not data or not data.get("username") or not data.get("password"):
             return res.badRequestError("Missing information to login user.")
-        
         #   Verifies user exists in database
-        query = Account.query.filter_by(username=data.get("username"), password=data.get("password")).first()
+        query = Account.query.filter_by(username=data.get("username")).first()
         if not query:
             return res.badRequestError("Incorrect login information.")
+        if query.password != data.get("password"):
+            return res.resourceMissing("Incorrect password for user {}.".format(query.username))
         return res.postSuccess(data=account_schema.dump(query).data)
 
 #   /api/account/:accountId
@@ -83,4 +83,4 @@ class apiAccountActions(Resource):
             return res.resourceMissing("No account with id {} was found.".format(accountId))
         queryAccount.active = False
         db.session.commit()
-        return res.deleteSuccess("Account {} deleted.".format(accountId))
+        return res.deleteSuccess("Account {} with username {} deleted.".format(accountId, queryAccount.username))
