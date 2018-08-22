@@ -35,9 +35,9 @@ class apiAdminRegisterCar(Resource):
         return res.postSuccess("Successful car added to database.", newCar)
 
 #   api/carregistration/customer/:customerId
-#   Requires data in request body for 'PUT' method
+#   Requires data in request body for 'POST' method
 #   Example: {"carid": 3}
-class apiCustomerCar(Resource):
+class apiRegisterCustomerCar(Resource):
     def get(self, customerId):
         query = CarUser.query.filter_by(id=customerId).all()
         if query is None:
@@ -47,13 +47,16 @@ class apiCustomerCar(Resource):
         usercars, error = carusers_schema.dump(query)
         if error:
             return res.internalServiceError(error)
-        cars = []
+        customerCars = []
         for usercar in usercars:
             car = Car.query.filter_by(id=usercar["car"]).first()
-            cars.append(car_schema.dump(car).data)
-        return res.getSuccess("Cars registered by customer {}.".format(customerId), cars)
+            if not car:
+                return res.resourceMissing("No data found for car type {}.".format(usercar["car"]))
+            usercar["cardetails"] = car_schema.dump(car).data
+            customerCars.append(usercar)
+        return res.getSuccess("Cars registered by customer {}.".format(customerId), customerCars)
     
-    def put(self, customerId):
+    def post(self, customerId):
         data = request.get_json()
 
         #   Verifying data required for endpoint was given
@@ -78,3 +81,27 @@ class apiCustomerCar(Resource):
         db.session.add(newCarUser)
         db.session.commit()
         return res.postSuccess("Car {} registered to customer {}".format(data.get("carid"), customerId))
+
+#   /api/carregistration/caruser/:caruserId
+class apiCustomerCar(Resource):
+    def get(self, caruserId):
+        queryCarUser = CarUser.query.filter_by(id=caruserId).first()
+
+        #   Verifies car and customer registration exists
+        if not queryCarUser:
+            return res.resourceMissing("No data found for car registration.")
+
+        queryCar = Car.query.filter_by(id=queryCarUser.car).first()
+
+        #   Verifies car type data is available on database 
+        #   (if fails this is an internal error, because data from model was deleted from database)
+        if not queryCar:
+            return res.resourceMissing("No data found for car type {}.".format(queryCarUser.car))
+        
+        caruser, error = caruser_schema.dump(queryCarUser)
+        if error:
+            return res.internalServiceError(error)
+        caruser["cardetails"] = car_schema.dump(queryCar).data
+        return res.getSuccess("Succesfully retrieved data for customer car registered.", caruser)
+    
+        

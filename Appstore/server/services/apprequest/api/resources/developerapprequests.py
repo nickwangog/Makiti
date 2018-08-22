@@ -1,16 +1,15 @@
-#import json
+import json
 from flask import request
 from flask_restful import Resource
 from api.app import db
-from api.models import Admin, admin_schema, admins_schema
 from api.models import AppRequest, apprequest_schema, apprequests_schema
 from api.response import Response as res
 
-#   /api/apprequest/
+#   /api/apprequest/developer
 #   Request body should contain developerid, appid, requesttype
 #   Example: {"developer": 14, "application": 3, "requesttype" : 1}
 #   For requesttype: 1 = Create, 2 = Update
-class apiAppRequest(Resource):
+class apiDeveloperAppReviewRequest(Resource):
     def post(self):
         data = request.get_json()
         if not data or not data.get("developer") or not data.get("application") or not data.get("requesttype"):
@@ -34,7 +33,7 @@ class apiAppRequests(Resource):
             return res.internalServiceError(error)
         return res.getSuccess("Requests for app {} retrieved".format(appId), apprequests)
 
-#   /api/apprequest/:developerId
+#   /api/apprequest/developer/:developerId
 class apiDeveloperRequests(Resource):
     def get(self, developerId):
         query = AppRequest.query.filter_by(developer=developerId).all()
@@ -45,13 +44,19 @@ class apiDeveloperRequests(Resource):
             return res.internalServiceError(error)
         return res.getSuccess("Requests made by developer {} retrieved".format(developerId), developerrequests)
 
-#   /api/apprequest/:requestId/action
+#   /api/apprequest/:requestId
 #   This endpoint is called from admin portal when request is approved, denied, etc.
 #   Need to provide action (Integer ranging from (1 - 5)) in body
 #   1 = Pending, 2 = Approved, 3 = "Denied", 4 = "Error", 5 = "Corrupted (error, virus)"
 #   Example: {"action": 1, comment: "whatever"}
 #   comment accepts empty
-class apiAppRequestAction(Resource):
+class apiDeveloperAppRequest(Resource):
+    def get(self, requestId):
+        queryAppRequest = AppRequest.query.filter_by(id=requestId).first()
+        if not queryAppRequest:
+            return res.resourceMissing("No data found for app request #{}.".format(requestId))
+        return res.getSuccess(data=apprequest_schema.dump(queryAppRequest).data)
+
     def put(self, requestId):
         data = request.get_json()
         if not data or not data.get("action"):
