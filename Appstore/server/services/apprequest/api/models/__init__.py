@@ -1,2 +1,2 @@
-from .admin import *
+from .requesttype import *
 from .apprequest import *

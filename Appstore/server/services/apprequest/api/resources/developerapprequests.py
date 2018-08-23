@@ -22,7 +22,7 @@ class apiDeveloperAppReviewRequest(Resource):
         db.session.commit()
         return res.postSuccess("Request succesfully created.", apprequest_schema.dump(apprequest).data)
 
-#   /api/apprequest/:appId
+#   /api/apprequest/application/:appId
 class apiAppRequests(Resource):
     def get(self, appId):
         query = AppRequest.query.filter_by(application=appId).all()
@@ -50,7 +50,7 @@ class apiDeveloperRequests(Resource):
 #   1 = Pending, 2 = Approved, 3 = "Denied", 4 = "Error", 5 = "Corrupted (error, virus)"
 #   Example: {"action": 1, comment: "whatever"}
 #   comment accepts empty
-class apiDeveloperAppRequest(Resource):
+class apiAppRequest(Resource):
     def get(self, requestId):
         queryAppRequest = AppRequest.query.filter_by(id=requestId).first()
         if not queryAppRequest:
