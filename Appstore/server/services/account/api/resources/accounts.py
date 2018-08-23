@@ -50,28 +50,27 @@ class apiLogin(Resource):
 #   Example { "developer": 1 } 1 = true, 0 = false
 class apiAccountActions(Resource):
     def get(self, accountId):
-        query = Account.filter_by(id=accountId).first()
+        query = Account.query.filter_by(id=accountId).first()
         if not query:
             return res.resourceMissing("No account with id {} was found.".format(accountId))
-        return res.getSuccess(account_schema.dump(query).data)
+        return res.getSuccess(data=account_schema.dump(query).data)
     
     def put(self, accountId):
         data = request.get_json()
         if not data:
             return res.badRequestError("No data to update for account {}.".format(accountId))
-        
         queryAccount = Account.query.filter_by(id=accountId).first()
         if not queryAccount:
             return res.resourceMissing("No account with id {} was found.".format(accountId))
-        if data.get("customer"):
+        if "customer" in data.keys():
             queryAccount.customer = not queryAccount.customer
             db.session.commit()
             return res.putSuccess("Account {} has customer priviledges.".format(accountId))
-        if data.get("developer"):
+        if "developer" in data.keys():
             queryAccount.developer = not queryAccount.developer
             db.session.commit()
             return res.putSuccess("Account {} has developer priviledges.".format(accountId))
-        if data.get("admin"):
+        if "admin" in data.keys():
             queryAccount.admin = not queryAccount.admin
             db.session.commit()
             return res.putSuccess("Account {} has admin priviledges.".format(accountId))

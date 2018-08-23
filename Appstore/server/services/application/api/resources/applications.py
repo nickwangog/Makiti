@@ -6,21 +6,45 @@ from api.app import db
 from api.models import Application, application_schema, applications_schema
 from api.models import ApplicationDeveloper, applicationdeveloper_schema, applicationdevelopers_schema
 from api.response import Response as res
+from werkzeug.utils import secure_filename
+ALLOWED_EXTENSIONS = set(['zip', 'gzip'])
+
+def allowedFile(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 #   /api/application
 #   Requires in request body to provide app: name, zipbinary, version
-#   Example {"developerid": 5, "appname": "Makiti", "appzipb": binary, "version": 0.01}
+#   Example {"accountid": 5, "appname": "Makiti", "version": 0.01}
 class apiApplication(Resource):
     def post(self):
-        data = request.get_json()
-        if not data or not data.get('developerid') or not data.get('appname') or not data.get('appzipb'):
-            return res.badRequestError("Missing data to process request")
         
+        data = request.get_json()
+        print(data)
+        print(request.files)
+        if not data or not data.get('accountid') or not data.get('appname') or not data.get('version'):
+            return res.badRequestError("Missing data to process request")
+        print("checking file")
+        if 'file' not in request.files:
+            return res.badRequestError("Missing app file.")
+        file = request.files['file']
+        print("file has name :)")
+        if file.filename == '':
+            return res.badRequestError("No file selected.")
+        print("is this file allowed?")
+        if not file or not allowedFile(file.filename):
+            return res.badRequestError("File not supported. Only {} files are supported.".format(ALLOWED_EXTENSIONS))
+        print("yes it is!")
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         #   check app name if already exists
+        print("file saved!!!!!!!!!!!")
         query = Application.query.filter_by(appname=data.get('appname')).first()
         if query is not None:
             return res.resourceExistsError("App name {} already taken".format(data.get('appname')))
-        
+
+        #   Call service to valide account has developer rights
+
+        #   sstorageurl = 'https://github.com/nickwangog/Makiti/StoreApps/{}/{}'.format(data.get('appname'), data.get("version"))
         #   -----------------
         #   Call service to validate security of binary
         #   -----------------
@@ -37,7 +61,7 @@ class apiApplication(Resource):
             return res.internalServiceError("Unable to create application {}.".format(data.get("appname")))
         
         #   Add permission to developer over created application
-        appdeveloperdetails = { "appid": query.id, "developerid" :data.get("developerid")}
+        appdeveloperdetails = { "appid": query.id, "developerid" :data.get("accountid")}
         newappdeveloper, error = application_schema.load(appdeveloperdetails)
         if error:
             return res.badRequestError(error)
@@ -61,7 +85,7 @@ class apiApplicationbyId(Resource):
         if not query:
             return res.resourceMissing("No application found")
 
-        return res.getSuccess(application_schema.dump(query).data)
+        return res.getSuccess(data=application_schema.dump(query).data)
     
     #   Requires in request body to provide app: zipbinary, configfile, version
     #   Example {"appzipb": binary, "version": 0.01}
