@@ -97,16 +97,3 @@ class apiAppRequest(Resource):
         apprequest = AppRequest.query.filter_by(id=requestId).first()
         apprequest.status = data.get("action")
         return res.putSuccess("Succesfully submitted action for request {}.".format(requestId))
-    
-    #   Handles submit app to app store
-    #   Requires accountid in request body
-    #   Example: {'accountId': 57}
-    def post(self, requestId):
-        # Call application service
-        queryAppRequest = AppRequest.query.filter_by(id=requestId).first()
-        if not queryAppRequest:
-            return res.resourceMissing("App Request {} does not exist.".format(requestId))
-        if queryAppRequest.status is not 2:
-            return res.badRequestError("App is ")
-        applicationData = requests.get("http://localhost:9923/application/{}".format(queryAppRequest.application)).content
-        return res.badRequestError("Not finished!!!!!!!!!!")
