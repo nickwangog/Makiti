@@ -13,9 +13,8 @@
 
 .banner-image {
 	width: 70%;
-	height: 50%;
-	max-width: 800px; 
-	max-height: 300px;
+	height: 40%;
+	max-height: 250px;
 }
 
 /*	MODAL WINDOW HANDLING */
@@ -28,6 +27,7 @@
 	right: 0;
 	background-color: rgba(0,0,0,0.4);
 	padding-top: 20%;
+	overflow: scroll;
 }
 
 .modal-window {
@@ -73,18 +73,90 @@
 	text-align: center;
 }
 
-/* custom colors */
+.dropdown-makiti {
+	float: left;
+	display: block;
+}
+
+.dropdown-content-makiti {
+	display: none;
+    position: absolute;
+    width: 20%;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    background-color: lightgrey;
+    border: 1px solid black;
+    padding: 10px;
+    z-index: 1;
+}
+
+.dropdown-makiti:hover .dropdown-content-makiti {
+	display: block;
+}
+
+.page-header {
+    font-weight: bold;
+    color: #fdfdf8;
+    background-color: firebrick;
+    text-align: center;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.app-list-body {
+	list-style: none;
+}
+
+.app-list-item {
+	border-bottom: 2px solid firebrick;
+	font-family: 'Montserrat';
+	font-size: 1.0rem;
+}
+
+.app-list-item-name {
+	color: #ffffff;
+}
+
+/* BACKGROUND */
 
 .bg-mediumgray {
 	background-color: #303030;
 }
 
+.bg-lightgray {
+	background-color: #dddddd;
+}
+
+.bg-lightsteelblue {
+	background-color: #B0C4DE;
+}
+
+.bg-purple {
+	background-color: #666699;
+}
+
+
+/* TEXT */
 .text-bold-black {
-	font-style: bold;
-	font-size: 1.1em;
+	font-weight: bold;
 	color: black;
 }
 
-.bg-lightgray {
-	background-color: #dddddd;
+.text-purple {
+	color: #8585ad;
+}
+
+.text-bold-whitesmoke {
+	font-weight: bold;
+	color: #F5F5F5;
+}
+
+.text-bold-orange {
+	font-weight: bold;
+	color: orange;
+}
+
+.text-error-red {
+	font-weight: bold;
+	color: red;
+	font-family: 'Montserrat';
 }

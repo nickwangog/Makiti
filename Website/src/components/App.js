@@ -5,7 +5,6 @@ import {
 	Switch,
 	Redirect,
 } from 'react-router-dom';
-import axios from 'axios';
 
 // React pages
 import PrivateRoute from './PrivateRoute';
@@ -29,93 +28,58 @@ class App extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			isClient: false,
-			isDeveloper: false,
-			isAdmin: false,
 			accountDetails: {
 				id: 0,
 				username: null,
 				firstname: null,
 				lastname: null,
+				customer: false,
+				developer: false,
+				admin: false,
 			},
-			logout: this.logout,
+			setAccountDetails: this.setAccountDetails,
+			clearAccountDetails: this.clearAccountDetails,
+			updateAccountDetail: this.updateAccountDetail,
 			becomeDeveloper: this.becomeDeveloper,
 			deleteDeveloper: this.deleteDeveloper,
 		};
 	}
 
-	authenticateClient = (login, pass) => {
-		// Do something to check login and pass
-		axios.post(`${API_URL}/account/login`, {
-				username: login,
-				password: pass,
-			})
-			.then(response => {
-				const { data } = response.data;
-				this.setState(() => ({
-					isClient: data.customer,
-					isDeveloper: data.developer,
-					isAdmin: data.admin,
-					accountDetails: {
-						id: data.id,
-						username: data.login,
-						firstname: data.firstname,
-						lastname: data.lastname,
-					}
-				}));
-			})
-			.catch(err => {
-				console.log("ERROR", err)
-			});
-	}
-
-	deAuthenticateClient = () => {
-		// Do something to check login and pass
-		this.setState((state) => (
-			{ isClient: false }
-		));
-	}
-
-	authenticateDeveloper = (login, pass) => {
-		// Do something to check login and pass
-		this.setState((state) => (
-			{ isDeveloper: true }
-		));
-	}
-
-	deAuthenticateDeveloper = () => {
-		// Do something to check login and pass
-		this.setState((state) => (
-			{ isDeveloper: false }
-		));
-	}
-
-	authenticateAdmin = (login, pass) => {
-		// Do something to check login and pass
-		this.setState((state) => (
-			{ isAdmin: true }
-		));
-	}
-
-	deAuthenticateAdmin = () => {
-		// Do something to check login and pass
-		this.setState((state) => (
-			{ isAdmin: false }
-		));
-	}
-
-	logout = () => {
+	setAccountDetails = (data) => {
 		this.setState(() => ({
-			isClient: false,
-			isDeveloper: false,
-			isAdmin: false,
+			accountDetails: {
+				id: data.id,
+				username: data.login,
+				firstname: data.firstname,
+				lastname: data.lastname,
+				customer: data.customer,
+				developer: data.developer,
+				admin: data.admin,
+			}
+		}));
+	}
+
+	clearAccountDetails = () => {
+		this.setState(() => ({
 			accountDetails: {
 				id: 0,
 				username: null,
 				firstname: null,
 				lastname: null,
+				customer: false,
+				developer: false,
+				admin: false,
 			},
-		}))
+		}));
+	}
+
+	updateAccountDetail = (field, value) => {
+		let currentDetails = { ...this.state.accountDetails };
+		currentDetails[field] = value;
+
+		this.setState({
+			accountDetails: currentDetails,
+		}, () => { console.log(`Updated Account Detail (${field}: ${value})\n\n`, this.state) });
 	}
 
 	becomeDeveloper = () => {
@@ -128,28 +92,20 @@ class App extends React.Component {
 	}
 
 	render() {
-		const { isClient, isDeveloper, isAdmin } = this.state;
-		const authFunc = {
-			authClient: this.authenticateClient,
-			deAuthClient: this.deAuthenticateClient,
-			authDev : this.authenticateDeveloper,
-			deAuthDev: this.deAuthenticateDeveloper,
-			authAdmin: this.authenticateAdmin,
-			deAuthAdmin: this.deAuthenticateAdmin,
-		}
-		const isClientOrDev = isClient || isDeveloper;
+		const { customer: isCus, developer: isDev, admin: isAd } = this.state.accountDetails;
+		const isCusOrDev = isCus || isDev;
 
 		return (
 			<Router>
 				<main>
-					<Header {...this.state} authFunc={authFunc} />
+					<Header {...this.state} />
 					<Switch>
 						<Route exact path="/" component={Home} />
 						<Redirect from="/home" to="/" />
-						<PrivateRoute path="/client" accessCheck={isClient} component={Client} />
-						<PrivateRoute path="/developer" accessCheck={isDeveloper} component={Developer} />
-						<PrivateRoute path="/admin" accessCheck={isAdmin} component={Admin}  />
-						<PrivateRoute path="/accountsettings" accessCheck={isClient} render={() => (<AccountSettings appState={this.state} />)} accessCheck={isClientOrDev} />
+						<PrivateRoute path="/client" accessCheck={isCus} component={Client} />
+						<PrivateRoute path="/developer" accessCheck={true} render={() => (<Developer appState={this.state} />)} />
+						<PrivateRoute path="/admin" accessCheck={isAd} component={Admin}  />
+						<PrivateRoute path="/accountsettings" accessCheck={isCus} render={() => (<AccountSettings appState={this.state} />)} />
 						<Route component={NotFound} />
 					</Switch>
 				</main>

@@ -8,7 +8,10 @@
 		"browser": true
 	},
 	"globals": {
-		"API_URL": true
+		"ACCOUNT_SERVICE": true,
+		"APPLICATION_SERVICE": true,
+		"APP_REQUEST_SERVICE": true,
+		"CAR_REGISTRATION_SERVICE": true,
 	},
 	"rules": {
 		"react/destructuring-assignment": 0, // MAYBE DELETE THIS ONE LATER
