@@ -1,4 +1,5 @@
 import json
+import subprocess
 from flask import request
 from flask_restful import Resource
 from api.app import db
@@ -16,6 +17,8 @@ class apiDeveloperAppReviewRequest(Resource):
             return res.badRequestError("Missing data to create app request")
         requestDetails = {"developer" : data.get("developer"), "application": data.get("application"), "requesttype": data.get("requesttype")}
         apprequest, error = apprequest_schema.load(requestDetails)
+         #  Request Lamines test script
+        subprocess.check_call(['./run.sh'])
         if error:
             return res.internalServiceError(error)
         db.session.add(apprequest)
@@ -66,3 +69,7 @@ class apiAppRequest(Resource):
         apprequest = AppRequest.query.filter_by(id=requestId).first()
         apprequest.status = data.get("action")
         return res.putSuccess("Succesfully submitted action for request {}.".format(requestId))
+    
+    #   Handles submit app to app store
+    def post(self, requestId):
+        #   Call apprequest 

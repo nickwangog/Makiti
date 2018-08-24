@@ -1,5 +1,5 @@
 from . import dbConfig as Database
-UPLOAD_FOLDER = "~/42/"
+UPLOAD_FOLDER = "/nfs/2017/d/dmontoya/Apps"
 
 def configure(app, configSetting):
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
