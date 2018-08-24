@@ -1,7 +1,5 @@
-import json
-import os
+import os, requests, json, hashlib
 from api.app import app
-import requests
 from flask import request
 from flask_restful import Resource
 from api.app import db
@@ -50,7 +48,7 @@ class apiApplication(Resource):
         if not data or not data.get('accountid') or not data.get('appname') or not data.get('version'):
             return res.badRequestError("Missing data to process request")
         #print("checking file")
-        
+
         #   check app name if already exists
         query = Application.query.filter_by(appname=data.get('appname')).first()
         if query is not None:
@@ -84,7 +82,6 @@ class apiApplication(Resource):
         #   Call service apprequest to create a request to review app
         apprequestRes = requests.post("url to apprequest service")
         #   -------------------
-
         return res.getSuccess("Succesfully created application.", application_schema.dump(newapp).data)
 
 #   /api/application/:appId
@@ -100,10 +97,10 @@ class apiApplicationbyId(Resource):
         return res.getSuccess(data=application_schema.dump(query).data)
     
     #   Requires in request body to provide app: zipbinary, configfile, version
-    #   Example {"appzipb": binary, "version": 0.01}
+    #   Example {"version": 0.01}
     def put(self, appId):
         data = request.get_json()
-        if not data or not data.get('appzipb') or not data.get('version'):
+        if not data or not data.get('version'):
             return res.badRequestError("Missing data to process request")
         
         app = Application.query.filter_by(id=appId).first()
@@ -118,7 +115,6 @@ class apiApplicationbyId(Resource):
         #   Call service to validate security of binary
         requests.post("url to servicevalidate binary")
         #   -----------------
-        app.appzipb = data.get('appzipb')
         app.checksum = "hey" # replace with the return of the call service to validate binary
 
         db.session.commit()
