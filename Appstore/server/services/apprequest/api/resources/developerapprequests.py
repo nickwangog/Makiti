@@ -2,35 +2,56 @@ import json, requests
 import subprocess
 from flask import request
 from flask_restful import Resource
-from api.app import db
+from api.app import app, db
 from api.models import AppRequest, apprequest_schema, apprequests_schema
 from api.response import Response as res
+import api.serviceUtilities as ServUtil
+
+#   apprequest table 'status' 
+#   status = 1 (pending)
+#   status = 2 (test successful, pending approval)
+#   status = 3 (test unsuccesful)
+#   status = 4 (approved)
 
 #   /api/apprequest/developer
-#   Request body should contain developerid, appid, requesttype
-#   Example: {"accountid": 14, "appid": 3, "requesttype" : 1}
-#   For requesttype: 1 = Create, 2 = Update
 class apiDeveloperAppReviewRequest(Resource):
+    #   Request body should contain developerid, appid, requesttype
+    #   Example: {"accountid": 14, "appid": 3, "requesttype" : 1}
+    #   For requesttype: 1 = Create, 2 = Update
     def post(self):
-        data = request.get_json()
+        data = request.form
+        #print(data)
         if not data or not data.get("accountid") or not data.get("appid") or not data.get("requesttype"):
             return res.badRequestError("Missing data to create app request")
         requestDetails = {"developer" : data.get("developer"), "application": data.get("application"), "requesttype": data.get("requesttype")}
         apprequest, error = apprequest_schema.load(requestDetails)
-         #  Request Lamines test script
-        subprocess.check_call(['./run.sh'])
+        print(apprequest)
         if error:
             return res.internalServiceError(error)
         db.session.add(apprequest)
         db.session.commit()
+
+        #   Request Lamines test script
+        #   subprocess.check_call(['./run.sh'])
         return res.postSuccess("Request succesfully created.", apprequest_schema.dump(apprequest).data)
+    
+    #   Request body should contain requestId
+    #   Example {"requestId" : 4}
     def put(self):
-        data = request.data
-        print(data)
-        data2 = request.form
-        print(data2)
-
-
+        #print(request.files)
+        data = request.form
+        print(data["requestId"])
+        queryAppRequest = AppRequest.query.filter_by(id=data["requestId"]).first()
+        #if not queryAppRequest:
+            #return res.badRequestError("Request {} does not exist.".format(data))
+        AppServiceReq = requests.get(app.config['APPLICATION_SERVICE'] + "2").json() #tmp 2, real queryAppRequest.application
+        appData = AppServiceReq["data"]
+        saved, msg = ServUtil.saveLoginServer(app, request.files["logfile"], appData)
+        if not saved:
+            return res.internalServiceError(msg)
+        queryAppRequest.status = 2
+        db.session.commit()
+        return res.putSuccess(data=apprequest_schema.dump(queryAppRequest).data)
 
 #   /api/apprequest/application/:appId
 class apiAppRequests(Resource):
