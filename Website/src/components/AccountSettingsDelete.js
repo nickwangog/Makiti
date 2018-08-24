@@ -1,4 +1,6 @@
 import React from 'react';
+import axios from 'axios';
+
 import ButtonMakiti from './ButtonMakiti';
 import Modal from './Modal';
 
@@ -7,6 +9,7 @@ class AccountSettingsDelete extends React.Component {
 		super(props);
 		this.state = {
 			showDeleteModal: false,
+			errorText: '',
 		}
 	}
 
@@ -16,21 +19,33 @@ class AccountSettingsDelete extends React.Component {
 
 	deleteAccount = () => {
 		// do a request to delete account
+		let { id } = this.props.appState.accountDetails;
+		let { clearAccountDetails } = this.props.appState;
 
-		// perform logout
-		this.props.appState.logout();
-		// change redirect state of parent class to redirect to home page
-		this.props.onDelete();
+		axios.delete(`${ACCOUNT_SERVICE}/account/${id}`)
+			.then(response => {
+				const { data } = response.data;
+				console.log("Account deleted: ", data);
+				// perform logout - should redirect to top level
+				clearAccountDetails();
+			})
+			.catch(err => {
+				console.log("FAILURE");
+				const { data } = err.response;
+				this.setState(() => ({ errorText: data.message }));
+			});
 	}
 
 	render() {
+		const { errorText, showDeleteModal } = this.state;
+
 		return (
 			<div className="center">
 				<ButtonMakiti onClick={this.toggleDeleteAccountModal}>
 					Delete Account!
 				</ButtonMakiti>
 				<Modal
-					show={this.state.showDeleteModal}
+					show={showDeleteModal}
 					onClose={this.toggleDeleteAccountModal}
 					style={{width: 300}}
 				>

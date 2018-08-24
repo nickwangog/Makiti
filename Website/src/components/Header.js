@@ -48,13 +48,11 @@ class LogOutButton extends React.Component {
 
 	logOut = (e) => {
 		e.preventDefault();
-		this.props.authFunc.deAuthClient();
-		this.props.authFunc.deAuthDev();
-		this.props.authFunc.deAuthAdmin();
+		this.props.clearAccountDetails();
 	}
 
 	render() {
-		const { show, authFunc } = this.props;
+		const { show } = this.props;
 
 		if (!show) {
 			return null;
@@ -66,7 +64,7 @@ class LogOutButton extends React.Component {
 				className="button-makiti"
 				onClick={this.logOut}
 			>
-				Log out!
+				Log out, {this.props.accountDetails.firstname}!
 			</button>
 		);
 	}
@@ -81,24 +79,24 @@ class Header extends React.Component {
 	}
 
 	toggleLoginModal = () => {
-		this.setState(() => (
-			{ loginModalIsOpen: !this.state.loginModalIsOpen }
-		));
+		this.setState(() => ({ loginModalIsOpen: !this.state.loginModalIsOpen }));
 	}
 
 	render() {
-		const { isClient: isC, isDeveloper: isD, isAdmin: isA, authFunc } = this.props;
+		const { customer: isC, developer: isD, admin: isA, firstname } = this.props.accountDetails;
+		const { login, logout } = this.props;
 
 		return (
 			<header className="justify-center">
-				<div className="center bg-black">
+				<div className="flex justify-center bg-black items-baseline">
 					<img
 						className="banner-image"
 						src={BannerImg}
 						alt="BannerImg"
 					/>
+					<h3 className="h3">{firstname ? `Hi, ${firstname}` : null}</h3>
 				</div>
-				<div className="flex justify-around py1 bg-mediumgray">
+				<div className="flex flex-wrap justify-around bg-mediumgray">
 					<LogInModalButton show={!(isC || isD || isA)} toggleLoginModal={this.toggleLoginModal} />
 					<Modal
 						show={this.state.loginModalIsOpen}
@@ -122,7 +120,7 @@ class Header extends React.Component {
 					<HeaderLink to="/AccountSettings" show={isC}>
 						Account Settings
 					</HeaderLink>
-					<LogOutButton show={isC || isD || isA} authFunc={authFunc} />
+					<LogOutButton show={isC || isD || isA} {...this.props} />
 				</div>
 			</header>
 		);

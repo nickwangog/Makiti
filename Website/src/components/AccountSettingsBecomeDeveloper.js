@@ -1,6 +1,7 @@
 import React from 'react';
 import ButtonMakiti from './ButtonMakiti';
 import Modal from './Modal';
+import axios from 'axios';
 
 class AccountSettingsBecomeDeveloper extends React.Component {
 	constructor(props) {
@@ -15,16 +16,42 @@ class AccountSettingsBecomeDeveloper extends React.Component {
 	}
 
 	becomeDeveloper = () => {
-		this.props.appState.becomeDeveloper();
+		let { id } = this.props.appState.accountDetails,
+			{ updateAccountDetail } = this.props.appState;
+
+		axios.put(`${ACCOUNT_SERVICE}/account/${id}`, {
+				developer: 1,
+			})
+			.then(response => {
+				const { data } = response.data;
+				updateAccountDetail('developer', true);
+			})
+			.catch(err => {
+				const { data } = err.response;
+				console.log(err);
+			})
 		this.toggleBecomeDeveloperModal();
 	}
 
 	deleteDeveloper = () => {
-		this.props.appState.deleteDeveloper();
+		let { id } = this.props.appState.accountDetails,
+			{ updateAccountDetail } = this.props.appState;
+
+		axios.put(`${ACCOUNT_SERVICE}/account/${id}`, {
+				developer: 0,
+			})
+			.then(response => {
+				const { data } = response.data;
+				updateAccountDetail('developer', false);
+			})
+			.catch(err => {
+				const { data } = err.response;
+				console.log(data);
+			})
 		this.toggleBecomeDeveloperModal();
 	}
 
-	renderStuff(buttonText, innerButtonText, className, executeFunc) {
+	renderStuff(buttonText, innerButtonText, btnColor, executeFunc) {
 		return (
 			<div>
 				<div className="center">
@@ -36,7 +63,7 @@ class AccountSettingsBecomeDeveloper extends React.Component {
 						onClose={this.toggleBecomeDeveloperModal}
 						style={{width: 300}}
 					>
-						<ButtonMakiti className={className} onClick={executeFunc}>
+						<ButtonMakiti className={`text-bold-black ${btnColor}`} onClick={executeFunc}>
 							{innerButtonText}
 						</ButtonMakiti>
 					</Modal>
@@ -46,12 +73,13 @@ class AccountSettingsBecomeDeveloper extends React.Component {
 	}
 
 	render() {
-		if (this.props.appState.isDeveloper) {
+		const { developer: isDeveloper } = this.props.appState.accountDetails;
+		if (isDeveloper) {
 			return (
 				this.renderStuff(
 					"Delete Developer Account?",
 					"Permanently Delete Developer Account!",
-					"text-bold-black bg-red",
+					"bg-red",
 					this.deleteDeveloper
 				)
 			);
@@ -61,7 +89,7 @@ class AccountSettingsBecomeDeveloper extends React.Component {
 			this.renderStuff(
 					"Become a Developer?",
 					"Create Developer Account!",
-					"text-bold-black bg-green",
+					"bg-green",
 					this.becomeDeveloper
 				)
 		);
