@@ -1,23 +1,19 @@
-import gzip
+import zipfile
+from zipfile import ZipFile
 import os
 import shutil
+import glob
 
-content = "Lots of content here"
-sample = open('sample.py', 'r')
-sample2 = open('sample2.py', 'r')
-samplelines = sample.readlines()
-samplelines2 = sample2.readlines()
-content2 = ''.join(samplelines)
-content3 = ''.join(samplelines2)
-f = gzip.open('Onlyfinnaly.log.gz', 'wb')
-f.write(content)
-f.close()
-f2 = gzip.open('SAMPLE1.log.gz', 'wb')
-f2.write(content2)
+files = glob.glob('/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/*.zip')
+for f in files:
+    os.remove(f)
+
+f2 = ZipFile('SAMPLE1.zip', 'a')
+f2.write("sample.py")
 f2.close()
-f3 = gzip.open('SAMPLE2.log.gz', 'wb')
-f3.write(content3)
+f3 = ZipFile('SAMPLE2.zip', 'a')
+f3.write("sample2.py")
 f3.close()
 
-os.rename("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
-shutil.move("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
+shutil.move("/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/SAMPLE1.zip", "/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/")
+shutil.move("/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/SAMPLE2.zip", "/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/")

@@ -1,0 +1,6 @@
+/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/solitaire.zip is invalid.
+/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/SAMPLE1.zip is validated.
+/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/SAMPLE2.zip is validated.
+.
+Restricted code found in line 2283
+'HELLLOOcancerOOOO']

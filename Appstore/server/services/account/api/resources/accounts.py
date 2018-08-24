@@ -14,7 +14,6 @@ class apiAccount(Resource):
         data = request.get_json()
         if not data or not data.get("firstname") or not data.get("lastname") or not data.get("username") or not data.get("password"):
             return res.badRequestError("Missing information to process account creation.")
-        
         #   check username is unique
         query = Account.query.filter_by(username=data.get("username")).first()
         if query:
@@ -26,7 +25,7 @@ class apiAccount(Resource):
             return res.internalServiceError(error)
         db.session.add(newAccount)
         db.session.commit()
-        return res.postSuccess("Account succesfully created for username {}.".format(newAccount.username), newAccount)
+        return res.postSuccess("Account succesfully created for username {}.".format(newAccount.username), account_schema.dump(newAccount).data)
 
 #   /api/account/login
 #   Requires in request body: username, password
@@ -37,11 +36,12 @@ class apiLogin(Resource):
         data = request.get_json()
         if not data or not data.get("username") or not data.get("password"):
             return res.badRequestError("Missing information to login user.")
-        
         #   Verifies user exists in database
-        query = Account.query.filter_by(username=data.get("username"), password=data.get("password")).first()
+        query = Account.query.filter_by(username=data.get("username")).first()
         if not query:
             return res.badRequestError("Incorrect login information.")
+        if query.password != data.get("password"):
+            return res.resourceMissing("Incorrect password for user {}.".format(query.username))
         return res.postSuccess(data=account_schema.dump(query).data)
 
 #   /api/account/:accountId
@@ -50,28 +50,27 @@ class apiLogin(Resource):
 #   Example { "developer": 1 } 1 = true, 0 = false
 class apiAccountActions(Resource):
     def get(self, accountId):
-        query = Account.filter_by(id=accountId).first()
+        query = Account.query.filter_by(id=accountId).first()
         if not query:
             return res.resourceMissing("No account with id {} was found.".format(accountId))
-        return res.getSuccess(account_schema.dump(query).data)
+        return res.getSuccess(data=account_schema.dump(query).data)
     
     def put(self, accountId):
         data = request.get_json()
         if not data:
             return res.badRequestError("No data to update for account {}.".format(accountId))
-        
         queryAccount = Account.query.filter_by(id=accountId).first()
         if not queryAccount:
             return res.resourceMissing("No account with id {} was found.".format(accountId))
-        if data.get("customer"):
+        if "customer" in data.keys():
             queryAccount.customer = not queryAccount.customer
             db.session.commit()
             return res.putSuccess("Account {} has customer priviledges.".format(accountId))
-        if data.get("developer"):
+        if "developer" in data.keys():
             queryAccount.developer = not queryAccount.developer
             db.session.commit()
             return res.putSuccess("Account {} has developer priviledges.".format(accountId))
-        if data.get("admin"):
+        if "admin" in data.keys():
             queryAccount.admin = not queryAccount.admin
             db.session.commit()
             return res.putSuccess("Account {} has admin priviledges.".format(accountId))
@@ -83,4 +82,4 @@ class apiAccountActions(Resource):
             return res.resourceMissing("No account with id {} was found.".format(accountId))
         queryAccount.active = False
         db.session.commit()
-        return res.deleteSuccess("Account {} deleted.".format(accountId))
+        return res.deleteSuccess("Account {} with username {} deleted.".format(accountId, queryAccount.username))
