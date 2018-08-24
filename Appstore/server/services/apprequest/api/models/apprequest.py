@@ -8,7 +8,7 @@ class AppRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     requesttype = db.Column(db.Integer, nullable=False)
     application = db.Column(db.Integer, nullable=False)
-    version = db.Column()
+    reviewversion = db.Column(db.String(50), nullable=False)
     customer = db.Column(db.Integer, nullable=False, server_default='0')
     developer = db.Column(db.Integer, nullable=False, server_default='0')
     admin = db.Column(db.Integer, nullable=False, server_default='0')

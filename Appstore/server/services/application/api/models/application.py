@@ -10,14 +10,16 @@ class Application(db.Model):
     approved = db.Column(db.Boolean, nullable=False, server_default=sa.sql.expression.false())
     datecreated = db.Column(db.DateTime, nullable=False, server_default=sa.func.now())
     datelastupdate = db.Column(db.DateTime)
-    version = db.Column(db.DECIMAL(10, 2), nullable=False)
+    version = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text)
     checksum = db.Column(db.Text)
     active = db.Column(db.Boolean, nullable=False, server_default=sa.sql.expression.false())
 
-    def __init__(self, appname, version=1):
+    def __init__(self, appname, version, description):
         self.appname = appname
         self.version = version
-
+        self.description = description
+        
 class ApplicationSchema(ma.ModelSchema):
     class Meta:
         model = Application

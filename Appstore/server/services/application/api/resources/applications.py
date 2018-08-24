@@ -1,7 +1,5 @@
-import json
-import os
+import os, requests, json, hashlib
 from api.app import app
-import requests
 from flask import request
 from flask_restful import Resource
 from api.app import db
@@ -11,78 +9,102 @@ from api.response import Response as res
 from werkzeug.utils import secure_filename
 ALLOWED_EXTENSIONS = set(['zip', 'gzip'])
 
+#   Validates file extension
 def allowedFile(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+#   Creates the directory for the new app in server file system by joining app name and version number
+#   Ilustration of file system for application storage:
+#   Apps/
+#       + ApplicationName/
+#           + 0.1/
+#               -appversion0.1.zip
+#           + 0.2/
+#               -appversion0.2.zip
+def saveAppinServer(file, data):
+    print("saving into server")
+    #   Checks the file received is of valid extension
+    if not file or not allowedFile(file.filename):
+        return False, "File not supported. Only {} extensions are supported.".format(ALLOWED_EXTENSIONS)
+    filename = secure_filename(file.filename)
+
+    #   Checks if app has a directory created already.
+    appPath = os.path.join(app.config['UPLOAD_FOLDER'], data.get('appName'))
+    if os.path.exists(appPath):
+        return False, "An app with name {} already exists.".format(data.get('appName'))
+    appversionPath = os.path.join(appPath, data.get('versionNumber'))
+    if os.path.exists(appversionPath):
+        return False, "App version {} already exists.".format(data.get('versionNumber'))
+    
+    #   Creates directory in server file system and saves application
+    os.makedirs(appversionPath, 0o777)
+    file.save(os.path.join(appversionPath, filename))
+    return True, "File saved!"
+
+#   Links developer and app, giving him permission to modify app details and make requests
+def addDevelopertoApp(appDeveloperDetails):
+    #   Validates data given is complete and ready to save to database
+    newappdeveloper, error = applicationdeveloper_schema.load(appDeveloperDetails)
+    if error:
+        return False, error
+    db.session.add(newappdeveloper)
+    db.session.commit()
+    return True, "Developer linked!"
+
 #   /api/application
-#   Requires in request body to provide app: name, zipbinary, version
-#   Example {"accountid": 5, "appname": "Makiti", "version": 0.01}
+#   Adds application to AppStore database
+#   Requires in request body to provide: account, app name, files, version, appdescription
+#   Example {"accountId": 5, "appName": "Makiti", "versionNumber": "0.01"}
 class apiApplication(Resource):
-    def post(self):
-        
+    def post(self):  
         data = request.form
-        print(data)
-        print("------------------------------------------")
-        print(request.form)
-        print("------------------------------------------")
-        print(request.files['file'])
-        print("------------------------------------------")
-        print("doneee")
-        if not data or not data.get('accountid') or not data.get('appname') or not data.get('version'):
+        if not data or not data.get('accountId') or not data.get('appName') or not data.get('versionNumber'):
             return res.badRequestError("Missing data to process request")
-        print("checking file")
-        query = Application.query.filter_by(appname=data.get('appname')).first()
+
+        #   Call service to valide account has developer rights
+        accountServiceReq = requests.get(os.path.join(app.config['ACCOUNT_SERVICE']), "{}".format(data.get('accountId'))).content
+        print(accountServiceReq)
+        return res.getSuccess("hey")
+
+        #   Checks if app name already exists
+        query = Application.query.filter_by(appname=data.get('appName')).first()
         if query is not None:
-            return res.resourceExistsError("App name {} already taken".format(data.get('appname')))
+            return res.resourceExistsError("App name {} already taken".format(data.get('appName')))
         
+        #   Checks file was sent in request
         if 'file' not in request.files:
             return res.badRequestError("Missing app file.")
         file = request.files['file']
-        print("file has name :)")
-        if file.filename is '':
-            return res.badRequestError("No file selected.")
-        if file.filename is not 'App.zip'
-            return res.badRequestError("File needs to be named 'App.zip'")
-        if not file or not allowedFile(file.filename):
-            return res.badRequestError("File not supported. Only {} files are supported.".format(ALLOWED_EXTENSIONS))
-        print("yes it is!")
-        filename = secure_filename(file.filename)
-        print("strange shit i dont understand")
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        #   check app name if already exists
-        print("file saved!!!!!!!!!!!")
-        query = Application.query.filter_by(appname=data.get('appname')).first()
-        if query is not None:
-            return res.resourceExistsError("App name {} already taken".format(data.get('appname')))
-        
-        #   Call service to valide account has developer rights
 
-        
-        #   Validate data and save application to database
-        appdetails = {"appname": data.get('appname'), "appzipb": data.get('appzipb'), "version": data.get('version')}
+        #   Validate app data given and saves to database if it is correct
+        appdetails = {"appname": data.get('appName'), "version": data.get('versionNumber'), "description": data.get('description')}
         newapp, error = application_schema.load(appdetails)
         if error:
-            return res.internalServiceError(error)
+            return res.badRequestError(error)
         db.session.add(newapp)
         db.session.commit()
-        query = Application.query.filter_by(appname=data.get('appname')).first()
-        if not query:
-            return res.internalServiceError("Unable to create application {}.".format(data.get("appname")))
+        queryNewApp = Application.query.filter_by(appname=data.get('appName')).first()
+        
+        #   Verifies app was created succesfully in the daatabase
+        if not queryNewApp:
+            return res.internalServiceError("Unable to create application {}.".format(data.get("appName")))
         
         #   Add permission to developer over created application
-        appdeveloperdetails = { "appid": query.id, "developerid" :data.get("accountid")}
-        newappdeveloper, error = application_schema.load(appdeveloperdetails)
-        if error:
-            return res.badRequestError(error)
-        db.session.add(newappdeveloper)
-        db.session.commit()
+        linked, msg = addDevelopertoApp({ "appid": queryNewApp.id, "accountid" :data.get("accountId")})
+        if not linked:
+            return res.internalServiceError(msg)
 
-        #   -------------------
-        #   Call service apprequest to create a request to review app
-        apprequestRes = requests.post("url to apprequest service")
-        #   -------------------
+         #   Saves app files
+        saved, msg = saveAppinServer(file, data)
+        if not saved:
+            return res.internalServiceError(message=msg)
 
-        return res.getSuccess("Succesfully created application.", application_schema.dump(newapp).data)
+        #   Call apprequest service to create a request to review just created app
+        postRequestData = {'accountid':data.get('accountId'), 'appid':queryNewApp.id, 'requesttype': 1}
+        appRequestRes = requests.post(os.path.join(app.config['APPREQUEST_SERVICE'], "developer"), data=postRequestData)
+        print(appRequestRes)
+
+        return res.postSuccess("Succesfully created application {}.".format(queryNewApp.appname), application_schema.dump(queryNewApp).data)
 
 #   /api/application/:appId
 class apiApplicationbyId(Resource):
@@ -97,10 +119,10 @@ class apiApplicationbyId(Resource):
         return res.getSuccess(data=application_schema.dump(query).data)
     
     #   Requires in request body to provide app: zipbinary, configfile, version
-    #   Example {"appzipb": binary, "version": 0.01}
+    #   Example {"version": 0.01}
     def put(self, appId):
         data = request.get_json()
-        if not data or not data.get('appzipb') or not data.get('version'):
+        if not data or not data.get('version'):
             return res.badRequestError("Missing data to process request")
         
         app = Application.query.filter_by(id=appId).first()
@@ -115,7 +137,6 @@ class apiApplicationbyId(Resource):
         #   Call service to validate security of binary
         requests.post("url to servicevalidate binary")
         #   -----------------
-        app.appzipb = data.get('appzipb')
         app.checksum = "hey" # replace with the return of the call service to validate binary
 
         db.session.commit()
@@ -155,6 +176,22 @@ class apiAppLaunch(Resource):
         db.session.commit()
 
         return res.putSuccess("{} v.{} succesfully launched. Available in MakitiAppStore".format(app.appname, app.version))
+
+#   api/application/developer/:accountId
+class apiDeveloperApps(Resource):
+    def get(self, accountId):
+        queryDeveloperApp = ApplicationDeveloper.query.filter_by(accountid=accountId).all()
+        if not queryDeveloperApp:
+            return res.resourceMissing("No apps for developer with account {} found.".format(accountId))
+        developerapps, error = applicationdevelopers_schema.dump(queryDeveloperApp)
+        if error:
+            return res.internalServiceError(error)
+        allapps = []
+        for developerapp in developerapps:
+            queryApplication = Application.query.filter_by(id=developerapp["appid"]).first()
+            developerapp["appDetails"] = application_schema.dump(queryApplication).data
+            allapps.append(developerapp)
+        return res.getSuccess("Succesful [GET]", allapps)
 
 #   /api/application/developeradd/:appId
 #   Requires in request to provide developer email in request body to allow developer access to the specified app

@@ -7,12 +7,12 @@ class ApplicationDeveloper(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     appid = db.Column(db.Integer, nullable=False)
-    developerid = db.Column(db.Integer, nullable=False)
+    accountid = db.Column(db.Integer, nullable=False)
     active = db.Column(db.Boolean, nullable=False, server_default=sa.sql.expression.true())
 
-    def __init__(self, appid, developerid):
+    def __init__(self, appid, accountid):
         self.appid = appid
-        self.developerid = developerid
+        self.accountid = accountid
 
 class ApplicationDeveloperSchema(ma.ModelSchema):
     class Meta:
