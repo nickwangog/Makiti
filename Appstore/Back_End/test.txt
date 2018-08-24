@@ -1,4 +1,0 @@
-/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/SAMPLE1.log.gz
-/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/SAMPLE.log.gz
-/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/SAMPLE2.log.gz
-/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/solitaire.tar.gz
