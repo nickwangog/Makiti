@@ -113,7 +113,6 @@ keywords = {
 # Other
     'netflix',
     'skype',
-    'github',
 
 # Miscellaneous & SE tricks
     'cgi-bin',
