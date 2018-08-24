@@ -1,4 +1,6 @@
-#import json
+import json
+import os
+from api.app import app
 import requests
 from flask import request
 from flask_restful import Resource
@@ -18,36 +20,43 @@ def allowedFile(filename):
 class apiApplication(Resource):
     def post(self):
         
-        data = request.get_json()
+        data = request.form
         print(data)
-        print(request.files)
+        print("------------------------------------------")
+        print(request.form)
+        print("------------------------------------------")
+        print(request.files['file'])
+        print("------------------------------------------")
+        print("doneee")
         if not data or not data.get('accountid') or not data.get('appname') or not data.get('version'):
             return res.badRequestError("Missing data to process request")
         print("checking file")
+        query = Application.query.filter_by(appname=data.get('appname')).first()
+        if query is not None:
+            return res.resourceExistsError("App name {} already taken".format(data.get('appname')))
+        
         if 'file' not in request.files:
             return res.badRequestError("Missing app file.")
         file = request.files['file']
         print("file has name :)")
-        if file.filename == '':
+        if file.filename is '':
             return res.badRequestError("No file selected.")
-        print("is this file allowed?")
+        if file.filename is not 'App.zip'
+            return res.badRequestError("File needs to be named 'App.zip'")
         if not file or not allowedFile(file.filename):
             return res.badRequestError("File not supported. Only {} files are supported.".format(ALLOWED_EXTENSIONS))
         print("yes it is!")
         filename = secure_filename(file.filename)
+        print("strange shit i dont understand")
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         #   check app name if already exists
         print("file saved!!!!!!!!!!!")
         query = Application.query.filter_by(appname=data.get('appname')).first()
         if query is not None:
             return res.resourceExistsError("App name {} already taken".format(data.get('appname')))
-
+        
         #   Call service to valide account has developer rights
 
-        #   sstorageurl = 'https://github.com/nickwangog/Makiti/StoreApps/{}/{}'.format(data.get('appname'), data.get("version"))
-        #   -----------------
-        #   Call service to validate security of binary
-        #   -----------------
         
         #   Validate data and save application to database
         appdetails = {"appname": data.get('appname'), "appzipb": data.get('appzipb'), "version": data.get('version')}
