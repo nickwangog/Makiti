@@ -1,4 +1,4 @@
-import json
+import json, requests
 import subprocess
 from flask import request
 from flask_restful import Resource
@@ -8,12 +8,12 @@ from api.response import Response as res
 
 #   /api/apprequest/developer
 #   Request body should contain developerid, appid, requesttype
-#   Example: {"developer": 14, "application": 3, "requesttype" : 1}
+#   Example: {"accountid": 14, "appid": 3, "requesttype" : 1}
 #   For requesttype: 1 = Create, 2 = Update
 class apiDeveloperAppReviewRequest(Resource):
     def post(self):
         data = request.get_json()
-        if not data or not data.get("developer") or not data.get("application") or not data.get("requesttype"):
+        if not data or not data.get("accountid") or not data.get("appid") or not data.get("requesttype"):
             return res.badRequestError("Missing data to create app request")
         requestDetails = {"developer" : data.get("developer"), "application": data.get("application"), "requesttype": data.get("requesttype")}
         apprequest, error = apprequest_schema.load(requestDetails)
@@ -24,6 +24,13 @@ class apiDeveloperAppReviewRequest(Resource):
         db.session.add(apprequest)
         db.session.commit()
         return res.postSuccess("Request succesfully created.", apprequest_schema.dump(apprequest).data)
+    def put(self):
+        data = request.data
+        print(data)
+        data2 = request.form
+        print(data2)
+
+
 
 #   /api/apprequest/application/:appId
 class apiAppRequests(Resource):
@@ -71,5 +78,14 @@ class apiAppRequest(Resource):
         return res.putSuccess("Succesfully submitted action for request {}.".format(requestId))
     
     #   Handles submit app to app store
+    #   Requires accountid in request body
+    #   Example: {'accountId': 57}
     def post(self, requestId):
-        #   Call apprequest 
+        # Call application service
+        queryAppRequest = AppRequest.query.filter_by(id=requestId).first()
+        if not queryAppRequest:
+            return res.resourceMissing("App Request {} does not exist.".format(requestId))
+        if queryAppRequest.status is not 2:
+            return res.badRequestError("App is ")
+        applicationData = requests.get("http://localhost:9923/application/{}".format(queryAppRequest.application)).content
+        return res.badRequestError("Not finished!!!!!!!!!!")
