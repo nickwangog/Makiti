@@ -9,7 +9,7 @@ class Car(db.Model):
     carmodel = db.Column(db.Integer, nullable=False)
     raspbpi = db.Column(db.Integer, nullable=False)
     piIP = db.Column(db.String(25), nullable=False)
-    registereddate = db.Column(db.Datetime)
+    registereddate = db.Column(db.DateTime)
 
     def __init__(self, vin, carmodel, raspbpi, piIP):
         self.vin = vin

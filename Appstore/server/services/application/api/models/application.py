@@ -7,7 +7,6 @@ class Application(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     appname = db.Column(db.String(100), nullable=False)
-    appzipb = db.Column(db.LargeBinary)
     approved = db.Column(db.Boolean, nullable=False, server_default=sa.sql.expression.false())
     datecreated = db.Column(db.DateTime, nullable=False, server_default=sa.func.now())
     datelastupdate = db.Column(db.DateTime)
@@ -15,9 +14,8 @@ class Application(db.Model):
     checksum = db.Column(db.Text)
     active = db.Column(db.Boolean, nullable=False, server_default=sa.sql.expression.false())
 
-    def __init__(self, appname, appzipb, version=1):
+    def __init__(self, appname, version=1):
         self.appname = appname
-        self.appzipb = appzipb
         self.version = version
 
 class ApplicationSchema(ma.ModelSchema):

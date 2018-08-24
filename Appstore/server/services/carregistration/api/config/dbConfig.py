@@ -1,8 +1,8 @@
 class dbTest ():
     module = "postgresql+psycopg2://"
     username = "dmontoya:"
-    password = ""
-    address = "@127.0.0.1"
+    password = "Makiti@2019"
+    address = "@192.168.99.100"
     port = ":5432"
     dbname = "/carregistrationservice"
     environment = "test"
