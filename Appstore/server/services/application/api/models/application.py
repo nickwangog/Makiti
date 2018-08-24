@@ -17,7 +17,7 @@ class Application(db.Model):
     def __init__(self, appname, version=1):
         self.appname = appname
         self.version = version
-
+        
 class ApplicationSchema(ma.ModelSchema):
     class Meta:
         model = Application

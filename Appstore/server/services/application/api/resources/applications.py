@@ -14,6 +14,25 @@ ALLOWED_EXTENSIONS = set(['zip', 'gzip'])
 def allowedFile(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def saveAppinServer(file):
+    if not file or not allowedFile(file.filename):
+        return False, "File not supported. Only {} files are supported.".format(ALLOWED_EXTENSIONS)
+    filename = secure_filename(file.filename)
+    appPath = os.path.join(app.config['UPLOAD_FOLDER'], data.get('appname'))
+    if os.path.exists(appPath):
+        return False, "An app with name {} already exists.".format(data.get('appname'))
+    appversionPath = os.path.join(appPath, data.get('version'))
+    os.makedirs(appversionPath, 0o777)
+    file.save(appversionPath, filename))
+    return True, "Succesfully saved file!"
+
+def addDevelopertoApp(appDeveloperDetails):
+    newappdeveloper, error = application_schema.load(appDeveloperDetails)
+    if error:
+        return res.badRequestError(error)
+    db.session.add(newappdeveloper)
+    db.session.commit()
+
 #   /api/application
 #   Requires in request body to provide app: name, zipbinary, version
 #   Example {"accountid": 5, "appname": "Makiti", "version": 0.01}
@@ -30,36 +49,25 @@ class apiApplication(Resource):
         print("doneee")
         if not data or not data.get('accountid') or not data.get('appname') or not data.get('version'):
             return res.badRequestError("Missing data to process request")
-        print("checking file")
+        #print("checking file")
+        
+        #   check app name if already exists
         query = Application.query.filter_by(appname=data.get('appname')).first()
         if query is not None:
             return res.resourceExistsError("App name {} already taken".format(data.get('appname')))
-        
         if 'file' not in request.files:
             return res.badRequestError("Missing app file.")
         file = request.files['file']
-        print("file has name :)")
-        if file.filename is '':
-            return res.badRequestError("No file selected.")
-        if file.filename is not 'App.zip'
-            return res.badRequestError("File needs to be named 'App.zip'")
-        if not file or not allowedFile(file.filename):
-            return res.badRequestError("File not supported. Only {} files are supported.".format(ALLOWED_EXTENSIONS))
-        print("yes it is!")
-        filename = secure_filename(file.filename)
-        print("strange shit i dont understand")
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        #   check app name if already exists
-        print("file saved!!!!!!!!!!!")
-        query = Application.query.filter_by(appname=data.get('appname')).first()
-        if query is not None:
-            return res.resourceExistsError("App name {} already taken".format(data.get('appname')))
+        #print("file has name :)")
+        saved, msg = saveAppinServer(file)
+        if not saved:
+            return res.badRequestError(message=msg)
         
         #   Call service to valide account has developer rights
 
         
         #   Validate data and save application to database
-        appdetails = {"appname": data.get('appname'), "appzipb": data.get('appzipb'), "version": data.get('version')}
+        appdetails = {"appname": data.get('appname'), "version": data.get('version')}
         newapp, error = application_schema.load(appdetails)
         if error:
             return res.internalServiceError(error)
@@ -70,13 +78,8 @@ class apiApplication(Resource):
             return res.internalServiceError("Unable to create application {}.".format(data.get("appname")))
         
         #   Add permission to developer over created application
-        appdeveloperdetails = { "appid": query.id, "developerid" :data.get("accountid")}
-        newappdeveloper, error = application_schema.load(appdeveloperdetails)
-        if error:
-            return res.badRequestError(error)
-        db.session.add(newappdeveloper)
-        db.session.commit()
-
+        addDevelopertoApp({ "appid": query.id, "accountid" :data.get("accountid")})
+        
         #   -------------------
         #   Call service apprequest to create a request to review app
         apprequestRes = requests.post("url to apprequest service")
