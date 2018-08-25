@@ -3,6 +3,7 @@ from flask_restful import Resource
 from api.app import db
 from api.models import Car, car_schema, cars_schema
 from api.models import CarUser, caruser_schema, carusers_schema
+from api.models import CarModel, carmodel_schema, carmodels_schema
 from api.response import Response as res
 
 #   api/carregistration/admin/:adminId
@@ -34,53 +35,56 @@ class apiAdminRegisterCar(Resource):
         db.session.commit()
         return res.postSuccess("Successful car added to database.", newCar)
 
-#   api/carregistration/customer/:customerId
-#   Requires data in request body for 'POST' method
-#   Example: {"carid": 3}
+#   api/carregistration/customer/:accountId
 class apiRegisterCustomerCar(Resource):
-    def get(self, customerId):
-        query = CarUser.query.filter_by(id=customerId).all()
-        if query is None:
-            return res.badRequestError("Car {} not found.".format(customerId))
-        if not query:
-            return res.getSuccess("Cars registered by customer {}.".format(customerId), {})
-        usercars, error = carusers_schema.dump(query)
+
+    #   Retrieves all the car registered under the given account
+    def get(self, accountId):
+        queryCarUser = CarUser.query.filter_by(account=accountId).all()
+        if not queryCarUser:
+            return res.resourceMissing("No cars registered under account {}.".format(accountId))
+        usercars, error = carusers_schema.dump(queryCarUser)
         if error:
             return res.internalServiceError(error)
         customerCars = []
         for usercar in usercars:
             car = Car.query.filter_by(id=usercar["car"]).first()
             if not car:
-                return res.resourceMissing("No data found for car type {}.".format(usercar["car"]))
-            usercar["cardetails"] = car_schema.dump(car).data
+                return res.resourceMissing("No data found for car {}.".format(usercar["car"]))
+            usercar["carDetails"] = car_schema.dump(car).data
+            queryCarModel = CarModel.query.filter_by(id=car.carmodel).first()
+            if queryCarModel:
+                usercar["carDetails"]["carmodelDetails"] = carmodel_schema.dump(queryCarModel).data
             customerCars.append(usercar)
-        return res.getSuccess("Cars registered by customer {}.".format(customerId), customerCars)
+        return res.getSuccess("Cars registered under account {}.".format(accountId), customerCars)
     
-    def post(self, customerId):
+    #   Requires data in request body
+    #   Example: {"vinNumber": "39834698347"}
+    def post(self, accountId):
         data = request.get_json()
 
         #   Verifying data required for endpoint was given
-        if not data or not data.get("carid"):
-            return res.badRequestError("Missing data to process PUT request.")
+        if not data or not data.get("vinNumber"):
+            return res.badRequestError("Missing data to process request.")
 
-        #   Verifying car given is NOT registered under the given customer
-        query = CarUser.query.filter_by(customer=customerId, car=data.get("carid")).first()
-        if query:
-            return res.resourceExistsError("Car {} already registered under customer {}.".format(data.get("carid"), customerId))
-        
         #   Verifying car given exists in database
-        car = Car.query.filter_by(id=data.get("carid"))
-        if not car:
-            return res.resourceMissing("Car {} doesn't exist. Request not processed.".format(data.get("carid")))
+        queryCar = Car.query.filter_by(vin=data.get("vinNumber")).first()
+        if not queryCar:
+            return res.resourceMissing("Car {} does not exist.".format(data.get("vinNumber")))
         
+        #   Verifying car given is NOT registered under the given customer
+        queryCarUser = CarUser.query.filter_by(car=queryCar.id, account=accountId).first()
+        if queryCarUser:
+            return res.resourceExistsError("Car already registered under customer {}.".format(accountId))
+
         #   Creata the link from user to the registered car in the database
-        newCarUserDetails = { "car": data.get("carid"), "customer": customerId }
+        newCarUserDetails = { "car": queryCar.id, "account": accountId }
         newCarUser, error = caruser_schema.load(newCarUserDetails)
         if error:
             return res.internalServiceError(error)
         db.session.add(newCarUser)
         db.session.commit()
-        return res.postSuccess("Car {} registered to customer {}".format(data.get("carid"), customerId))
+        return res.postSuccess("Car {} registered under customer {}.".format(data.get("vinNumber"), accountId))
 
 #   /api/carregistration/caruser/:caruserId
 class apiCustomerCar(Resource):

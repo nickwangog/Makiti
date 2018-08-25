@@ -52,13 +52,6 @@ class apiApplication(Resource):
         if not linked:
             return res.internalServiceError(msg)
 
-        #   Call apprequest service to create a request to review just created app
-        #postRequestData = {'accountid':data.get('accountId'), 'appid':queryNewApp.id, 'requesttype': 1}
-        #appRequestRes = requests.post(app.config['APPREQUEST_SERVICE'] + "developer", data=postRequestData)
-        #if "error" in appRequestRes["status"]:
-        #    return res.internalServiceError("App Request Service Error: {}".format(appRequestRes["message"]))
-        #print(appRequestRes)
-
         return  res.postSuccess("Succesfully created application {}.".format(newApp.appname), application_schema.dump(newApp).data)
 
 #   /application/version/:appId/

@@ -7,12 +7,12 @@ class CarUser(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     car = db.Column(db.Integer, nullable=False)
-    customer = db.Column(db.Integer, nullable=False)
+    account = db.Column(db.Integer, nullable=False)
     created = db.Column(db.DateTime, nullable=False, server_default=sa.func.now())
 
-    def __init__(self, car, user):
+    def __init__(self, car, account):
         self.car = car
-        self.user = user
+        self.account = account
 
 class CarUserSchema(ma.ModelSchema):
     class Meta:
