@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 
 import AppList from './AppList';
+import AppDetail from './AppDetail';
 import DeveloperNewAppButton from './DeveloperNewAppButton';
 
 class Developer extends React.Component {
@@ -9,11 +10,11 @@ class Developer extends React.Component {
 		super(props);
 		this.state = {
 			appList: [],
+			currentApp: null,
+			launch: false,
+			install: false,
+			remove: false,
 		}
-	}
-
-	clearAppList = () => {
-		this.setState({ appList: [] });
 	}
 
 	componentWillMount() {
@@ -40,11 +41,28 @@ class Developer extends React.Component {
 		this.componentWillMount();
 	}
 
-	render() {
+	showAppDetail = (appId) => {
 		const { appList } = this.state;
+
+		let chosenApp = appList.filter(app => app.id == appId);
+		this.setState({
+			currentApp: chosenApp[0],
+			remove: true, // chosenApp[0].active,
+			launch: true, // chosenApp[0].appversionDetails.status == 4,
+		});
+	}
+
+	clearAppList = () => {
+		this.setState({ appList: [] });
+	}
+
+	render() {
+		const { appList, currentApp } = this.state;
+		const { appState } = this.props;
 		const appButtonConfig = {
-			remove: true,
-			install: false,
+			remove: this.state.remove,
+			install: this.state.install,
+			launch: this.state.launch,
 		}
 
 		return (
@@ -55,16 +73,19 @@ class Developer extends React.Component {
 						<DeveloperNewAppButton {...this.props} refreshDeveloper={this.refreshDeveloper}/>
 					</div>
 					<div className="flex-none flex">
-						<div className="flex-auto">
-							<AppList
-								title="My Creations"
-								appList={appList}
-								appButtonConfig={appButtonConfig}
-							/>
-						</div>
-						<div className="flex-auto">
-							hey
-						</div>
+						<AppList
+							className="flex-auto"
+							style={{ flex: 2 }}
+							title="My Creations"
+							appList={appList}
+							onClick={this.showAppDetail}
+						/>
+						<AppDetail
+							className="flex-auto"
+							style={{ flex: 3 }}
+							app={currentApp}
+							appButtonConfig={appButtonConfig}
+						/>
 					</div>
 				</div>
 			</div>

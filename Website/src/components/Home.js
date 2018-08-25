@@ -47,7 +47,8 @@ class Home extends React.Component {
 		// only allow install if user is logged in
 		const appButtonConfig = {
 			remove: false,
-			install: false,
+			install: true,
+			launch: false,
 		};
 
 		return (
