@@ -44,7 +44,7 @@ const AppDetail = (props) => {
 			<h3 className="h3 underline">
 				{appname}
 			</h3>
-			<img class="icon-image" src={iconImage} alt="icon"/>
+			<img className="icon-image" src={iconImage} alt="icon"/>
 			<div>
 				<span>Created: {datecreated}</span>
 				<span>Last Updated: {datelastupdate}</span>

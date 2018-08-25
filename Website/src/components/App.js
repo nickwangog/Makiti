@@ -12,6 +12,9 @@ import PrivateRoute from './PrivateRoute';
 // Header
 import Header from './Header';
 
+// Footer
+import Footer from './Footer';
+
 // Main Routes
 import Home from './Home';
 import Client from './Client';
@@ -108,6 +111,7 @@ class App extends React.Component {
 						<PrivateRoute path="/accountsettings" accessCheck={isCus} render={() => (<AccountSettings appState={this.state} />)} />
 						<Route component={NotFound} />
 					</Switch>
+					<Footer/>
 				</main>
 			</Router>
 		);
