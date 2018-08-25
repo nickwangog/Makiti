@@ -1,6 +1,9 @@
-/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/solitaire.zip is invalid.
-/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/SAMPLE1.zip is validated.
-/nfs/2017/n/nwang/projects/Ford/Appstore/Back_End/Zip_Folder/SAMPLE2.zip is validated.
-.
-Restricted code found in line 2283
-'HELLLOOcancerOOOO']
+solitaire.zip is validated.
+SAMPLE1.zip is invalid.
+SAMPLE2.zip is validated.
+Restricted code found in line 34
+import getopt
+Restricted code found in line 47
+args = getopt.getopt(sys.argv[1:
+Restricted code found in line 53
+    except getopt.GetoptError:\n

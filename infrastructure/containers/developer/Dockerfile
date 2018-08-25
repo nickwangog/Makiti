@@ -138,6 +138,9 @@ RUN apk add --update \
 
 WORKDIR /${PWD}
 ADD . /${PWD}
+RUN mkdir /${PWD}/app && chmod 777 /${PWD}/app
+#RUN echo "hello world" > /myvol/greeting
+#VOLUME /${PWD}
 
 RUN apk update \
   && apk add --virtual build-deps gcc python3-dev musl-dev \

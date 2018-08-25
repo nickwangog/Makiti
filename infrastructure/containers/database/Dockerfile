@@ -1,5 +1,7 @@
 # vim:set ft=dockerfile:
 FROM alpine:3.8
+LABEL maintainer="Lamine kaba laminekaba@outlook.com"
+
 
 # alpine includes "postgres" user/group in base install
 #   /etc/passwd:22:postgres:x:70:70::/var/lib/postgresql:/bin/sh

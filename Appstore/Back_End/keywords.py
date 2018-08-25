@@ -165,5 +165,5 @@ keywords = {
     '.tech',
     '.science',
     '.business',
-    'cancer'
+    'getopt'
 }
