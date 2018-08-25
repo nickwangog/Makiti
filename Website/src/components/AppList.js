@@ -13,7 +13,7 @@ class AppList extends React.Component {
 	}
 
 	render() {
-		const { appList, title, className, appButtonConfig, onClick } = this.props;
+		const { appList, title, className, onClick, style } = this.props;
 
 		// appList[0] = {
 		// 	id: 134,
@@ -25,14 +25,11 @@ class AppList extends React.Component {
 		console.log("APP_LIST", appList);
 
 		return (
-			<div className={classNames(className)}>
+			<div className={classNames(className)} style={style}>
 				<ul className="p1 flex-column app-list-body">
 					{appList.map((app) => (
-						<div key={app.id} onClick={() => (onClick ? onClick(app.id) : null)}>
-							<AppListItem app={app} key={app.id}>
-								<RemoveAppButton show={appButtonConfig.remove} app={app} />
-								<InstallAppButton show={appButtonConfig.install} app={app} />
-							</AppListItem>
+						<div key={app.id} onClick={() => (onClick(app.id))}>
+							<AppListItem app={app} />
 						</div>
 					))}
 				</ul>

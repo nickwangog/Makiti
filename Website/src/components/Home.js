@@ -33,8 +33,11 @@ class Home extends React.Component {
 			});
 	}
 
-	showAppDetail = (idx) => {
-		this.setState({currentApp: this.state.appList[idx]});
+	showAppDetail = (appId) => {
+		const { appList } = this.state;
+
+		let chosenApp = appList.filter(app => app.id == appId);
+		this.setState({currentApp: chosenApp[0]});
 	}
 
 	render() {
@@ -54,14 +57,16 @@ class Home extends React.Component {
 					<div className="flex-none flex">
 						<AppList
 							className="flex-auto"
+							style={{ flex: 2 }}
 							title="App Store"
 							appList={appList}
-							appButtonConfig={appButtonConfig}
 							onClick={this.showAppDetail}
 						/>
 						<AppDetail
 							className="flex-auto"
+							style={{ flex: 3 }}
 							app={currentApp}
+							appButtonConfig={appButtonConfig}
 						/>
 					</div>
 				</main>
