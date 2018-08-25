@@ -1,0 +1,72 @@
+1- ##################to get the information about the docker environement
+docker version
+docker info //for the full info of docker-machine
+
+2############## Regenerating certificat
+$ docker-machine regenerate-certs dev
+
+Regenerate TLS machine certs?  Warning: this is irreversible. (y/n): y
+Regenerating TLS certificates
+
+3#######################to delete docker images and purge the system
+https://www.digitalocean.com/community/tutorials/how-to-remove-docker-images-containers-and-volumes
+
+4_################## to check the logs of the containers & 
+
+docker container logs postgres-mki
+ ##########to track in real time the container
+ docker container stats postgres-mki  https://docs.docker.com/engine/reference/commandline/stats/
+
+
+5_############################to view all the process running inside the container
+docker container top postgres-mki
+
+
+6-#####################t to read the container metadata
+docker container inspect mysql-mki
+docker inspect --format '{{.NetworkSettings.IPAddress}}' postgres-mki
+
+
+7############## to display the network
+docker network ls
+docker network inspect bridge
+docker network connect network_name container_name
+docker run -it --name test_container -d --network mkinet alpine
+docker network disconect network_name container_name;
+
+7##### changing the working directory
+WORKDIR /user/home/testenv
+
+8- To create a container volume
+the name in front of the volume path is called name volume "mysql-db:"
+docker run -d --name database -e PASSWRD lkaba -v mysql-db:/var/lib/mysql mysql
+
+to inspect a volume
+
+docker volume inspect mysql-db
+
+9- bind mounting #############mounting the host folder inside the container 
+
+docker run --name webserver -p 8080:80 -v $(PWD):/usr/share/ngnix/html ngnix
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://runnable.com/docker/python/dockerize-your-python-application
+https://nitinbhojwani-tech-talk.blogspot.com/2017/12/run-python-script-in-docker-container.html
