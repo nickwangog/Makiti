@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { RemoveAppButton, InstallAppButton, LaunchAppVersionButton } from './AppButtons';
+import iconImage from '../static/images/app_icon.png'; // TEMPORARY
 
 // import AppIcon from '../static/images/appicon.png';
 
@@ -18,10 +19,10 @@ const AppDetail = (props) => {
 	if (!app) {
 		return (
 			<div
-				className={classNames("h4 italic center rounded", className)}
+				className={classNames(className)}
 				style={style}
 			>
-				<span>Please select an App to see the Details</span>
+				<h3 className={classNames("h3 center app-detail-item-name", className)}>Please select an App to see the Details</h3>
 			</div>
 		);
 	}
@@ -40,9 +41,17 @@ const AppDetail = (props) => {
 	// Handle regular state
 	return (
 		<div style={style} className={classNames('rounded', className)}>
-			<h3 className="h3">
+			<h3 className="h3 underline">
 				{appname}
 			</h3>
+			<img class="icon-image" src={iconImage} alt="icon"/>
+			<div>
+				<span>Created: {datecreated}</span>
+				<span>Last Updated: {datelastupdate}</span>
+				<span>Version: {applicationversion}</span>
+				<span className="underline">App Description: {applicationversion}</span>
+				<span className={classNames('app-description', className)}>{description}</span>
+			</div>
 			<div className="flex flex-center">
 				<RemoveAppButton show={appButtonConfig.remove} app={app} />
 				<InstallAppButton show={appButtonConfig.install} app={app} />
