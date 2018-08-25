@@ -1,7 +1,7 @@
 from . import dbConfig as Database
 UPLOAD_FOLDER = "/nfs/2017/d/dmontoya/Apps"
-APPREQUEST_SERVICE = "localhost:9924/apprequest"
-ACCOUNT_SERVICE = "localhost:9922/account"
+APPREQUEST_SERVICE = "http://localhost:9924/apprequest/"
+ACCOUNT_SERVICE = "http://localhost:9922/account/"
 CARREGISTRATION_SERVICE = "localhost:"
 
 def configure(app, configSetting):

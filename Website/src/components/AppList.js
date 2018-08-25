@@ -1,30 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// Controls the Left-Hand side List of Apps from the Database
+import AppListItem from './AppListItem';
+import classNames from 'classnames';
 
+
+// The list of apps can be sent through props
 class AppList extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			apps: [],
-		};
 	}
 
 	render() {
+		const { appList, title, className } = this.props;
+
+		console.log("APP_LIST", appList);
+
 		return (
-			<div style={this.props.style}>
-				<h2 className="h2">List of Apps</h2>
-				<ul className="list-reset">
-					{this.props.apps.map(app => (
-						<li
-							key={app.id}
-							onClick={() => this.props.onClick(app.id)}
-							className="py3 border-bottom border-bottom-smoke pointer"
-						>
-							<span>{app.name}</span>
-							<span>{app.description}</span>
-						</li>
+			<div className={classNames(className)}>
+				<ul className="p1 flex-column app-list-body">
+					{appList.map(app => (
+						<AppListItem app={app} key={app.id} />
 					))}
 				</ul>
 			</div>
@@ -34,9 +30,9 @@ class AppList extends React.Component {
 
 // Defining the prop types for the component for clarity purposes
 AppList.propTypes = {
-	style: PropTypes.object,
-	apps: PropTypes.array,
-	onClick: PropTypes.func,
+	className: PropTypes.string,
+	appList: PropTypes.array,
+	title: PropTypes.string,
 };
 
 export default AppList;

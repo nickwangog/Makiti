@@ -10,7 +10,7 @@ class Admin extends React.Component {
 
 	render() {
 		return (
-			<h2>Admin</h2>
+			<h2 className="h2">Admin</h2>
 		);
 	}
 }

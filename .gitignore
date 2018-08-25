@@ -6,3 +6,4 @@ Appstore/server/services/customer/customerapienv
 .vscode
 .vscode/*
 *.nfs*
+*.zip*

@@ -14,12 +14,12 @@ class Modal extends React.Component {
 			<div className="modal-background">
 				<div className="modal-window" style={this.props.style}>
 					<div className="modal-header">
-						<button onClick={this.props.onClose} className="button-makiti">
+						<button onClick={this.props.onClose} className="button-makiti text-bold-black">
 							X
 						</button>
 					</div>
 					<div>
-						{React.cloneElement(this.props.children, { modalProps: this.props })}
+						{React.cloneElement(this.props.children, ...this.props )}
 					</div>
 				</div>
 			</div>

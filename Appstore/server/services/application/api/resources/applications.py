@@ -6,65 +6,31 @@ from api.app import db
 from api.models import Application, application_schema, applications_schema
 from api.models import ApplicationDeveloper, applicationdeveloper_schema, applicationdevelopers_schema
 from api.response import Response as res
-from werkzeug.utils import secure_filename
-ALLOWED_EXTENSIONS = set(['zip', 'gzip'])
-
-#   Validates file extension
-def allowedFile(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-#   Creates the directory for the new app in server file system by joining app name and version number
-#   Ilustration of file system for application storage:
-#   Apps/
-#       + ApplicationName/
-#           + 0.1/
-#               -appversion0.1.zip
-#           + 0.2/
-#               -appversion0.2.zip
-def saveAppinServer(file, data):
-    print("saving into server")
-    #   Checks the file received is of valid extension
-    if not file or not allowedFile(file.filename):
-        return False, "File not supported. Only {} extensions are supported.".format(ALLOWED_EXTENSIONS)
-    filename = secure_filename(file.filename)
-
-    #   Checks if app has a directory created already.
-    appPath = os.path.join(app.config['UPLOAD_FOLDER'], data.get('appName'))
-    if os.path.exists(appPath):
-        return False, "An app with name {} already exists.".format(data.get('appName'))
-    appversionPath = os.path.join(appPath, data.get('versionNumber'))
-    if os.path.exists(appversionPath):
-        return False, "App version {} already exists.".format(data.get('versionNumber'))
-    
-    #   Creates directory in server file system and saves application
-    os.makedirs(appversionPath, 0o777)
-    file.save(os.path.join(appversionPath, filename))
-    return True, "File saved!"
-
-#   Links developer and app, giving him permission to modify app details and make requests
-def addDevelopertoApp(appDeveloperDetails):
-    #   Validates data given is complete and ready to save to database
-    newappdeveloper, error = applicationdeveloper_schema.load(appDeveloperDetails)
-    if error:
-        return False, error
-    db.session.add(newappdeveloper)
-    db.session.commit()
-    return True, "Developer linked!"
+import api.serviceUtilities as ServUtil
 
 #   /api/application
 #   Adds application to AppStore database
 #   Requires in request body to provide: account, app name, files, version, appdescription
 #   Example {"accountId": 5, "appName": "Makiti", "versionNumber": "0.01"}
 class apiApplication(Resource):
+    def get(self):
+        queryApps = Application.query.filter_by().all() #active=True
+        print(queryApps)
+        if not queryApps:
+            return res.resourceMissing("No apps in AppStore yet. Brah!")
+        return res.getSuccess(data=applications_schema.dump(queryApps).data)
+
     def post(self):  
         data = request.form
         if not data or not data.get('accountId') or not data.get('appName') or not data.get('versionNumber'):
             return res.badRequestError("Missing data to process request")
 
         #   Call service to valide account has developer rights
-        accountServiceReq = requests.get(os.path.join(app.config['ACCOUNT_SERVICE']), "{}".format(data.get('accountId'))).content
-        print(accountServiceReq)
-        return res.getSuccess("hey")
+        accountServiceReq = requests.get(app.config['ACCOUNT_SERVICE'] + data.get('accountId')).json()
+        if "error" in accountServiceReq["status"]:
+            return res.internalServiceError("Acccount service is down.")
+        if not accountServiceReq["data"]["developer"]:
+            return res.badRequestError("Account not registered as developer.")
 
         #   Checks if app name already exists
         query = Application.query.filter_by(appname=data.get('appName')).first()
@@ -90,18 +56,18 @@ class apiApplication(Resource):
             return res.internalServiceError("Unable to create application {}.".format(data.get("appName")))
         
         #   Add permission to developer over created application
-        linked, msg = addDevelopertoApp({ "appid": queryNewApp.id, "accountid" :data.get("accountId")})
+        linked, msg = ServUtil.addDevelopertoApp(db, { "appid": queryNewApp.id, "accountid" :data.get("accountId")})
         if not linked:
             return res.internalServiceError(msg)
 
          #   Saves app files
-        saved, msg = saveAppinServer(file, data)
+        saved, msg = ServUtil.saveAppinServer(app, file, data)
         if not saved:
             return res.internalServiceError(message=msg)
 
         #   Call apprequest service to create a request to review just created app
         postRequestData = {'accountid':data.get('accountId'), 'appid':queryNewApp.id, 'requesttype': 1}
-        appRequestRes = requests.post(os.path.join(app.config['APPREQUEST_SERVICE'], "developer"), data=postRequestData)
+        appRequestRes = requests.post(app.config['APPREQUEST_SERVICE'] + "developer", data=postRequestData)
         print(appRequestRes)
 
         return res.postSuccess("Succesfully created application {}.".format(queryNewApp.appname), application_schema.dump(queryNewApp).data)
@@ -110,13 +76,13 @@ class apiApplication(Resource):
 class apiApplicationbyId(Resource):
     
     def get(self, appId):
-        query = Application.query.filter_by(id=appId).first()
+        queryApp = Application.query.filter_by(id=appId).first()
 
         #   Checks application exists in database
-        if not query:
+        if not queryApp:
             return res.resourceMissing("No application found")
 
-        return res.getSuccess(data=application_schema.dump(query).data)
+        return res.getSuccess(data=application_schema.dump(queryApp).data)
     
     #   Requires in request body to provide app: zipbinary, configfile, version
     #   Example {"version": 0.01}

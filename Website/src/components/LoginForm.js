@@ -1,20 +1,8 @@
 import React from 'react';
+import axios from 'axios';
+import { Whirlpool } from 'whirlpool-hash';
 
-//	A helper element for both the username and password
-const LoginInput = ({
-	...props
-}) => {
-	const { name } = {...props}
-	return (
-		<div className="fit">
-			<h5 className="h5">{name}</h5>
-			<input
-				className="login-input"
-				{...props}
-			/>
-		</div>
-	);
-}
+import InputMakiti from './InputMakiti';
 
 
 //	Basic login form accepts a username and password
@@ -24,58 +12,195 @@ class LoginForm extends React.Component {
 		this.state = {
 			username: '',
 			password: '',
+			firstname: '',
+			lastname: '',
 			errors: {
-				username: null,
-				password: null,
+				username: '',
+				password: '',
+				firstname: '',
+				lastname: '',
+				serverResponse: '',
 			},
+			showSignUp: false,
 		}
 	}
 
-	onSubmit = (e) => {
+	hashPassword = (pass) => {
+		let	whirlpool = new Whirlpool(),
+			hash = whirlpool.getHash(pass),
+			nullRemovedHash = hash.replace(/\0/g, '');
+		return nullRemovedHash;
+	}
+
+	logIn = (e) => {
 		e.preventDefault();
-		const { authClient, authDeveloper, authAdmin } = this.props.authFunc;
-		authClient(this.state.username, this.state.password);
-		// If successful close the parent modal
-		if (true) { // success placeholder)
-			this.props.onSuccess();
-		}
+
+		// Validate form
+		if (this.validateForm( () => {
+
+			let { setAccountDetails } = this.props,
+				{ username } = this.state,
+				password = this.hashPassword(this.state.password),
+				clearErrors = this.clearErrors,
+				closeParentModal = this.props.onSuccess;
+
+			axios.post(`${ACCOUNT_SERVICE}/account/login`, {
+					username: username,
+					password: password,
+				})
+				.then(response => {
+					const { data } = response.data;
+					// close the parent modal
+					closeParentModal();
+					// sets the main Apps current account details
+					setAccountDetails(data);
+				})
+				.catch(err => {
+					// On failure, type out what went wrong
+					if (!err.response) {
+						this.setState(() => ({ errors: { serverResponse: "Account Services are Offline at the moment"}}))
+					} else {
+						const { data } = err.response;
+						this.setState(() => ({ errors: { serverResponse: data.message }}));
+					}
+				});
+		}));
 	}
 
 	signUp = (e) => {
 		e.preventDefault();
-		console.log(e);
+		this.setState({ showSignUp: true }, () => {
+			if (this.validateForm(() => {
+
+				let	{ username, firstname, lastname } = this.state,
+					password = this.hashPassword(this.state.password),
+					{ setAccountDetails } = this.props,
+					clearErrors = this.clearErrors,
+					closeParentModal = this.props.onSuccess;
+
+				axios.post(`${ACCOUNT_SERVICE}/account/`, {
+						username: username,
+						password: password,
+						firstname: firstname,
+						lastname: lastname,
+					})
+					.then(response => {
+						console.log(response);
+						const { data } = response;
+						// close modal window
+						onSuccess();
+						// sets the main Apps current account details
+						setAccountDetails(data);
+					})
+					.catch(err => {
+						console.log(err.response);
+						const { data } = err.response;
+						this.setState(() => ({ errors: { serverResponse: data.message }}));
+					});
+				}));
+		});
 	}
 
 	onChange = (e) => {
 		this.setState({ [e.target.name]: e.target.value });
 	}
 
-	validateForm = () => {
-		return true;
+	validateForm = (cb) => {
+		let	uErr = '',
+			pErr = '',
+			fErr = '',
+			lErr = '';
+
+		if (!this.state.username.length) {
+			uErr = '(required)';
+		}
+		if (!this.state.password.length) {
+			pErr = '(required)'
+		}
+		if (this.state.showSignUp == true) {
+			if (!this.state.firstname.length) {
+				fErr = '(required for sign up)';
+			}
+			if (!this.state.lastname.length) {
+				lErr = '(required for sign up)';
+			}
+		}
+		if (uErr.length || pErr.length || fErr.length || lErr.length) {
+			this.setState(() => ({
+				errors: {
+					username: uErr,
+					password: pErr,
+					firstname: fErr,
+					lastname: lErr,
+				}
+			}));
+			return ;
+		}
+		cb();
 	}
 
+	setSingleError = (error, value) => {
+		let currentDetails = this.state.errors;
+		currentDetails[error] = value;
+		this.setState({
+			errors: currentDetails,
+		}, () => { console.log(`Updated Error (${error}: ${value})\n\n`, this.state) });
+	}
+
+	clearErrors = () => (this.setState(() => ({ errors: { username: '', password: '', firstname: '', lastname: '', serverResponse: '',}})));
+
 	render () {
-		const { username, password, errors } = this.state;
+		const { username, password, firstname, lastname, errors } = this.state;
+		const { username: uErr,
+				password: pErr,
+				firstname: fErr,
+				lastname: lErr,
+				serverResponse } = this.state.errors;
 
 		return (
 			<form>
-				<h2 className="h2">Login</h2>
-				<LoginInput
+				<span className="flex flex-wrap">
+					<h2 className="h2">Login</h2>
+					<p className="text-error-red">{serverResponse}</p>
+				</span>
+				<InputMakiti
 					autoFocus
+					show={true}
 					name="username"
+					fieldname="Username"
+					errors={uErr}
 					value={username}
 					onChange={this.onChange}
 				/>
-				<LoginInput
+				<InputMakiti
+					show={true}
 					name="password"
+					fieldname="Password"
+					errors={pErr}
 					type="password"
 					value={password}
+					onChange={this.onChange}
+				/>
+				<InputMakiti
+					show={this.state.showSignUp}
+					name="firstname"
+					fieldname="First Name"
+					errors={fErr}
+					value={firstname}
+					onChange={this.onChange}
+				/>
+				<InputMakiti
+					show={this.state.showSignUp}
+					name="lastname"
+					fieldname="Last Name"
+					errors={lErr}
+					value={lastname}
 					onChange={this.onChange}
 				/>
 				<div className="flex justify-around">
 					<button
 						className="btn btn-primary button-makiti"
-						onClick={this.onSubmit}
+						onClick={this.logIn}
 					>
 						Login
 					</button>
