@@ -49,6 +49,11 @@ class DeveloperNewAppButton extends React.Component {
 		this.setState({ file: e.target.files[0]});
 	}
 
+	onIconChange = (e) => {
+		this.setState({ icon: e.target.files[0]});
+	}
+
+
 	toggleModal = () => {
 		this.setState(() => ({ showModal: !this.state.showModal }));
 	}
@@ -131,12 +136,6 @@ class DeveloperNewAppButton extends React.Component {
 								}
 								const { data } = err.response
 								this.setErrorText(data.message);
-								console.log("FAilerrrrrrrrrrrrrr");
-								console.log(data);
-								console.log(data);
-								console.log(data);
-								console.log(data);
-								console.log(data);
 							});
 					}
 					reader.readAsArrayBuffer(file);
@@ -156,9 +155,16 @@ class DeveloperNewAppButton extends React.Component {
 		const { file, icon, appName, versionNumber, appDescription, programmingLanguage } = this.state;
 
 		// Successful validation
-		if (appName.length && versionNumber.length && appDescription.length && programmingLanguage.length) {
+		if (file &&
+			icon &&
+			appName.length &&
+			versionNumber.length &&
+			appDescription.length &&
+			programmingLanguage.length) {
 			this.setState(() => ({
 				errorText: '',
+				fileErr: '',
+				iconErr: '',
 				appNameErr: '',
 				versionNumberErr: '',
 				appDescriptionErr: '',
@@ -169,6 +175,8 @@ class DeveloperNewAppButton extends React.Component {
 
 		// Validation Failure
 		this.setState(() => ({
+			fileErr: !file ? "required" : '',
+			iconErr: !icon ? "required" : '',
 			appNameErr: !appName.length ? "required" : '',
 			versionNumberErr: !versionNumber.length ? "required" : '',
 			appDescriptionErr: !appDescription.length ? "required" : '',
@@ -182,6 +190,8 @@ class DeveloperNewAppButton extends React.Component {
 		const {	showModal,
 				errorText,
 				appName, appNameErr,
+				file, fileErr,
+				icon, iconErr,
 				versionNumber, versionNumberErr,
 				appDescription, appDescriptionErr,
 				programmingLanguage, programmingLanguageErr } = this.state;
@@ -207,18 +217,30 @@ class DeveloperNewAppButton extends React.Component {
 							value={appName}
 							onChange={this.onChange}
 						/>
-						<span className="text-error-red">{appDescriptionErr}</span>
-						<h5 className="h5">Application Description</h5>
-						<textarea
-							name="text"
-							rows="14"
-							cols="20"
-							wrap="soft"
-							name="appDescription"
-							style={{ height: 200, width: 200 }}
-							value={appDescription}
-							onChange={this.onChange}
-						/>
+						<div>
+							<span className="text-error-red">{fileErr}</span>
+							<h5 className="h5">Add your Zip File</h5>
+							<input className="h5 white" type="file" onChange={this.onFileChange}/>
+						</div>
+						<div>
+							<span className="text-error-red">{iconErr}</span>
+							<h5 className="h5">Add an app Icon</h5>
+							<input className="h5 white" type="file" onChange={this.onIconChange}/>
+						</div>
+						<div>
+							<span className="text-error-red">{appDescriptionErr}</span>
+							<h5 className="h5">Application Description</h5>
+							<textarea
+								name="text"
+								rows="14"
+								cols="20"
+								wrap="soft"
+								name="appDescription"
+								style={{ height: 200, width: 200 }}
+								value={appDescription}
+								onChange={this.onChange}
+							/>
+						</div>
 						<InputMakiti
 							show={true}
 							name="versionNumber"
@@ -240,9 +262,6 @@ class DeveloperNewAppButton extends React.Component {
 								))}
 							</div>
 						</div>
-						<form onSubmit={this.submitApp}>
-							<input className="h5" type="file" onChange={this.onFileChange}/>
-						</form>
 						<ButtonMakiti className="text-bold-black bg-green" onClick={this.submitApp}>
 							Submit your Application!
 						</ButtonMakiti>
