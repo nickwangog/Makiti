@@ -15,8 +15,8 @@ import api.serviceUtilities as ServUtil
 
 #   /api/apprequest/developer
 class apiDeveloperAppReviewRequest(Resource):
-    #   Request body should contain developerid, appid, requesttype
-    #   Example: {"accountid": 14, "appid": 3, "requesttype" : 1}
+    #   Request body should contain developerid, appversionId, requesttype
+    #   Example: {"accountId": 14, "appversionId": 3, "requestType" : 1}
     #   For requesttype: 1 = Create, 2 = Update
     def post(self):
         data = request.form
@@ -53,13 +53,13 @@ class apiDeveloperAppReviewRequest(Resource):
         db.session.commit()
         return res.putSuccess(data=apprequest_schema.dump(queryAppRequest).data)
 
-#   /api/apprequest/application/:appId
+#   /api/apprequest/application/:appversionId
 class apiAppRequests(Resource):
     def get(self, appId):
-        query = AppRequest.query.filter_by(application=appId).all()
-        if not query:
+        queryRequests = AppRequest.query.filter_by(appversion=appversionId).all()
+        if not queryRequests:
             return res.getSuccess(data=None)
-        apprequests, error = apprequests_schema.dump(query)
+        apprequests, error = apprequests_schema.dump(queryRequests)
         if error:
             return res.internalServiceError(error)
         return res.getSuccess("Requests for app {} retrieved".format(appId), apprequests)

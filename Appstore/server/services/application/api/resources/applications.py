@@ -24,7 +24,8 @@ class apiApplication(Resource):
     #   Example {"accountId": 5, "appName": "Makiti", appDesciption: "afgkajfgha"}
     def post(self):
         data = request.get_json()
-        if not data or not data.get('accountId') or not data.get('appName') or not data.get('versionNumber'):
+        print(data)
+        if not data or not data.get("accountId") or not data.get("appName"):
             return res.badRequestError("Missing data to process request")
 
         #   Checks if app name already exists
@@ -33,13 +34,13 @@ class apiApplication(Resource):
             return res.resourceExistsError("App name {} already taken".format(data.get('appName')))
 
         #   Validates and saves app data given
-        appDetails = {"appname": data.get('appName'), "description": data.get('description')}
-        newApp, error = application_schema.load(appdetails)
+        appDetails = {"appname": data.get('appName'), "description": data.get('appDescription')}
+        newApp, error = application_schema.load(appDetails)
         if error:
             return res.badRequestError(error)
         db.session.add(newApp)
         db.session.commit()
-                
+
         #   Add permission to developer over created application
         linked, msg = ServUtil.addDevelopertoApp(db, { "appid": newApp.id, "accountid" :data.get("accountId")})
         if not linked:
@@ -52,29 +53,33 @@ class apiApplication(Resource):
         #    return res.internalServiceError("App Request Service Error: {}".format(appRequestRes["message"]))
         #print(appRequestRes)
 
-        return res.postSuccess("Succesfully created application {} v.{}.".format(queryNewApp.appname, queryNewApp.version), application_schema.dump(queryNewApp).data)
+        return  res.postSuccess("Succesfully created application {}.".format(newApp.appname), application_schema.dump(newApp).data)
 
 #   /application/version/:appId 
 class apiApplicationVersion(Resource):
 
     #   Stores and creates a version record for the given application.
     #   App is NOT available in AppStore after this proccess. Requires review and testing.
-    #   Example {"accountId": 5, "versionNumber": "0.01", versionDesciption: "afgkajfgha", "checksum" : "string"}
+    #   Example {"versionNumber": "0.01", versionDesciption: "afgkajfgha", "checksum" : "string"}
     def post(self, appId):
         data = request.form
+        print(data)
+        #   Verifies data required was sent in request
+        if not data or not data.get("appName") or not data.get("versionNumber") or not data.get("checksum") or not data.get("versionDescription"):
+            return res.badRequestError("Missing data to process request.")
         
         #   Verifies app exists
         queryApp = Application.query.filter_by(id=appId).first()
         if not queryApp:
             return res.resourceMissing("App {} not found.".format(appId))
         
-        #   Verifies file was sent in request
+        #   Verifies app version file was sent in request
         if 'file' not in request.files:
             return res.badRequestError("Missing app file.")
         file = request.files['file']
 
         #   Validates data and creates application version
-        appVersionDetails = {"app": appId, "version": data.get("versionNumber")}
+        appVersionDetails = {"app": appId, "version": data.get("versionNumber"), "description": data.get("versionDescription")}
         newappVersion, error = applicationversion_schema.load(appVersionDetails)
         if error:
             return res.internalServiceError(error)
@@ -86,7 +91,7 @@ class apiApplicationVersion(Resource):
         if not saved:
             return res.internalServiceError(message=msg)
         
-        return res.postSuccess("{} v.{} successfully created !".format(queryApp.appname, newappVersion.version), newappVersion)
+        return res.postSuccess("{} v.{} successfully created !".format(queryApp.appname, newappVersion.version), applicationversion_schema.dump(newappVersion).data)
 
 #   /api/application/:appId
 class apiApplicationbyId(Resource):

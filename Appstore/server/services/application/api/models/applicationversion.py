@@ -14,9 +14,10 @@ class ApplicationVersion(db.Model):
     description = db.Column(db.Text)
     checksum = db.Column(db.Text)
 
-    def __init__(self, app, version):
+    def __init__(self, app, version, description):
         self.app = app
         self.version = version
+        self.description = description
         
 class ApplicationVersionSchema(ma.ModelSchema):
     class Meta:

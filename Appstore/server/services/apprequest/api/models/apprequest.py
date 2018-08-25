@@ -7,7 +7,7 @@ class AppRequest(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     requesttype = db.Column(db.Integer, nullable=False)
-    application = db.Column(db.Integer, nullable=False)
+    appversion = db.Column(db.Integer, nullable=False)
     reviewversion = db.Column(db.String(50), nullable=False)
     customer = db.Column(db.Integer, nullable=False, server_default='0')
     developer = db.Column(db.Integer, nullable=False, server_default='0')
@@ -17,9 +17,9 @@ class AppRequest(db.Model):
     status = db.Column(db.Integer, nullable=False, server_default='1')
     admincomment = db.Column(db.Text)
 
-    def __init__(self, requesttype, application, customer=0, developer=0):
+    def __init__(self, requesttype, appversion, customer=0, developer=0):
         self.requesttype = requesttype
-        self.application = application
+        self.appversion = appversion
         self.customer = customer
         self.developer = developer
 
