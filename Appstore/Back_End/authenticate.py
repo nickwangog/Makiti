@@ -12,10 +12,8 @@ def checkFile(s, path):
     s = [x.strip('\'') for x in s]    
     for key in keywords:
         for i in range(len(s)):
-            if s[i].find(key) != -True:
+            if s[i].find(key) != -1:
                 if s[i] not in checked:
-                    # print type(s)
-                    print "hello"
                     log.write("Restricted code found in line %s\n" % i)
                     log.write("%s\n" % s[i])
                     checked.append(s[i])
@@ -26,14 +24,12 @@ def checkFile(s, path):
         return True
 
 def checkZip(path):
-    print path
     fail = False
     with open(path, 'r') as test_file:
         line = test_file.readlines()
         line = [x.strip() for x in line]
         for s in line:
             res = checkFile(s, path)
-            print res
             if res == False:
                 fail = True
     if fail == True:
