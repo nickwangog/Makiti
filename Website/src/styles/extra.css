@@ -118,6 +118,18 @@
 	color: #ffffff;
 }
 
+.icon-image {
+	max-height: 120px;
+	max-width: 100px;
+}
+
+.app-description {
+	min-height: 300px;
+	min-width: 120px;
+	background-color: firebrick;
+	border-style: groove;
+}
+
 /* BACKGROUND */
 
 .bg-mediumgray {

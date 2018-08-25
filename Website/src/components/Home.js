@@ -57,14 +57,14 @@ class Home extends React.Component {
 					<div className="flex-none flex">
 						<AppList
 							className="flex-auto"
-							style={{ flex: 2 }}
+							style={{ flex: 2.5 }}
 							title="App Store"
 							appList={appList}
 							onClick={this.showAppDetail}
 						/>
 						<AppDetail
 							className="flex-auto"
-							style={{ flex: 3 }}
+							style={{ flex: 2 }}
 							app={currentApp}
 							appButtonConfig={appButtonConfig}
 						/>
