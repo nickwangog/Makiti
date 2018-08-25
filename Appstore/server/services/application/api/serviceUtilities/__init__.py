@@ -1,4 +1,6 @@
 import os
+import sys
+import hashlib
 from werkzeug.utils import secure_filename
 from api.models import applicationdeveloper_schema
 ALLOWED_EXTENSIONS = set(['zip', 'gzip'])
@@ -64,3 +66,9 @@ def addDevelopertoApp(db, appDeveloperDetails):
     db.session.add(newappdeveloper)
     db.session.commit()
     return True, "Developer linked!"
+
+def checksum_sha256(file, block_size=65536):
+    sha256 = hashlib.sha256()
+    for block in iter(lambda: file.read(block_size), b''):
+        sha256.update(block)
+    return sha256.hexdigest()

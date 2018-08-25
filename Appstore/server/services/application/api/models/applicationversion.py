@@ -7,11 +7,11 @@ class ApplicationVersion(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     app = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.Text)
     version = db.Column(db.String(50), nullable=False)
     approved = db.Column(db.Boolean, nullable=False, server_default=sa.sql.expression.false())
     datecreated = db.Column(db.DateTime, nullable=False, server_default=sa.func.now())
     datelastupdate = db.Column(db.DateTime)
-    description = db.Column(db.Text)
     checksum = db.Column(db.Text)
 
     def __init__(self, app, version, description):

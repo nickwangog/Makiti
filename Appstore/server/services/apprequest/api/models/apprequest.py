@@ -8,20 +8,19 @@ class AppRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     requesttype = db.Column(db.Integer, nullable=False)
     appversion = db.Column(db.Integer, nullable=False)
-    reviewversion = db.Column(db.String(50), nullable=False)
     customer = db.Column(db.Integer, nullable=False, server_default='0')
     developer = db.Column(db.Integer, nullable=False, server_default='0')
-    admin = db.Column(db.Integer, nullable=False, server_default='0')
+    admincomment = db.Column(db.Text)
     dateclosed = db.Column(db.DateTime)
     datecreated = db.Column(db.DateTime, server_default=sa.func.now())
     status = db.Column(db.Integer, nullable=False, server_default='1')
-    admincomment = db.Column(db.Text)
+    requesttype = db.Column(db.Integer, nullable=False)
 
     def __init__(self, requesttype, appversion, customer=0, developer=0):
-        self.requesttype = requesttype
         self.appversion = appversion
         self.customer = customer
         self.developer = developer
+        self.requesttype = requesttype
 
 class AppRequestSchema(ma.ModelSchema):
     class Meta:

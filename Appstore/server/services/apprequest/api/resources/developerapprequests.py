@@ -19,11 +19,11 @@ class apiDeveloperAppReviewRequest(Resource):
     #   Example: {"accountId": 14, "appversionId": 3, "requestType" : 1}
     #   For requesttype: 1 = Create, 2 = Update
     def post(self):
-        data = request.form
+        data = request.get_json()
         #print(data)
-        if not data or not data.get("accountid") or not data.get("appid") or not data.get("requesttype"):
+        if not data or not data.get("accountId") or not data.get("appversionId") or not data.get("requestType"):
             return res.badRequestError("Missing data to create app request")
-        requestDetails = {"developer" : data.get("developer"), "application": data.get("application"), "requesttype": data.get("requesttype")}
+        requestDetails = {"developer": data.get("accountId"), "appversion": data.get("appversionId"), "requesttype": data.get("requestType")}
         apprequest, error = apprequest_schema.load(requestDetails)
         print(apprequest)
         if error:
@@ -44,9 +44,10 @@ class apiDeveloperAppReviewRequest(Resource):
         queryAppRequest = AppRequest.query.filter_by(id=data["requestId"]).first()
         #if not queryAppRequest:
             #return res.badRequestError("Request {} does not exist.".format(data))
-        AppServiceReq = requests.get(app.config['APPLICATION_SERVICE'] + "2").json() #tmp 2, real queryAppRequest.application
+        AppServiceReq = requests.get(app.config['APPLICATION_SERVICE'] + "{}/appversion".format(queryAppRequest.appversion)).json() #tmp 2, real queryAppRequest.application
         appData = AppServiceReq["data"]
-        saved, msg = ServUtil.saveLoginServer(app, request.files["logfile"], appData)
+        print(appData)
+        saved, msg =  ServUtil.saveLoginServer(app, request.files["logfile"], appData["appDetails"]["appname"], appData["version"])
         if not saved:
             return res.internalServiceError(msg)
         queryAppRequest.status = 2
@@ -55,14 +56,14 @@ class apiDeveloperAppReviewRequest(Resource):
 
 #   /api/apprequest/application/:appversionId
 class apiAppRequests(Resource):
-    def get(self, appId):
+    def get(self, appversionId):
         queryRequests = AppRequest.query.filter_by(appversion=appversionId).all()
         if not queryRequests:
             return res.getSuccess(data=None)
         apprequests, error = apprequests_schema.dump(queryRequests)
         if error:
             return res.internalServiceError(error)
-        return res.getSuccess("Requests for app {} retrieved".format(appId), apprequests)
+        return res.getSuccess("Requests for app {} retrieved".format(appversionId), apprequests)
 
 #   /api/apprequest/developer/:developerId
 class apiDeveloperRequests(Resource):

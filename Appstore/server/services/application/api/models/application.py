@@ -7,7 +7,7 @@ class Application(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     appname = db.Column(db.String(200), nullable=False)
-    applicationversion = db.Column(db.Integer, nullable=False, server_default='0')
+    runningversion = db.Column(db.Integer, nullable=False, server_default='0')
     datecreated = db.Column(db.DateTime, nullable=False, server_default=sa.func.now())
     datelastupdate = db.Column(db.DateTime)
     description = db.Column(db.Text)

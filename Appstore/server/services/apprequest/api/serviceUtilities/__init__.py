@@ -14,19 +14,20 @@ def allowedFile(filename):
 #               -appversion0.1.zip
 #           + 0.2/
 #               -appversion0.2.zip
-def saveLoginServer(app, file, data):
+def saveLoginServer(app, file, appName, appVersion):
     print("saving log into server")
     #   Checks the file received is of valid extension
     filename = secure_filename(file.filename)
 
     #   Checks if app has a directory created.
-    appPath = os.path.join(app.config['UPLOAD_FOLDER'], data["appname"])
+    appPath = os.path.join(app.config['UPLOAD_FOLDER'], appName)
     if not os.path.exists(appPath):
-        return False, "No folder found for app with name {}".format(data['appname'])
-    appversionPath = os.path.join(appPath, data['version'])
+        return False, "No folder found for app with name {}".format(appName)
+    appversionPath = os.path.join(appPath, appVersion)
     if not os.path.exists(appversionPath):
-        return False, "No folder found for version {}.".format(data["version"])
+        return False, "No folder found for version {}.".format(appVersion)
     
     file.save(os.path.join(appversionPath, filename))
     print("saved")
     return True, "File saved!"
+

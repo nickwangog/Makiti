@@ -55,8 +55,22 @@ class apiApplication(Resource):
 
         return  res.postSuccess("Succesfully created application {}.".format(newApp.appname), application_schema.dump(newApp).data)
 
-#   /application/version/:appId 
+#   /application/version/:appId/
 class apiApplicationVersion(Resource):
+
+    #   Retrieves all app versions submitted for review by developer
+    def get(self, appId):
+        data = request.get_json()
+        
+        if not data:
+            return res.badRequestError("Missing data to process request.")
+        queryApp = Application.query.filter_by(id=appId).first()
+        if not queryApp:
+            return res.badRequestError("App {} does not exist.".format(appId))
+        queryAppVersions = ApplicationVersion.query.filter_by(app=appId).all()
+        if not queryAppVersions:
+            return res.resourceMissing("No versions found for app {}.".format(queryApp.appname))
+        return res.getSuccess(data=applicationversions_schema.dump(queryAppVersions).data)
 
     #   Stores and creates a version record for the given application.
     #   App is NOT available in AppStore after this proccess. Requires review and testing.
@@ -68,16 +82,26 @@ class apiApplicationVersion(Resource):
         if not data or not data.get("appName") or not data.get("versionNumber") or not data.get("checksum") or not data.get("versionDescription"):
             return res.badRequestError("Missing data to process request.")
         
-        #   Verifies app exists
-        queryApp = Application.query.filter_by(id=appId).first()
-        if not queryApp:
-            return res.resourceMissing("App {} not found.".format(appId))
-        
         #   Verifies app version file was sent in request
         if 'file' not in request.files:
             return res.badRequestError("Missing app file.")
         file = request.files['file']
 
+        checksum = ServUtil.checksum_sha256(file)
+        if data.get("checksum") == checksum:
+            print("good checksum")
+        else:
+            return res.badRequestError("File corrupted.")
+
+        #   Verifies app exists
+        queryApp = Application.query.filter_by(id=appId).first()
+        if not queryApp:
+            return res.resourceMissing("App {} not found.".format(appId))
+        
+        queryAppVersion = ApplicationVersion.query.filter_by(app=appId, version=data.get("versionNumber")).first()
+        if queryAppVersion:
+            return res.resourceExistsError("Duplicate {} v.{} has already been submitted for review.".format(queryApp.appname, queryAppVersion.version))
+        
         #   Validates data and creates application version
         appVersionDetails = {"app": appId, "version": data.get("versionNumber"), "description": data.get("versionDescription")}
         newappVersion, error = applicationversion_schema.load(appVersionDetails)
@@ -131,27 +155,25 @@ class apiApplicationbyId(Resource):
 
     
     def delete(self, appId):
-        app = Application.query.filter_by(id=appId).first()
-
+        queryApp = Application.query.filter_by(id=appId).first()
         #   Checks application exists in database
-        if not app:
-            return res.resourceMissing("No application found")
-        app.active = False
+        if not queryApp:
+            return res.resourceMissing("No application found.")
+        queryApp.active = False
         db.session.commit()
-        res.deleteSuccess("{} succesfully removed from Makiti App Store".format(app.appname))
+        return res.deleteSuccess("{} succesfully removed from Makiti App Store".format(queryApp.appname), application_schema.dump(queryApp).data)
 
-#   api/application/:appId/launch
-#   Endpoint to be called from developer account
+#   api/application/:appversionId/launch
 class apiAppLaunch(Resource):
 
     #   Makes the app available in the AppStore (if approved)
     #   'Approved' implies it passed all the validation tests performed when app version was submitted by the developer
-    def put(self, appId):
-        queryApp = Application.query.filter_by(id=appId).first()
+    def put(self, appversionId):
+        queryApp = Application.query.filter_by(id=appversionId).first()
 
         #   Ensures app exists in database
         if not queryApp:
-            return res.resourceMissing("No application {} found.".format(appId))
+            return res.resourceMissing("No record with {} found for any app version.".format(appversionId))
 
         #   Ensures app is approved
         if queryApp.approved is False:
@@ -179,3 +201,18 @@ class apiDeveloperApps(Resource):
             developerapp["appDetails"] = application_schema.dump(queryApplication).data
             allapps.append(developerapp)
         return res.getSuccess("Succesful [GET]", allapps)
+
+#   api/application/:appversionId/appversion
+class apiVersion(Resource):
+    def get(self, appversionId):
+        queryAppVersion = ApplicationVersion.query.filter_by(id=appversionId).first()
+        if not queryAppVersion:
+            return res.resourceMissing("No version record {} exists.".format(appversionId))
+        appVersion, error = applicationversion_schema.dump(queryAppVersion)
+        if error:
+            return res.internalServiceError(error)
+        queryApp = Application.query.filter_by(id=queryAppVersion.app).first()
+        if not queryApp:
+            return res.resourceMissing("App {} does not exist.".format(queryAppVersion.app))
+        appVersion["appDetails"] =  application_schema.dump(queryApp).data
+        return res.getSuccess(data=appVersion)
