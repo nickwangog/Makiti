@@ -2,6 +2,12 @@ from api.app import db, ma
 from datetime import datetime
 import sqlalchemy as sa
 
+#   apprequest table 'status' 
+#   status = 1 (pending)
+#   status = 2 (test successful, pending approval)
+#   status = 3 (test unsuccesful)
+#   status = 4 (approved)
+
 class AppRequest(db.Model):
     __tablename__ = "apprequests"
 

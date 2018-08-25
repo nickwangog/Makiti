@@ -7,3 +7,4 @@ def initRoutes(apprequestAPI):
     apprequestAPI.add_resource(apiAppRequest, '/<int:requestId>')
     apprequestAPI.add_resource(apiDeveloperRequests, '/developer/<int:developerId>')
     apprequestAPI.add_resource(apiCustomerAppRequest, '/customer/<int:customerId>')
+    apprequestAPI.add_resource(apiAppRequestLogFile, '/logfile/<logPath>')

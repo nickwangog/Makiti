@@ -17,7 +17,13 @@ class apiApplication(Resource):
         print(queryApps)
         if not queryApps:
             return res.resourceMissing("No apps in AppStore yet. Brah!")
-        return res.getSuccess(data=applications_schema.dump(queryApps).data)
+        apps, error = applications_schema.dump(queryApps)
+        if error:
+            return res.internalServiceError(error)
+        for a in apps:
+            queryAppVersion = ApplicationVersion.query.filter_by(id=a["runningversion"]).first()
+            a["appversionDetails"] = applicationversion_schema.dump(queryAppVersion).data
+        return res.getSuccess(data=apps)
 
     #   Creates new application.
     #   App is NOT available in AppStore after this proccess. Requires review and testing.
@@ -169,20 +175,24 @@ class apiAppLaunch(Resource):
     #   Makes the app available in the AppStore (if approved)
     #   'Approved' implies it passed all the validation tests performed when app version was submitted by the developer
     def put(self, appversionId):
-        queryApp = Application.query.filter_by(id=appversionId).first()
-
+        queryAppVersion = ApplicationVersion.query.filter_by(id=appversionId).first()
+        queryApp = Application.query.filter_by(id=queryAppVersion.app).first()
         #   Ensures app exists in database
-        if not queryApp:
+        if not queryAppVersion:
             return res.resourceMissing("No record with {} found for any app version.".format(appversionId))
-
-        #   Ensures app is approved
-        if queryApp.approved is False:
-            return res.badRequestError("{} is awaiting for approval.".format(queryApp.appname))
         
+        if queryApp.runningversion > queryAppVersion.id:
+            return res.badRequestError("Running version > than this version.")
+        
+        #   Ensures app is approved
+        if queryAppVersion.status is not 4:
+            print("awaiting to be approved")
+            return res.resourceExistsError("App v.{} is still awaiting to be approved.".format(queryAppVersion.version))
+        queryApp.runningversion = queryAppVersion.id
+        queryAppVersion.status = 2
         queryApp.active = True
         db.session.commit()
-
-        return res.putSuccess("{} v.{} launched. Now available in MakitiAppStore !".format(queryApp.appname, queryApp.version))
+        return res.putSuccess("{} v.{} launched. Now available in MakitiAppStore !".format(queryApp.appname, queryAppVersion.version))
 
 #   api/application/developer/:accountId
 class apiDeveloperApps(Resource):
@@ -198,9 +208,12 @@ class apiDeveloperApps(Resource):
         allapps = []
         for developerapp in developerapps:
             queryApplication = Application.query.filter_by(id=developerapp["appid"]).first()
+            queryAppVersion = ApplicationVersion.query.filter(ApplicationVersion.app==queryApplication.id, ApplicationVersion.status > 3).first()
             developerapp["appDetails"] = application_schema.dump(queryApplication).data
+            if queryAppVersion:
+                developerapp["appDetails"]["appversionDetails"] = applicationversion_schema.dump(queryAppVersion).data
             allapps.append(developerapp)
-        return res.getSuccess("Succesful [GET]", allapps)
+        return res.getSuccess(data=allapps)
 
 #   api/application/:appversionId/appversion
 class apiVersion(Resource):

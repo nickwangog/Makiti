@@ -1,23 +1,17 @@
+import os
 import json, requests
 import subprocess
-from flask import request
+from flask import request, send_file
 from flask_restful import Resource
 from api.app import app, db
 from api.models import AppRequest, apprequest_schema, apprequests_schema
 from api.response import Response as res
 import api.serviceUtilities as ServUtil
 
-#   apprequest table 'status' 
-#   status = 1 (pending)
-#   status = 2 (test successful, pending approval)
-#   status = 3 (test unsuccesful)
-#   status = 4 (approved)
-
 #   /api/apprequest/developer
 class apiDeveloperAppReviewRequest(Resource):
     #   Request body should contain developerid, appversionId, requesttype
     #   Example: {"accountId": 14, "appversionId": 3, "requestType" : 1}
-    #   For requesttype: 1 = Create, 2 = Update
     def post(self):
         data = request.get_json()
         #print(data)
@@ -42,6 +36,7 @@ class apiDeveloperAppReviewRequest(Resource):
         data = request.form
         print(data["requestId"])
         queryAppRequest = AppRequest.query.filter_by(id=data["requestId"]).first()
+        queryAppRequest.status = data["status"]
         #if not queryAppRequest:
             #return res.badRequestError("Request {} does not exist.".format(data))
         AppServiceReq = requests.get(app.config['APPLICATION_SERVICE'] + "{}/appversion".format(queryAppRequest.appversion)).json() #tmp 2, real queryAppRequest.application
@@ -64,6 +59,18 @@ class apiAppRequests(Resource):
         if error:
             return res.internalServiceError(error)
         return res.getSuccess("Requests for app {} retrieved".format(appversionId), apprequests)
+
+#   /apprequest/logfile/:logPath
+class apiAppRequestLogFile(Resource):
+    def get(self, logPath):
+        print(logPath)
+        logPath = logPath.replace('__', '/')
+        print(logPath)
+        fullLogPath = os.path.join(app.config['UPLOAD_FOLDER'], os.path.join(logPath, "blah.json"))
+        print(fullLogPath)
+        if (os.path.exists(fullLogPath) == False):
+            return res.badRequestError("Unable to retrieve log file information.")
+        return send_file(fullLogPath, attachment_filename="blah.json")
 
 #   /api/apprequest/developer/:developerId
 class apiDeveloperRequests(Resource):
