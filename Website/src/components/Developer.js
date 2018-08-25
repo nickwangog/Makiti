@@ -50,16 +50,21 @@ class Developer extends React.Component {
 		return (
 			<div>
 				<h1 className="page-header">Developer</h1>
-				<div className="flex px2">
-					<div style={{ flex: 3 }}>
-						<AppList
-							title="My Creations"
-							appList={appList}
-							appButtonConfig={appButtonConfig}
-						/>	
-					</div>
-					<div className="flex-column" style={{ flex: 2 }}>
+				<div className="flex flex-column">
+					<div className="flex-auto">
 						<DeveloperNewAppButton {...this.props} refreshDeveloper={this.refreshDeveloper}/>
+					</div>
+					<div className="flex-none flex">
+						<div className="flex-auto">
+							<AppList
+								title="My Creations"
+								appList={appList}
+								appButtonConfig={appButtonConfig}
+							/>
+						</div>
+						<div className="flex-auto">
+							hey
+						</div>
 					</div>
 				</div>
 			</div>

@@ -58,11 +58,10 @@ class LoginForm extends React.Component {
 				.catch(err => {
 					// On failure, type out what went wrong
 					if (!err.response) {
-						this.setState(() => ({ errors: { serverResponse: "Account Services are Offline at the moment"}}))
-					} else {
-						const { data } = err.response;
-						this.setState(() => ({ errors: { serverResponse: data.message }}));
+						return this.setSingleError("serverResponse", "Account Services are Offline at the moment");
 					}
+					const { data } = err.response;
+					this.setSingleError("serverResponse", data.message);
 				});
 		}));
 	}
@@ -85,17 +84,18 @@ class LoginForm extends React.Component {
 						lastname: lastname,
 					})
 					.then(response => {
-						console.log(response);
-						const { data } = response;
+						const { data } = response.data;
 						// close modal window
-						onSuccess();
+						closeParentModal();
 						// sets the main Apps current account details
 						setAccountDetails(data);
 					})
 					.catch(err => {
-						console.log(err.response);
+						if (!err.response) {
+							return this.setSingleError("serverResponse", "Application Service is offline at the moment");
+						}
 						const { data } = err.response;
-						this.setState(() => ({ errors: { serverResponse: data.message }}));
+						this.setSingleError("serverResponse", data.message);
 					});
 				}));
 		});

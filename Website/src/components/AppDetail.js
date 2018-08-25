@@ -2,6 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+import { RemoveAppButton, InstallAppButton, LaunchAppVersionButton } from './AppButtons';
+
 // import AppIcon from '../static/images/appicon.png';
 
 // Controls the Right-Hand side Detail view of an App from the Database
@@ -11,15 +13,18 @@ import PropTypes from 'prop-types';
 
 const AppDetail = (props) => {
 	// Handle zero-state
-	if (!props.app) {
+	const { className, style, app, appButtonConfig } = props;
+
+	if (!app) {
 		return (
-			<div className={classNames('h4 italic center rounded', props.className)}>
+			<div
+				className={classNames("h4 italic center rounded", className)}
+				style={style}
+			>
 				<span>Please select an App to see the Details</span>
 			</div>
 		);
 	}
-
-
 		// active: false
 		// applicationversion:	0
 		// appname: "adsfasdf"
@@ -28,14 +33,18 @@ const AppDetail = (props) => {
 		// description: "asdf"
 		// id: 2
 
-	const { active, applicationversion, appname, datecreated, datelastupdate, description } = props.app;
+	const { active, applicationversion, appname, datecreated, datelastupdate, description } = app;
 
 	// Handle regular state
 	return (
-		<div style={props.style} className={classNames('rounded', props.className)}>
+		<div style={style} className={classNames('rounded', className)}>
 			<h3 className="h3">
 				{appname}
 			</h3>
+			<div className="flex flex-center">
+				<RemoveAppButton show={appButtonConfig.remove} app={app} />
+				<InstallAppButton show={appButtonConfig.install} app={app} />
+			</div>
 		</div>
 	);
 };

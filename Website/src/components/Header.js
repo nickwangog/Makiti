@@ -84,7 +84,6 @@ class Header extends React.Component {
 
 	render() {
 		const { customer: isC, developer: isD, admin: isA, firstname } = this.props.accountDetails;
-		const { login, logout } = this.props;
 
 		return (
 			<header className="justify-center">
