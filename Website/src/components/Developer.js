@@ -12,6 +12,10 @@ class Developer extends React.Component {
 		}
 	}
 
+	clearAppList = () => {
+		this.setState({ appList: [] });
+	}
+
 	componentWillMount() {
 		let { id } = this.props.appState.accountDetails;
 
@@ -20,11 +24,10 @@ class Developer extends React.Component {
 				const { data } = response.data;
 				let newData = data.map(app => (app.appDetails));
 				this.setState(() => ({ appList: newData }));
-				console.log(newData);
 			})
 			.catch(err => {
 				// APPLICATION SERVICE UNREACHABLE
-				this.setState({ appList: [] });
+				this.clearAppList();
 				if (!err.response) {
 					console.log("no response from server");
 					return ;
@@ -33,18 +36,30 @@ class Developer extends React.Component {
 			});
 	}
 
+	refreshDeveloper = () => {
+		this.componentWillMount();
+	}
+
 	render() {
 		const { appList } = this.state;
+		const appButtonConfig = {
+			remove: true,
+			install: false,
+		}
 
 		return (
 			<div>
 				<h1 className="page-header">Developer</h1>
 				<div className="flex px2">
 					<div style={{ flex: 3 }}>
-						<AppList title="My Creations" appList={appList}/>	
+						<AppList
+							title="My Creations"
+							appList={appList}
+							appButtonConfig={appButtonConfig}
+						/>	
 					</div>
 					<div className="flex-column" style={{ flex: 2 }}>
-						<DeveloperNewAppButton {...this.props}/>
+						<DeveloperNewAppButton {...this.props} refreshDeveloper={this.refreshDeveloper}/>
 					</div>
 				</div>
 			</div>

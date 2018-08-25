@@ -33,12 +33,19 @@ class Home extends React.Component {
 			});
 	}
 
-	onAppListClick = (id) => {
-		return ;
+	showAppDetail = (idx) => {
+		this.setState({currentApp: this.state.appList[idx]});
 	}
 
 	render() {
 		const { appList, currentApp } = this.state;
+		const { appState } = this.props;
+		// From home, don't show remove button
+		// only allow install if user is logged in
+		const appButtonConfig = {
+			remove: false,
+			install: false,
+		};
 
 		return (
 			<div>
@@ -49,7 +56,8 @@ class Home extends React.Component {
 							className="flex-auto"
 							title="App Store"
 							appList={appList}
-							onClick={this.onAppListClick}
+							appButtonConfig={appButtonConfig}
+							onClick={this.showAppDetail}
 						/>
 						<AppDetail
 							className="flex-auto"

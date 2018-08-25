@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import AppListItem from './AppListItem';
-import classNames from 'classnames';
+import { RemoveAppButton, InstallAppButton }  from './AppButtons'
 
 
 // The list of apps can be sent through props
@@ -12,15 +13,27 @@ class AppList extends React.Component {
 	}
 
 	render() {
-		const { appList, title, className } = this.props;
+		const { appList, title, className, appButtonConfig, onClick } = this.props;
+
+		// appList[0] = {
+		// 	id: 134,
+		// 	appname: 'poo',
+		// 	description: 'cool',
+		// 	version: '1.4',
+		// }
 
 		console.log("APP_LIST", appList);
 
 		return (
 			<div className={classNames(className)}>
 				<ul className="p1 flex-column app-list-body">
-					{appList.map(app => (
-						<AppListItem app={app} key={app.id} />
+					{appList.map((app) => (
+						<div key={app.id} onClick={() => (onClick ? onClick(app.id) : null)}>
+							<AppListItem app={app} key={app.id}>
+								<RemoveAppButton show={appButtonConfig.remove} app={app} />
+								<InstallAppButton show={appButtonConfig.install} app={app} />
+							</AppListItem>
+						</div>
 					))}
 				</ul>
 			</div>

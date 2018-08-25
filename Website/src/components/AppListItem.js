@@ -7,16 +7,19 @@ class AppListItem extends React.Component {
 	}
 
 	render() {
-		const { app } = this.props;
-		const { appname, description, version } = app;
+		const { app, children } = this.props;
+		const { appname } = app;
 
-		console.log("APP_LIST_ITEM", app);
+		// console.log("APP_LIST_ITEM", app);
 
 		return (
 			<li className="flex flex-column py2 app-list-item">
-				<span className="app-list-item-name">{appname}</span>
-				<span>{description}</span>
-				<span>{version}</span>
+				<div>
+					<span className="app-list-item-name">{appname}</span>
+				</div>
+				<div>
+					{children}
+				</div>
 			</li>
 		);
 	}
