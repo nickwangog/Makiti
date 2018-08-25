@@ -1,5 +1,6 @@
 from .resources import *
 
-def initRoutes(carregistrationPI):
-    carregistrationPI.add_resource(apiAdminRegisterCar, '/admin/<int:adminId>')
-    carregistrationPI.add_resource(apiCustomerCar, '/admin/<int:customerId>')
+def initRoutes(carregistrationAPI):
+    carregistrationAPI.add_resource(apiAdminRegisterCar, '/admin/<int:adminId>')
+    carregistrationAPI.add_resource(apiRegisterCustomerCar, '/customer/<int:customerId>')
+    carregistrationAPI.add_resource(apiCustomerCar, '/caruser/<int:caruserId>')

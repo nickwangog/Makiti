@@ -9,7 +9,8 @@ module.exports = {
 	entry: './index.js',
 	output: {
 		path: path.join(__dirname, 'dist'),
-		filename: './bundle.js'
+		filename: './bundle.js',
+		publicPath: '/'
 	},
 	mode: 'development',
 	module: {
@@ -17,7 +18,7 @@ module.exports = {
 			{
 				test: /\.js$/,
 				loader: 'babel-loader',
-				exclude: /node_modules/
+				exclude: /node_modules/,
 			},
 			{
 				test: /\.css$/,
@@ -38,7 +39,10 @@ module.exports = {
 			inject: 'body'
 		}),
 		new webpack.DefinePlugin({
-			API_URL: JSON.stringify(process.env.API_URL)
+			ACCOUNT_SERVICE: JSON.stringify(process.env.ACCOUNT_SERVICE),
+			APPLICATION_SERVICE: JSON.stringify(process.env.APPLICATION_SERVICE),
+			APP_REQUEST_SERVICE: JSON.stringify(process.env.APP_REQUEST_SERVICE),
+			CAR_REGISTRATION_SERVICE: JSON.stringify(process.env.CAR_REGISTRATION_SERVICE)
 		})
-	]
+	],
 }

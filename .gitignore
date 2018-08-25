@@ -5,3 +5,5 @@ Appstore/server/services/customer/customerapienv
 ._.DS_Store
 .vscode
 .vscode/*
+*.nfs*
+*.zip*

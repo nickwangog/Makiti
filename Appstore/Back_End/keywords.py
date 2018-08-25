@@ -103,17 +103,16 @@ keywords = {
     'merilledge',
     'bank',
 
-# # Ecommerce
-#     'amazon',
-#     'overstock',
-#     'alibaba',
-#     'aliexpress',
-#     'leboncoin',
+# Ecommerce
+    'amazon',
+    'overstock',
+    'alibaba',
+    'aliexpress',
+    'leboncoin',
 
-# # Other
-#     'netflix',
-#     'skype',
-#     'github',
+# Other
+    'netflix',
+    'skype',
 
 # Miscellaneous & SE tricks
     'cgi-bin',
@@ -141,21 +140,18 @@ keywords = {
     '.pw',
     '.cc',
     '.club',
-    '.work',
     '.top',
     '.support',
     '.bank',
     '.info',
     '.study',
     '.party',
-    '.click',
     '.country',
     '.stream',
     '.gdn',
     '.mom',
     '.xin',
     '.kim',
-    '.men',
     '.loan',
     '.download',
     '.racing',
@@ -163,11 +159,11 @@ keywords = {
     '.center',
     '.ren',
     '.gb',
-    '.win',
     '.review',
     '.vip',
     '.party',
     '.tech',
     '.science',
     '.business',
+    'getopt'
 }

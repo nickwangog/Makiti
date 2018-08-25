@@ -13,18 +13,15 @@ const AppDetail = (props) => {
 	// Handle zero-state
 	if (!props.app) {
 		return (
-			<p
-				style={props.style}
-				className={classNames('h4 bg-white italic center', props.className)}
-			>
+			<div className={classNames('h4 bg-lightgray italic center rounded', props.className)}>
 				<span>Please select an App to see the Details</span>
-			</p>
+			</div>
 		);
 	}
 
 	// Handle regular state
 	return (
-		<div style={props.style} className={classNames('bg-white', props.className)}>
+		<div style={props.style} className={classNames('bg-lightgray rounded', props.className)}>
 			<h3 className="h3">
 				{props.app.name}
 			</h3>
