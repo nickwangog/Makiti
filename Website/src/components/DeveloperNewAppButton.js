@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import FormData from 'form-data';
 import qs from 'qs';
+import { sha256 } from 'js-sha256';
 
 import ButtonMakiti from './ButtonMakiti';
 import InputMakiti from './InputMakiti';
@@ -52,6 +53,10 @@ class DeveloperNewAppButton extends React.Component {
 		this.setState(() => ({ showModal: !this.state.showModal }));
 	}
 
+	setErrorText = (text) => {
+		this.setState(() => ({ errorText: text }));
+	}
+
 	submitApp = (e) => {
 		e.preventDefault();
 
@@ -59,34 +64,92 @@ class DeveloperNewAppButton extends React.Component {
 		this.validateFormData(() => {
 			const { file, icon, appName, versionNumber, appDescription, programmingLanguage } = this.state;
 			let { id } = this.props.appState.accountDetails;
-			let formData = new FormData();
-			let config = {
-				headers: {
-					'content-type': 'multipart/form-data'
-				},
-			};
 
-
-			// Append data to send to server
-			formData.append('file', file);
-			formData.append('accountId', id);
-			formData.append('appName', appName);
-			formData.append('versionNumber', versionNumber);
-			formData.append('appDescription', appDescription);
-			formData.append('programmingLanguage', programmingLanguage);
-
-			// Make request
-			axios.post(`${APPLICATION_SERVICE}/application/`, formData, config)
+			// Request for a new App
+			console.log("Making request for new App");
+			axios.post(`${APPLICATION_SERVICE}/application/`, {
+					'accountId': id,
+					'appName': appName,
+					'appDescription': appDescription,
+					'programmingLanguage': programmingLanguage,
+				})
 				.then(response => {
+					// Successful creation of a new App
+					console.log("Successful creation of new App", response);
 					const { data } = response.data;
-					console.log("SUCCESS", data);
+					const config = {
+							headers: {
+								'content-type': 'multipart/form-data'
+							},
+						}
+					const appId = data.id;
+					let	formData = new FormData();
+					let reader = new FileReader();
+
+					// On successful load of file
+					reader.onload = (event) => {
+						let checksum = sha256(event.target.result);
+						// Append to form data
+						formData.append('file', file);
+						formData.append('versionNumber', versionNumber);
+						formData.append('versionDescription', "Check out our new App!");
+						formData.append('checksum', checksum);
+						formData.append('appName', appName);
+
+						// Send request for first version of new app using the App ID received as response
+						console.log("Requesting new app version");
+						axios.post(`${APPLICATION_SERVICE}/application/version/${appId}`, formData, config)
+							.then(response => {
+								// Successful creation of first app version
+								console.log("Successfully created new App version", response);
+								const { data } = response.data;
+								console.log("Requesting app review");
+								axios.post(`${APP_REQUEST_SERVICE}/apprequest/developer`, {
+										accountId: id, // account id
+										appversionId: data.id, // Version id
+										requestType: 1, // 1 is create app, 2 is update app
+									})
+									.then(response => {
+										console.log("app review SUCCESS");
+										this.toggleModal();
+										this.props.refreshDeveloper();
+									})
+									.catch(err => {
+										console.log("app review FAILURE");
+										if (!err.response) {
+											return this.setErrorText("Application Service is offline at the moment")
+										}
+										const { data } = err.response
+										this.setErrorText(data.message);
+									});
+							})
+							.catch(err => {
+								// Error in creation of first app version
+								console.log("Failure in creating new App version", err);
+								if (!err.response) {
+									return this.setErrorText("Application Service is offline at the moment")
+								}
+								const { data } = err.response
+								this.setErrorText(data.message);
+								console.log("FAilerrrrrrrrrrrrrr");
+								console.log(data);
+								console.log(data);
+								console.log(data);
+								console.log(data);
+								console.log(data);
+							});
+					}
+					reader.readAsArrayBuffer(file);
 				})
 				.catch(err => {
-					const { data } = err.response;
-					console.log( "FAILURE", data );
-					this.setState(() => ({ errorText: data.message }));
+					console.log("Failure in creating new App", err);
+					if (!err.response) {
+						return this.setErrorText("Application Service is offline at the moment")
+					}
+					const { data } = err.response
+					this.setErrorText(data.message);
 				});
-		})
+		});
 	}
 
 	validateFormData = (onSuccess) => {
@@ -179,10 +242,10 @@ class DeveloperNewAppButton extends React.Component {
 						</div>
 						<form onSubmit={this.submitApp}>
 							<input className="h5" type="file" onChange={this.onFileChange}/>
-							<ButtonMakiti className="text-bold-black bg-green" onClick={this.submitApp}>
-								Submit your Application!
-							</ButtonMakiti>
 						</form>
+						<ButtonMakiti className="text-bold-black bg-green" onClick={this.submitApp}>
+							Submit your Application!
+						</ButtonMakiti>
 					</div>
 				</Modal>
 			</div>

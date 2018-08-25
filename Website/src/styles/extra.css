@@ -107,9 +107,10 @@
 }
 
 .app-list-item {
+	text-align: center;
 	border-bottom: 2px solid firebrick;
 	font-family: 'Montserrat';
-	font-size: 1.0rem;
+	font-size: 1.3rem;
 }
 
 .app-list-item-name {

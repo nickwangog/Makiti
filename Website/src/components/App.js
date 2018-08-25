@@ -100,11 +100,11 @@ class App extends React.Component {
 				<main>
 					<Header {...this.state} />
 					<Switch>
-						<Route exact path="/" component={Home} />
+						<Route exact path="/" render={() => (<Home appState={this.state} />)} />
 						<Redirect from="/home" to="/" />
-						<PrivateRoute path="/client" accessCheck={isCus} component={Client} />
+						<PrivateRoute path="/client" accessCheck={isCus} render={() => (<Client appState={this.state} />)} />
 						<PrivateRoute path="/developer" accessCheck={true} render={() => (<Developer appState={this.state} />)} />
-						<PrivateRoute path="/admin" accessCheck={isAd} component={Admin}  />
+						<PrivateRoute path="/admin" accessCheck={isAd} render={() => (<Admin appState={this.state} />)}  />
 						<PrivateRoute path="/accountsettings" accessCheck={isCus} render={() => (<AccountSettings appState={this.state} />)} />
 						<Route component={NotFound} />
 					</Switch>

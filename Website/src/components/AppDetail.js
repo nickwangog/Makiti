@@ -13,40 +13,29 @@ const AppDetail = (props) => {
 	// Handle zero-state
 	if (!props.app) {
 		return (
-			<div className={classNames('h4 bg-lightgray italic center rounded', props.className)}>
+			<div className={classNames('h4 italic center rounded', props.className)}>
 				<span>Please select an App to see the Details</span>
 			</div>
 		);
 	}
 
+
+		// active: false
+		// applicationversion:	0
+		// appname: "adsfasdf"
+		// datecreated: "2018-08-25T00:05:27.968651+00:00"
+		// datelastupdate: null
+		// description: "asdf"
+		// id: 2
+
+	const { active, applicationversion, appname, datecreated, datelastupdate, description } = props.app;
+
 	// Handle regular state
 	return (
-		<div style={props.style} className={classNames('bg-lightgray rounded', props.className)}>
+		<div style={props.style} className={classNames('rounded', props.className)}>
 			<h3 className="h3">
-				{props.app.name}
+				{appname}
 			</h3>
-			<img
-				className="fit"
-				alt={props.app.name}
-				src={props.app.image}
-			/>
-			<div>
-				<span>{props.app.description}</span>
-				<span>{props.app.category}</span>
-			</div>
-			<h4>Application Details</h4>
-			<h5>{`Rating: ${props.app.rating}/5`}</h5>
-			<ul>
-				{props.app.howTo.map(how => (
-					<li key={how}>
-						{how}
-					</li>))}
-			</ul>
-			<h4>Installation</h4>
-			<ol>
-				<li>Press Install</li>
-				<li>Profit!</li>
-			</ol>
 		</div>
 	);
 };
