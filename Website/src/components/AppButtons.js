@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import axios from 'axios';
 
 import ButtonMakiti from './ButtonMakiti';
+import LaunchAppModal from './LaunchAppModal';
 
 const RemoveAppButton = ({ ...props }) => {
 	const { show, app, className } = { ...props };
@@ -36,40 +37,42 @@ const RemoveAppButton = ({ ...props }) => {
 	);
 }
 
-const LaunchAppVersionButton = ({ ...props }) => {
-	const { show, app } = { ...props };
-
-	if (!show) {
-		return null;
+class LaunchAppVersionButton extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			showModal: false
+		}
 	}
 
-	const launchApp = (appVersionId) => {
-		axios.post(`${APPLICATION_SERVICE}/application/${appVersionId}/launch`)
-		.then(response => {
-			const { data } = response.data;
-		})
-		.catch(err => {
-			if (!err.response) {
-				console.log("no response from server");
-				return ;
-			}
-		});
+	toggleModal = () => {
+		this.setState({ showModal: !this.state.showModal });
 	}
 
-	return (
-		<div>
-			<ButtonMakiti 
-				className={classNames("text-bold-black bg-green", className)}
-				onClick={() => (launchApp("DFdafkljdsflkdasjflkadjsfkljadsfkljadsfkljasdklfjasdlkfj"))}
-			>
-				Launch App!
-			</ButtonMakiti>
-		</div>
-	);
+	render() {
+		const { show, app, className } = this.props;
+		const { showModal } = this.state;
+
+		if (!show) {
+			return null;
+		}
+
+		return (
+			<div>
+				<ButtonMakiti 
+					className={classNames("text-bold-black bg-green", className)}
+					onClick={this.toggleModal}
+				>
+					Launch App!
+				</ButtonMakiti>
+				<LaunchAppModal show={showModal} toggle={this.toggleModal} app={app} />
+			</div>
+		);
+	}
 }
 
 const InstallAppButton = ({ ...props }) => {
-	const { show, app } = { ...props };
+	const { show, app, className } = { ...props };
 
 	if (!show) {
 		return null;

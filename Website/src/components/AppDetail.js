@@ -36,6 +36,8 @@ const AppDetail = (props) => {
 
 	const { active, applicationversion, appname, datecreated, datelastupdate, description } = app;
 
+	console.log(app);
+
 	// Handle regular state
 	return (
 		<div style={style} className={classNames('rounded', className)}>
@@ -53,6 +55,7 @@ const AppDetail = (props) => {
 			<div className="flex flex-center">
 				<RemoveAppButton show={appButtonConfig.remove} app={app} />
 				<InstallAppButton show={appButtonConfig.install} app={app} />
+				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} />
 			</div>
 		</div>
 	);
