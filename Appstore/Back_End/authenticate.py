@@ -1,7 +1,6 @@
 from keywords import keywords
 import time
 
-log = open('log.txt', 'a')
 checked = []
 
 def checkFile(s, path):
@@ -14,10 +13,11 @@ def checkFile(s, path):
         for i in range(len(s)):
             if s[i].find(key) != -1:
                 if s[i] not in checked:
-                    log.write("Restricted code found in line %s\n" % i)
-                    log.write("%s\n" % s[i])
-                    checked.append(s[i])
-                    fail = True
+                    with open('log.txt', 'a') as log:
+                        log.write("Restricted code found in line %s\n" % i)
+                        log.write("%s\n" % s[i])
+                        checked.append(s[i])
+                        fail = True
     if fail == True:
         return False
     else:
