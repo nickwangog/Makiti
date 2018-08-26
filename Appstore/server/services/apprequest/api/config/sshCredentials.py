@@ -1,0 +1,2 @@
+sshUsername = ""
+sshPassword = ""
