@@ -23,7 +23,7 @@ class AppList extends React.Component {
 
 		return (
 			<div className={classNames(className)} style={style}>
-				<ul>
+				<ul className="p1 flex-column app-list-body">
 					{appList.map((app) => (
 						<div key={app.id} onClick={() => (onClick(app.id))}>
 							<AppListItem app={app} />
