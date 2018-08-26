@@ -1,6 +1,8 @@
-import os, requests, json, hashlib
+import os, requests, json
+from os import listdir
+from os.path import isfile, join
 from api.app import app
-from flask import request
+from flask import request, send_file
 from flask_restful import Resource
 from api.app import db
 from api.models import Application, application_schema, applications_schema
@@ -31,7 +33,7 @@ class apiApplication(Resource):
     def post(self):
         data = request.get_json()
         print(data)
-        if not data or not data.get("accountId") or not data.get("appName"):
+        if not data or not data.get("accountId") or not data.get("author") or not data.get("appName"):
             return res.badRequestError("Missing data to process request")
 
         #   Checks if app name already exists
@@ -40,21 +42,37 @@ class apiApplication(Resource):
             return res.resourceExistsError("App name {} already taken".format(data.get('appName')))
 
         #   Validates and saves app data given
-        appDetails = {"appname": data.get('appName'), "description": data.get('appDescription')}
+        appDetails = {"appname": data.get('appName'), "author": data.get("author"), "description": data.get('appDescription')}
         newApp, error = application_schema.load(appDetails)
         if error:
             return res.badRequestError(error)
         db.session.add(newApp)
         db.session.commit()
 
+        #   Create app directory
+        ServUtil.createAppDir(os.path.join(app.config["UPLOAD_FOLDER"], newApp.appname))
+
         #   Add permission to developer over created application
-        linked, msg = ServUtil.addDevelopertoApp(db, { "appid": newApp.id, "accountid" :data.get("accountId")})
+        linked, msg = ServUtil.addDevelopertoApp(db, { "appid": newApp.id, "accountid" : data.get("accountId")})
         if not linked:
             return res.internalServiceError(msg)
 
         return  res.postSuccess("Succesfully created application {}.".format(newApp.appname), application_schema.dump(newApp).data)
 
-#   /application/version/:appId/
+#   /application/icon/:appId
+class apiApplicationIcon(Resource):
+    def get(self, appId):
+        queryApp = Application.query.filter_by(id=appId).first()
+        if not queryApp:
+            return res.resourceMissing("App {} does not exist.")
+        iconPath = os.path.join(app.config["UPLOAD_FOLDER"], queryApp.appname, "Icon")
+        print(iconPath)
+        onlyfiles = [f for f in listdir(iconPath) if isfile(join(iconPath, f))]
+        iconfilePath = os.path.join(iconPath, onlyfiles[0])
+        return send_file(iconfilePath, mimetype='image/gif')
+
+
+#   /application/version/:appId
 class apiApplicationVersion(Resource):
 
     #   Retrieves all app versions submitted for review by developer
@@ -222,3 +240,26 @@ class apiVersion(Resource):
             return res.resourceMissing("App {} does not exist.".format(queryAppVersion.app))
         appVersion["appDetails"] =  application_schema.dump(queryApp).data
         return res.getSuccess(data=appVersion)
+    
+    #   Updates status of application version specified
+    #   For status meaning see applicationVersion model in api/models/applicationversion
+    #   Requires status in request body
+    #   Example {"status" : 2}
+    def put(self, appversionId):
+        data = request.get_json()
+        print (data)
+        #   Validates request data
+        if not data or not data.get("status"):
+            return res.badRequestError("Missing data to proccess request.")
+        if int(data.get("status")) < 1 and int(data.get("status")) > 5:
+            return res.badRequestError("Invalid status code {}.".format(data.get("status")))
+
+        #   Verifies app version exists
+        queryAppVersion = ApplicationVersion.query.filter_by(id=appversionId).first()
+        if not queryAppVersion:
+            return res.resourceMissing("No version record {} exists.".format(appversionId))
+
+        queryAppVersion.status = data.get("status")
+        db.session.commit()
+        return res.putSuccess("Update version {} status to {}.".format(appversionId, data.get("status")))
+        
