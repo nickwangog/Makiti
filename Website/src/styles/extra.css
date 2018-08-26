@@ -130,6 +130,15 @@
 	border-style: groove;
 }
 
+.footer-image {
+	position: fixed;
+    left: 0;
+	bottom: 0;
+	opacity: .75;
+	height: 120px;
+    width: 150px;
+}
+
 /* BACKGROUND */
 
 .bg-mediumgray {
