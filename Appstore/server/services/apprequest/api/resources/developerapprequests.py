@@ -10,42 +10,67 @@ import api.serviceUtilities as ServUtil
 
 #   /api/apprequest/developer
 class apiDeveloperAppReviewRequest(Resource):
-    #   Request body should contain developerid, appversionId, requesttype
-    #   Example: {"accountId": 14, "appversionId": 3, "requestType" : 1}
+    #   Request body should contain accountId, appversionId, appName, requesttype
+    #   Example: {"accountId": 14, "appversionId": 3, "requestType" : 1, appName: "whatever", "checksum": "872365"}
     def post(self):
         data = request.get_json()
         #print(data)
-        if not data or not data.get("accountId") or not data.get("appversionId") or not data.get("requestType"):
+        if not data or not data.get("checksum") or not data.get("accountId") or not data.get("appversionId") or not data.get("requestType") or not data.get("appName"):
             return res.badRequestError("Missing data to create app request")
         requestDetails = {"developer": data.get("accountId"), "appversion": data.get("appversionId"), "requesttype": data.get("requestType")}
-        apprequest, error = apprequest_schema.load(requestDetails)
-        print(apprequest)
+        appRequest, error = apprequest_schema.load(requestDetails)
+        print(appRequest)
         if error:
             return res.internalServiceError(error)
-        db.session.add(apprequest)
+        db.session.add(appRequest)
         db.session.commit()
-
+        
+        #   sh run.sh App.zip ya-ya b7709364cb0e7a86416f17fa3ff35b903077e8fa9e94c7e580ad7d57d5a6d509 1
+        appandversion = data.get("appName") + "-" + data.get("appversionId")
+        cmdRunTestScript = "sh run.sh App.zip {} {} {}".format(appandversion, data.get("checksum"), appRequest.id)
+        subprocess.call(cmdRunTestScript)
+        
         #   Request Lamines test script
         #   subprocess.check_call(['./run.sh'])
-        return res.postSuccess("Request succesfully created.", apprequest_schema.dump(apprequest).data)
+        return res.postSuccess("Request succesfully created.", apprequest_schema.dump(appRequest).data)
     
-    #   Request body should contain requestId
-    #   Example {"requestId" : 4}
+    #   Request body should contain requestId, status, appDetail
+    #   Example {"requestId" : 4, "status": 2, appDetail: "test-1"}
+    #   2 = 'success'
+    #   3 = 'fail'
     def put(self):
         #print(request.files)
         data = request.form
-        print(data["requestId"])
+        print (data)
+        if not data or not data["requestId"] or not data["status"] or not data["appDetail"]:
+            return res.badRequestError("Missing data to process request.")
+
+        #   Validate app path exists
+        appDetail = data["appDetail"]
+        appDetail = appDetail.replace('-', '/')
+        logStoragePath = os.path.join(app.config['UPLOAD_FOLDER'], appDetail)
+        if os.path.exists(logStoragePath) == False:
+            return res.internalServiceError("No directory found for {}.".format(appDetail))
+        
         queryAppRequest = AppRequest.query.filter_by(id=data["requestId"]).first()
-        queryAppRequest.status = data["status"]
-        #if not queryAppRequest:
-            #return res.badRequestError("Request {} does not exist.".format(data))
-        AppServiceReq = requests.get(app.config['APPLICATION_SERVICE'] + "{}/appversion".format(queryAppRequest.appversion)).json() #tmp 2, real queryAppRequest.application
-        appData = AppServiceReq["data"]
-        print(appData)
-        saved, msg =  ServUtil.saveLoginServer(app, request.files["logfile"], appData["appDetails"]["appname"], appData["version"])
+        if not queryAppRequest:
+            return res.badRequestError("Request {} does not exist.".format(data["requestId"]))
+
+        #   Call application service to update application version status
+        if (data.get("status") == "2"):
+            status = 4
+        else:
+            status = 3
+        AppServiceReq = requests.put(app.config['APPLICATION_SERVICE'] + "{}/appversion".format(queryAppRequest.appversion), json={"status": status}).json()
+        if ("succss" not in AppServiceReq["status"]):
+            return res.internalServiceError("Error in application service. Is it running?")
+
+        #   Saves log file
+        saved, msg =  ServUtil.saveLoginServer(app, request.files["logfile"], logStoragePath)
         if not saved:
             return res.internalServiceError(msg)
-        queryAppRequest.status = 2
+        
+        queryAppRequest.status = data["status"]
         db.session.commit()
         return res.putSuccess(data=apprequest_schema.dump(queryAppRequest).data)
 
@@ -66,11 +91,11 @@ class apiAppRequestLogFile(Resource):
         print(logPath)
         logPath = logPath.replace('__', '/')
         print(logPath)
-        fullLogPath = os.path.join(app.config['UPLOAD_FOLDER'], os.path.join(logPath, "blah.json"))
+        fullLogPath = os.path.join(app.config['UPLOAD_FOLDER'], os.path.join(logPath, "test.json"))
         print(fullLogPath)
         if (os.path.exists(fullLogPath) == False):
             return res.badRequestError("Unable to retrieve log file information.")
-        return send_file(fullLogPath, attachment_filename="blah.json")
+        return send_file(fullLogPath, attachment_filename="test.json")
 
 #   /api/apprequest/developer/:developerId
 class apiDeveloperRequests(Resource):
