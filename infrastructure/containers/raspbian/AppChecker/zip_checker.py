@@ -3,11 +3,13 @@ import os
 import authenticate
 import shutil
 from zipfile import ZipFile
+import sys
 import ntpath
+import datetime
 
-path ='/appfolder/App.zip'
+path ='/appfolder'
 zip_contents = open('zip_contents.txt', 'w')
-log = open('log.txt', 'w')
+log = open('/appfolder/log.json', 'w')
 fail = False
 
 for filename in glob.glob(os.path.join(path, '*.zip')):
@@ -20,7 +22,7 @@ for filename in glob.glob(os.path.join(path, '*.zip')):
    filename = ntpath.basename(filename)
    res = authenticate.checkZip("zip_contents.txt")
    if res == True:
-       log.write(filename + " is validated.\n")
+       log.write(str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " "+ str(sys.argv[1]) + " code parsing [OK]\n")
    else:
        fail = True
        log.write(filename + " is invalid.\n")

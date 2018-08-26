@@ -1,9 +1,0 @@
-solitaire.zip is validated.
-SAMPLE1.zip is invalid.
-SAMPLE2.zip is validated.
-Restricted code found in line 34
-import getopt
-Restricted code found in line 47
-args = getopt.getopt(sys.argv[1:
-Restricted code found in line 53
-    except getopt.GetoptError:\n
