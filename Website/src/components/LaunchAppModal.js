@@ -4,66 +4,30 @@ import axios from 'axios';
 import ButtonMakiti from './ButtonMakiti';
 import Modal from './Modal';
 
+import { app_request_service } from './AxiosHandler';
+
 class LaunchAppModal extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			errorText: '',
-			logFile: '',
 		}
 	}
 
 	launchApp = (appVersionId) => {
 		axios.put(`${APPLICATION_SERVICE}/application/${appVersionId}/launch`)
 			.then(response => {
-				console.log("SUCCESSS", response);
-				const { data } = response.data;
-				console.log(data);
+				return ;
 			})
 			.catch(err => {
-				if (!err.response) {
-					return this.setState({ errorText: "no response from server"});
-				}
-				const { data } = err;
-				console.log(data);
-				this.setState({ errorText: data.message } );
-			});
-	}
-
-	componentWillMount() {
-		// Grab the log file
-		console.log(this.props);
-		const { app } = this.props;
-		// No 'Version' has been submitted
-		if (!app.appversionDetails) {
-			console.log("FAILED", app);
-			return ;
-		}
-		const { appname } = app;
-		const { version } = app.appversionDetails;
-		const logFilePath = `${appname}__${version}`;
-
-		axios.get(`${APP_REQUEST_SERVICE}/apprequest/logfile/${logFilePath}`)
-			.then(response => {
-				console.log("LOG FILE GETTED")
-				const { data } = response;
-				console.log(data);
-				this.setState({ logFile: data, errorText: ''});
-				console.log("LOG FILE GOT")
-			})
-			.catch(err => {
-				console.log("FAILURE", err);
-				if (!err.response) {
-					return this.setState({ errorText: "no response from server" });
-				}
-				const { data } = err;
-				this.setState({ errorText: data.message });
+				const error = err.data;
+				this.setState({ errorText: error ? error.message : err } );
 			});
 	}
 
 	render() {
-		const { errorText, logFile } = this.state;
-		const { show, toggle, app } = this.props;
+		const { errorText } = this.state;
+		const { show, toggle, app, logFile } = this.props;
 		if (!app.appversionDetails) {
 			console.log("wont open");
 			return null;

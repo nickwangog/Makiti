@@ -6,9 +6,11 @@ import ButtonMakiti from './ButtonMakiti';
 import LaunchAppModal from './LaunchAppModal';
 import InstallAppModal from './InstallAppModal';
 
+import { app_request_service, application_service } from './AxiosHandler';
+
 
 const RemoveAppButton = ({ ...props }) => {
-	const { show, app, className } = { ...props };
+	const { show, app, className, parentFuncs } = { ...props };
 
 	if (!show) {
 		return null;
@@ -17,13 +19,10 @@ const RemoveAppButton = ({ ...props }) => {
 	const removeApp = (appId) => {
 		axios.delete(`${APPLICATION_SERVICE}/application/${appId}`)
 		.then(response => {
-			const { data } = response.data;
+			parentFuncs.setDevSuccessText(`Successfully removed app ${app.appname}`)
 		})
 		.catch(err => {
-			if (!err.response) {
-				console.log("no response from server");
 				return ;
-			}
 		});
 	}
 
@@ -52,7 +51,7 @@ class LaunchAppVersionButton extends React.Component {
 	}
 
 	render() {
-		const { show, app, className } = this.props;
+		const { show, app, className, logFile } = this.props;
 		const { showModal } = this.state;
 
 		if (!show) {
@@ -67,7 +66,7 @@ class LaunchAppVersionButton extends React.Component {
 				>
 					Launch App!
 				</ButtonMakiti>
-				<LaunchAppModal show={showModal} toggle={this.toggleModal} app={app} />
+				<LaunchAppModal show={showModal} toggle={this.toggleModal} app={app} logFile={logFile} />
 			</div>
 		);
 	}
@@ -86,7 +85,6 @@ class InstallAppButton extends React.Component {
 	}
 
 	render() {
-		console.log("INSTALLAPPBUTTON", this.props);
 		const { show, app, className, appState } = this.props;
 		const { showModal } = this.state;
 
@@ -116,15 +114,12 @@ const UninstallAppButton = ({ ...props }) => {
 	}
 
 	const uninstallApp = (customerId) => {
-		axios.post(`${APP_REQUEST_SERVICE}/apprequest/customer/${customerId}`)
-		.then(response => {
-			const { data } = response.data;
+		app_request_service.post(`/apprequest/customer/${customerId}`)
+		.then(data => {
+			data = data.data;
 		})
 		.catch(err => {
-			if (!err.response) {
-				console.log("no response from server");
-				return ;
-			}
+			return ;
 		});
 	}
 

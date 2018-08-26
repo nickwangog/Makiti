@@ -30,8 +30,8 @@ class AccountSettingsDelete extends React.Component {
 				clearAccountDetails();
 			})
 			.catch(err => {
-				const { data } = err;
-				this.setState(() => ({ errorText: data || err }));
+				const error = err.data;
+				this.setState(() => ({ errorText: error ? error.data : err }));
 			});
 	}
 

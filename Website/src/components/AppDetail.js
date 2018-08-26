@@ -14,8 +14,9 @@ import iconImage from '../static/images/app_icon.png'; // TEMPORARY
 
 const AppDetail = (props) => {
 	// Handle zero-state
-	const { className, style, app, appButtonConfig, appState } = props;
+	const { className, style, app, appButtonConfig, appState, logFile, parentFuncs } = props;
 
+	console.log(props);
 	if (!app) {
 		return (
 			<div
@@ -26,13 +27,6 @@ const AppDetail = (props) => {
 			</div>
 		);
 	}
-		// active: false
-		// applicationversion:	0
-		// appname: "adsfasdf"
-		// datecreated: "2018-08-25T00:05:27.968651+00:00"
-		// datelastupdate: null
-		// description: "asdf"
-		// id: 2
 
 	const { active, applicationversion, appname, datecreated, datelastupdate, description } = app;
 
@@ -51,9 +45,9 @@ const AppDetail = (props) => {
 				<span className={classNames('app-description', className)}>{description}</span>
 			</div>
 			<div className="flex flex-center">
-				<RemoveAppButton show={appButtonConfig.remove} app={app} />
-				<InstallAppButton show={appButtonConfig.install} app={app} appState={appState}/>
-				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} />
+				<RemoveAppButton show={appButtonConfig.remove} app={app} parentFuncs={parentFuncs}/>
+				<InstallAppButton show={appButtonConfig.install} app={app} appState={appState} />
+				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} logFile={logFile} />
 			</div>
 		</div>
 	);

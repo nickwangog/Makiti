@@ -5,12 +5,15 @@ import AppList from './AppList';
 import AppDetail from './AppDetail';
 import DeveloperNewAppButton from './DeveloperNewAppButton';
 
+import { application_service } from './AxiosHandler';
+
 class Developer extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			appList: [],
 			currentApp: null,
+			logFile: '',
 			devSuccessText: '',
 			devErrText: '',
 			launch: false,
@@ -20,24 +23,33 @@ class Developer extends React.Component {
 		}
 	}
 
-	componentWillMount() {
-		let { id } = this.props.appState.accountDetails;
+	// Grab the log file
+	getLogFile = (logFilePath) => {
+		app_request_service.get(`/apprequest/logfile/${logFilePath}`)
+			.then(data => {
+				this.setState({ logFile: data, errorText: ''});
+			})
+			.catch(err => {
+				this.setState({ devErrorText: err.data || err });
+			});
+	}
 
-		axios.get(`${APPLICATION_SERVICE}/application/developer/${id}`)
-			.then(response => {
-				const { data } = response.data;
-				let newData = data.map(app => (app.appDetails));
+	getAppList = (id) => {
+		application_service.get(`/application/developer/${id}`)
+			.then(data => {
+				let newData = data.data.map(app => (app.appDetails));
 				this.setState(() => ({ appList: newData }));
 			})
 			.catch(err => {
 				// APPLICATION SERVICE UNREACHABLE
 				this.clearAppList();
-				if (!err.response) {
-					console.log("no response from server");
-					return ;
-				}
-				const { data } = err.response;
+				this.setDevErrText("App service unreachable");
 			});
+	}
+
+	componentWillMount() {
+		let { id } = this.props.appState.accountDetails;
+		this.getAppList(id);
 	}
 
 	setDevSuccessText = (text) => {
@@ -55,13 +67,16 @@ class Developer extends React.Component {
 	showAppDetail = (appId) => {
 		const { appList } = this.state;
 
-		let chosenApp = appList.filter(app => app.id == appId);
+		let chosenApp = appList.filter(app => app.id == appId)[0];
 		this.setState({
-			currentApp: chosenApp[0],
-			remove: true, // chosenApp[0].active,
-			launch: true, // chosenApp[0].appversionDetails.status == 4,
-			update: true, // chosenApp[0].active && currentApp[0].runningversion != 0,
+			currentApp: chosenApp,
+			remove: true, // chosenApp.active,
+			launch: true, // chosenApp.appversionDetails.status == 4,
+			update: true, // chosenApp.active && chosenApp.runningversion != 0,
 		});
+		const { appname } = chosenApp;
+		const { version } = chosenApp.appversionDetails;
+		this.getLogFile(`${appname}__${version}`);
 	}
 
 	clearAppList = () => {
@@ -69,7 +84,7 @@ class Developer extends React.Component {
 	}
 
 	render() {
-		const { appList, currentApp } = this.state;
+		const { appList, currentApp, logFile } = this.state;
 		const { appState } = this.props;
 		const appButtonConfig = {
 			remove: this.state.remove,
@@ -100,7 +115,9 @@ class Developer extends React.Component {
 						<AppDetail
 							style={{ flex: 3 }}
 							app={currentApp}
+							logFile={logFile}
 							appButtonConfig={appButtonConfig}
+							parentFuncs={parentFuncs}
 						/>
 					</div>
 				</div>

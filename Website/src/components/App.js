@@ -26,6 +26,9 @@ import AccountSettings from './AccountSettings';
 // Not found route
 import NotFound from './NotFound';
 
+// Other
+import { account_service } from './AxiosHandler';
+
 
 // Main App handles the Routing
 class App extends React.Component {
@@ -95,41 +98,28 @@ class App extends React.Component {
 		this.setState(() => ({ isDeveloper: false }))
 	}
 
-	// // Check if user is logged in and log them in automatically
-	// componentWillMount() {
-	// 	const { username, password } = sessionStorage;
+	// Check if user is logged in and log them in automatically
+	componentWillMount() {
+		const username = sessionStorage.getItem('username');
+		const password = sessionStorage.getItem('password');
 
-	// 	if (username && password) {
-	// 		let { setAccountDetails } = this.props,
-	// 			{ username } = this.state,
-	// 			password = this.hashPassword(this.state.password),
-	// 			clearErrors = this.clearErrors,
-	// 			closeParentModal = this.props.onSuccess;
-			
-	// 		let hashPassword = (pass) => {
-	// 			let	whirlpool = new Whirlpool(),
-	// 				hash = whirlpool.getHash(pass),
-	// 			return hash.replace(/\0/g, '');
-	// 		}
-
-	// 		axios.post(`${ACCOUNT_SERVICE}/account/login`, {
-	// 				username: username,
-	// 				password: password,
-	// 			})
-	// 			.then(response => {
-	// 				const { data } = response.data;
-	// 				// sets the main Apps current account details
-	// 				this.setAccountDetails(data);
-	// 			})
-	// 			.catch(err => {
-	// 				// On failure, type out what went wrong
-	// 				if (!err.response) {
-	// 					return this.setSingleError("serverResponse", "Account Services are Offline at the moment");
-	// 				}
-	// 				const { data } = err.response;
-	// 			});
-	// 	}
-	// }
+		if (username && password) {
+			account_service.post('/account/login', {
+					username: username,
+					password: password,
+				})
+				.then(data => {
+					// sets the main Apps current account details
+					this.setAccountDetails(data.data);
+				})
+				.catch(err => {
+					// On failure, type out what went wrong
+					this.setSingleError("serverResponse", "Account Services are Offline at the moment");
+				});
+		} else {
+			sessionStorage.clear();
+		}
+	}
 
 	render() {
 		const { customer: isCus, developer: isDev, admin: isAd } = this.state.accountDetails;
@@ -143,7 +133,7 @@ class App extends React.Component {
 						<Route exact path="/" render={() => (<Home appState={this.state} />)} />
 						<Redirect from="/home" to="/" />
 						<PrivateRoute path="/client" accessCheck={isCus} render={() => (<Client appState={this.state} />)} />
-						<PrivateRoute path="/developer" accessCheck={true} render={() => (<Developer appState={this.state} />)} />
+						<PrivateRoute path="/developer" accessCheck={isDev} render={() => (<Developer appState={this.state} />)} />
 						<PrivateRoute path="/admin" accessCheck={isAd} render={() => (<Admin appState={this.state} />)}  />
 						<PrivateRoute path="/accountsettings" accessCheck={isCus} render={() => (<AccountSettings appState={this.state} />)} />
 						<Route component={NotFound} />

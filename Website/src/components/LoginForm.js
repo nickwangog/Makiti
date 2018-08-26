@@ -50,13 +50,14 @@ class LoginForm extends React.Component {
 					password: password,
 				})
 				.then(data => {
-					data = data.data;
+					sessionStorage.setItem('username', username);
+					sessionStorage.setItem('password', password);
 					closeParentModal();
-					setAccountDetails(data);
+					setAccountDetails(data.data);
 				})
 				.catch(err => {
-					const { data } = err;
-					this.setSingleError("serverResponse", data.message)
+					const error = err.data;
+					this.setSingleError("serverResponse", error ? error.message : err)
 				});
 
 			// axios.post(`${ACCOUNT_SERVICE}/account/login`, {
@@ -106,9 +107,6 @@ class LoginForm extends React.Component {
 						setAccountDetails(data);
 					})
 					.catch(err => {
-						if (!err.response) {
-							return this.setSingleError("serverResponse", "Application Service is offline at the moment");
-						}
 						const { data } = err.response;
 						this.setSingleError("serverResponse", data.message);
 					});

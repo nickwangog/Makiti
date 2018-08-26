@@ -5,6 +5,7 @@ import RegisterCarModalButton from './RegisterCarModalButton';
 import AppList from './AppList';
 import AppDetail from './AppDetail';
 
+import { app_request_service } from './AxiosHandler';
 
 class Client extends React.Component {
 	constructor(props) {
@@ -18,7 +19,6 @@ class Client extends React.Component {
 	}
 
 	setSuccessText = (text) => {
-		console.log("SETTING TEXT: ", text);
 		this.setState({ successText: text });
 	}
 
@@ -28,12 +28,14 @@ class Client extends React.Component {
 
 	// Grab list of customer's apps
 	componentWillMount() {
-		axios.get(`${APP_REQUEST_SERVICE}/`)
-			.then(response => {
-				console.log("SUCCESS", response);
+		const { id } = this.props.appState.accountDetails;
+
+		app_request_service.get(`/apprequest/customer/${id}`)
+			.then(data => {
+				this.setState({ appList: data.data })
 			})
 			.catch(err => {
-				console.log("ERROR", err);
+				this.setState({ errorText: "Please Download Apps from 'Home'" })
 			});
 	}
 
@@ -51,11 +53,11 @@ class Client extends React.Component {
 			<div>
 				<h1 className="page-header">My Apps</h1>
 				<div className="flex flex-column">
-					<span className="text-error-red">{errorText}</span>
-					<span className="text-success-green">{successText}</span>
 					<div className="flex-none flex justify-around">
 						<RegisterCarModalButton { ...this.props } parentFuncs={parentFuncs}/>
 					</div>
+					<span className="text-error-red center">{errorText}</span>
+					<span className="text-success-green center">{successText}</span>
 					<div className="flex-none flex">
 						<AppList
 							style={{ flex: 2 }}

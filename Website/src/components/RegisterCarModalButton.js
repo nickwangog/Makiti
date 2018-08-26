@@ -9,6 +9,8 @@ import InputMakiti from './InputMakiti';
 import Modal from './Modal';
 import RegisteredVehiclesList from './RegisteredVehiclesList';
 
+import { car_registration_service } from './AxiosHandler';
+
 class RegisterCarModalButton extends React.Component {
 	constructor(props) {
 		super(props);
@@ -43,24 +45,18 @@ class RegisterCarModalButton extends React.Component {
 			let { id } = this.props.appState.accountDetails;
 
 			// Request for a new App
-			console.log("Making request for Car Registration");
-			axios.post(`${CAR_REGISTRATION_SERVICE}/carregistration/customer/${id}`, {
+			car_registration_service.post(`/carregistration/customer/${id}`, {
 					'vinNumber': vinNumber,
 				})
 				.then(response => {
-					// Successful creation of a new App
-					console.log("Successful Registration of Car", response);
 					this.toggleModal();
 					this.props.parentFuncs.setSuccessText("You have successfully registered your vehicle!");
+					this.props.parentFuncs.setErrorText("");
 				})
 				.catch(err => {
-					console.log("Failure in Registering Car new App", err);
-					if (!err.response) {
-						return this.setErrorText("Application Service is offline at the moment")
-					}
-					const { data } = err.response
-					this.setErrorText(data.message);
-					this.props.parentFuncs.setErrorText(data.message);
+					const error = err.data;
+					this.setErrorText(error ? error.message : err);
+					this.props.parentFuncs.setErrorText(error ? error.message : err);
 				});
 		});
 	}
