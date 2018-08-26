@@ -41,7 +41,7 @@ class AccountSettingsDelete extends React.Component {
 		return (
 			<div className="center">
 				<ButtonMakiti onClick={this.toggleDeleteAccountModal}>
-					Delete Account!
+					Delete Account
 				</ButtonMakiti>
 				<Modal
 					show={showDeleteModal}

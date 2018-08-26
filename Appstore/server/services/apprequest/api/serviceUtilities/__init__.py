@@ -1,33 +1,29 @@
 import os
+import paramiko
+import socket
+from api.config import sshCredentials
 from werkzeug.utils import secure_filename
 from api.models import apprequest_schema
+ALLOWED_EXTENSIONS = set(['json'])
 
 #   Validates file extension
 def allowedFile(filename):
+    print(filename)
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-#   Creates the directory for the new app in server file system by joining app name and version number
-#   Ilustration of file system for application storage:
-#   Apps/
-#       + ApplicationName/
-#           + 0.1/
-#               -appversion0.1.zip
-#           + 0.2/
-#               -appversion0.2.zip
-def saveLoginServer(app, file, appName, appVersion):
+#   Saves App Review Log File in app directory
+def saveLoginServer(app, file, logPath):
     print("saving log into server")
+    print(file)
+    if not file or not allowedFile(file.filename):
+        return False, "File not supported. Only {} extensions are supported.".format(ALLOWED_EXTENSIONS)
     #   Checks the file received is of valid extension
     filename = secure_filename(file.filename)
 
     #   Checks if app has a directory created.
-    appPath = os.path.join(app.config['UPLOAD_FOLDER'], appName)
-    if not os.path.exists(appPath):
-        return False, "No folder found for app with name {}".format(appName)
-    appversionPath = os.path.join(appPath, appVersion)
-    if not os.path.exists(appversionPath):
-        return False, "No folder found for version {}.".format(appVersion)
+    if not os.path.exists(logPath):
+        return False, "No folder found for app with name {}".format(logPath)
     
-    file.save(os.path.join(appversionPath, filename))
+    file.save(os.path.join(logPath, filename))
     print("saved")
     return True, "File saved!"
-
