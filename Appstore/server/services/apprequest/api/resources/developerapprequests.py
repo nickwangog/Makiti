@@ -24,7 +24,7 @@ class apiDeveloperAppReviewRequest(Resource):
             return res.internalServiceError(error)
         db.session.add(appRequest)
         db.session.commit()
-        kabascript = "/nfs/2017/d/dmontoya/42/fordappstore/infrastructure/containers/raspbian/run.sh"
+        kabascript = "/nfs/2017/d/dmontoya/42/fordappstore/infrastructure/containers/raspbian/kabascriptest.sh" # using test kaba for nows
         #   sh run.sh App.zip ya-ya b7709364cb0e7a86416f17fa3ff35b903077e8fa9e94c7e580ad7d57d5a6d509 1
         appName = data.get("appName")
         appName = appName.replace(' ', '\ ')
@@ -66,7 +66,7 @@ class apiDeveloperAppReviewRequest(Resource):
         else:
             status = 3
         AppServiceReq = requests.put(app.config['APPLICATION_SERVICE'] + "{}/appversion".format(queryAppRequest.appversion), json={"status": status}).json()
-        if ("succss" not in AppServiceReq["status"]):
+        if ("success" not in AppServiceReq["status"]):
             return res.internalServiceError("Error in application service. Is it running?")
 
         #   Saves log file
