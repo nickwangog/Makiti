@@ -1,4 +1,6 @@
 import os
+import sys
+import hashlib
 from werkzeug.utils import secure_filename
 from api.models import applicationdeveloper_schema
 ALLOWED_EXTENSIONS = set(['zip', 'gzip'])
@@ -15,7 +17,27 @@ def allowedFile(filename):
 #               -appversion0.1.zip
 #           + 0.2/
 #               -appversion0.2.zip
-def saveAppinServer(app, file, data):
+def saveinApp(app, file, data):
+    print("saving into server")
+    #   Checks the file received is of valid extension
+    if not file or not allowedFile(file.filename):
+        return False, "File not supported. Only {} extensions are supported.".format(ALLOWED_EXTENSIONS)
+    filename = secure_filename(file.filename)
+
+    #   Checks if app has a directory created already.
+    appPath = os.path.join(app.config['UPLOAD_FOLDER'], data.get('appName'))
+    if os.path.exists(appPath):
+        return False, "An app with name {} already exists.".format(data.get('appName'))
+    appversionPath = os.path.join(appPath, data.get('versionNumber'))
+    if os.path.exists(appversionPath):
+        return False, "App version {} already exists.".format(data.get('versionNumber'))
+    
+    #   Creates directory in server file system and saves application
+    os.makedirs(appversionPath, 0o777)
+    file.save(os.path.join(appversionPath, filename))
+    return True, "File saved!"
+
+def saveinAppVersion(app, file, data):
     print("saving into server")
     #   Checks the file received is of valid extension
     if not file or not allowedFile(file.filename):
@@ -44,3 +66,9 @@ def addDevelopertoApp(db, appDeveloperDetails):
     db.session.add(newappdeveloper)
     db.session.commit()
     return True, "Developer linked!"
+
+def checksum_sha256(file, block_size=65536):
+    sha256 = hashlib.sha256()
+    for block in iter(lambda: file.read(block_size), b''):
+        sha256.update(block)
+    return sha256.hexdigest()

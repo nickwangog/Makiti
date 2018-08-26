@@ -15,6 +15,7 @@
 	width: 70%;
 	height: 40%;
 	max-height: 250px;
+	max-width: 711px;
 }
 
 /*	MODAL WINDOW HANDLING */
@@ -99,7 +100,12 @@
     background-color: firebrick;
     text-align: center;
     padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+	padding-bottom: 0.5rem;
+	text-shadow:
+		-1.5px -1.5px 0 #000,
+		1.5px -1.5px 0 #000,
+		-1.5px 1.5px 0 #000,
+		1.5px 1.5px 0 #000;
 }
 
 .app-list-body {
@@ -107,13 +113,57 @@
 }
 
 .app-list-item {
+	text-align: center;
 	border-bottom: 2px solid firebrick;
 	font-family: 'Montserrat';
-	font-size: 1.0rem;
+	font-size: 1.3rem;
 }
 
 .app-list-item-name {
 	color: #ffffff;
+}
+
+.icon-image {
+	max-height: 120px;
+	max-width: 100px;
+}
+
+.app-description {
+	min-height: 300px;
+	min-width: 120px;
+	background-color: firebrick;
+	border-style: groove;
+}
+
+.footer-image {
+	position: fixed;
+    left: 0;
+	bottom: 0;
+	opacity: .75;
+	height: 120px;
+    width: 150px;
+}
+
+.registered-car-list {
+	position: relative;
+	text-align: left;
+	padding-bottom: 30px;
+	right: 20px;
+	line-height: 20px;
+    list-style-type: none;
+}
+
+.registered-car-item {
+	color: whitesmoke;
+	font-family: 'Montserrat';
+	font-weight: bold;
+}
+
+.car-divider {
+	position: relative;
+	border-bottom: 2px dotted red;
+	opacity: .8;
+	top: 15px;
 }
 
 /* BACKGROUND */
@@ -158,5 +208,11 @@
 .text-error-red {
 	font-weight: bold;
 	color: red;
+	font-family: 'Montserrat';
+}
+
+.text-success-green {
+	font-weight: bold;
+	color: forestgreen;
 	font-family: 'Montserrat';
 }

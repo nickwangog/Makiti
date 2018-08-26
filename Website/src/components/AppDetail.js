@@ -2,6 +2,9 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+import { RemoveAppButton, InstallAppButton, LaunchAppVersionButton } from './AppButtons';
+import iconImage from '../static/images/app_icon.png'; // TEMPORARY
+
 // import AppIcon from '../static/images/appicon.png';
 
 // Controls the Right-Hand side Detail view of an App from the Database
@@ -11,42 +14,56 @@ import PropTypes from 'prop-types';
 
 const AppDetail = (props) => {
 	// Handle zero-state
-	if (!props.app) {
+	const { className, style, app, appButtonConfig, appState } = props;
+
+	if (!app) {
 		return (
-			<div className={classNames('h4 bg-lightgray italic center rounded', props.className)}>
-				<span>Please select an App to see the Details</span>
+			<div
+				className={classNames(className)}
+				style={style}
+			>
+				<h3 className={classNames("h3 center app-detail-item-name", className)}>Please select an App to see the Details</h3>
 			</div>
 		);
 	}
+		// active: false
+		// applicationversion:	0
+		// appname: "adsfasdf"
+		// datecreated: "2018-08-25T00:05:27.968651+00:00"
+		// datelastupdate: null
+		// description: "asdf"
+		// id: 2
+
+	const { active, applicationversion, appname, datecreated, datelastupdate, description } = app;
+
+	console.log(app);
+	let temp = Date.parse(datecreated)
+	let date = new Date(temp);
+	let formattedCreate = date.toLocaleString()
+	// let temp = Date.parse(datelastupdate)
+	// let date = new Date(temp);
+	// let formattedUpdate = date.toLocaleString()
+	//replace datelastupdate with formattedUpdate
 
 	// Handle regular state
 	return (
-		<div style={props.style} className={classNames('bg-lightgray rounded', props.className)}>
-			<h3 className="h3">
-				{props.app.name}
+		<div style={style} className={classNames('rounded', className)}>
+			<h3 className="h3 underline">
+				{appname}
 			</h3>
-			<img
-				className="fit"
-				alt={props.app.name}
-				src={props.app.image}
-			/>
+			<img className="icon-image" src={iconImage} alt="icon"/>
 			<div>
-				<span>{props.app.description}</span>
-				<span>{props.app.category}</span>
+				<span>Created: {formattedCreate}</span>
+				<span>Last Updated: {datelastupdate}</span>
+				<span>Version: {applicationversion}</span>
+				<span className="underline">App Description: {applicationversion}</span>
+				<span className={classNames('app-description', className)}>{description}</span>
 			</div>
-			<h4>Application Details</h4>
-			<h5>{`Rating: ${props.app.rating}/5`}</h5>
-			<ul>
-				{props.app.howTo.map(how => (
-					<li key={how}>
-						{how}
-					</li>))}
-			</ul>
-			<h4>Installation</h4>
-			<ol>
-				<li>Press Install</li>
-				<li>Profit!</li>
-			</ol>
+			<div className="flex flex-center">
+				<RemoveAppButton show={appButtonConfig.remove} app={app} />
+				<InstallAppButton show={appButtonConfig.install} app={app} appState={appState}/>
+				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} />
+			</div>
 		</div>
 	);
 };

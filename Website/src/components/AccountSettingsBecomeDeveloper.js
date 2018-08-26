@@ -1,7 +1,10 @@
 import React from 'react';
+import axios from 'axios';
+
 import ButtonMakiti from './ButtonMakiti';
 import Modal from './Modal';
-import axios from 'axios';
+
+import { account_service } from './AxiosHandler';
 
 class AccountSettingsBecomeDeveloper extends React.Component {
 	constructor(props) {
@@ -19,16 +22,14 @@ class AccountSettingsBecomeDeveloper extends React.Component {
 		let { id } = this.props.appState.accountDetails,
 			{ updateAccountDetail } = this.props.appState;
 
-		axios.put(`${ACCOUNT_SERVICE}/account/${id}`, {
+		account_service.put(`/account/${id}`, {
 				developer: 1,
 			})
-			.then(response => {
-				const { data } = response.data;
+			.then(data => {
 				updateAccountDetail('developer', true);
 			})
 			.catch(err => {
-				const { data } = err.response;
-				console.log(err);
+				return ;
 			})
 		this.toggleBecomeDeveloperModal();
 	}
@@ -37,16 +38,14 @@ class AccountSettingsBecomeDeveloper extends React.Component {
 		let { id } = this.props.appState.accountDetails,
 			{ updateAccountDetail } = this.props.appState;
 
-		axios.put(`${ACCOUNT_SERVICE}/account/${id}`, {
+		account_service.put(`/account/${id}`, {
 				developer: 0,
 			})
-			.then(response => {
-				const { data } = response.data;
+			.then(data => {
 				updateAccountDetail('developer', false);
 			})
 			.catch(err => {
-				const { data } = err.response;
-				console.log(data);
+				return ;
 			})
 		this.toggleBecomeDeveloperModal();
 	}
@@ -77,8 +76,8 @@ class AccountSettingsBecomeDeveloper extends React.Component {
 		if (isDeveloper) {
 			return (
 				this.renderStuff(
-					"Delete Developer Account?",
-					"Permanently Delete Developer Account!",
+					"Delete Developer Account",
+					"Permanently Delete Developer Account?",
 					"bg-red",
 					this.deleteDeveloper
 				)

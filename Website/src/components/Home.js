@@ -14,6 +14,7 @@ class Home extends React.Component {
 		};
 	}
 
+	// Get a list of Apps in the App store
 	componentDidMount() {
 		axios.get(`${APPLICATION_SERVICE}/application/`)
 			.then(response => {
@@ -33,12 +34,23 @@ class Home extends React.Component {
 			});
 	}
 
-	onAppListClick = (id) => {
-		return ;
+	showAppDetail = (appId) => {
+		const { appList } = this.state;
+
+		let chosenApp = appList.filter(app => app.id == appId);
+		this.setState({currentApp: chosenApp[0]});
 	}
 
 	render() {
 		const { appList, currentApp } = this.state;
+		const { appState } = this.props;
+		// From home, don't show remove button
+		// only allow install if user is logged in
+		const appButtonConfig = {
+			remove: false, //
+			install: true, //
+			launch: false, //
+		};
 
 		return (
 			<div>
@@ -47,13 +59,17 @@ class Home extends React.Component {
 					<div className="flex-none flex">
 						<AppList
 							className="flex-auto"
+							style={{ flex: 2.5 }}
 							title="App Store"
 							appList={appList}
-							onClick={this.onAppListClick}
+							onClick={this.showAppDetail}
 						/>
 						<AppDetail
 							className="flex-auto"
+							style={{ flex: 2 }}
 							app={currentApp}
+							appState={appState}
+							appButtonConfig={appButtonConfig}
 						/>
 					</div>
 				</main>

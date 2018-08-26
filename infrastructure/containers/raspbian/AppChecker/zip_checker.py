@@ -3,30 +3,30 @@ import os
 import authenticate
 import shutil
 from zipfile import ZipFile
-import sys
 import ntpath
+import requests
+import sys
 import datetime
 
 path ='/appfolder'
-zip_contents = open('zip_contents.txt', 'w')
-log = open('/appfolder/log.json', 'w')
 fail = False
-
 for filename in glob.glob(os.path.join(path, '*.zip')):
-   with ZipFile(filename, "r") as zfile:
-       for finfo in zfile.infolist():
-           if finfo.filename.lower().endswith('.py'):
-               ifile = zfile.open(finfo)
-               line_list = ifile.readlines()
-               zip_contents.write("%s\n" % line_list)
-   filename = ntpath.basename(filename)
-   res = authenticate.checkZip("zip_contents.txt")
-   if res == True:
-       log.write(str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " "+ str(sys.argv[1]) + " code parsing [OK]\n")
-   else:
-       fail = True
-       log.write(filename + " is invalid.\n")
-   open('zip_contents.txt', 'w').close()
-
+    with ZipFile(filename, "r") as zfile:
+        with open('zip_contents.txt', 'w') as zip_contents:
+            for finfo in zfile.infolist():
+                if finfo.filename.lower().endswith('.py'):
+                    ifile = zfile.open(finfo)
+                    line_list = ifile.readlines()
+                    zip_contents.write("%s\n" % line_list)
+    filename = ntpath.basename(filename)
+    res = authenticate.checkZip("zip_contents.txt")
+    with open('log.txt', 'a') as log:
+        if res == True:
+            log.write(str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " "+ str(sys.argv[1]) + " code parsing [OK]\n")
+        else:
+            fail = True
+            log.write(filename + " is invalid.\n")
 if fail == True:
-   os.system("exit")
+    files = {'upload_file': open('log.txt','rb')}
+    r = requests.post("10.113.4.18:9924/apprequest/developer", files=files)
+    os.system("exit")

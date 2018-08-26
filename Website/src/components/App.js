@@ -5,12 +5,16 @@ import {
 	Switch,
 	Redirect,
 } from 'react-router-dom';
+import { Whirlpool } from 'whirlpool-hash';
 
 // React pages
 import PrivateRoute from './PrivateRoute';
 
 // Header
 import Header from './Header';
+
+// Footer
+import Footer from './Footer';
 
 // Main Routes
 import Home from './Home';
@@ -91,6 +95,42 @@ class App extends React.Component {
 		this.setState(() => ({ isDeveloper: false }))
 	}
 
+	// // Check if user is logged in and log them in automatically
+	// componentWillMount() {
+	// 	const { username, password } = sessionStorage;
+
+	// 	if (username && password) {
+	// 		let { setAccountDetails } = this.props,
+	// 			{ username } = this.state,
+	// 			password = this.hashPassword(this.state.password),
+	// 			clearErrors = this.clearErrors,
+	// 			closeParentModal = this.props.onSuccess;
+			
+	// 		let hashPassword = (pass) => {
+	// 			let	whirlpool = new Whirlpool(),
+	// 				hash = whirlpool.getHash(pass),
+	// 			return hash.replace(/\0/g, '');
+	// 		}
+
+	// 		axios.post(`${ACCOUNT_SERVICE}/account/login`, {
+	// 				username: username,
+	// 				password: password,
+	// 			})
+	// 			.then(response => {
+	// 				const { data } = response.data;
+	// 				// sets the main Apps current account details
+	// 				this.setAccountDetails(data);
+	// 			})
+	// 			.catch(err => {
+	// 				// On failure, type out what went wrong
+	// 				if (!err.response) {
+	// 					return this.setSingleError("serverResponse", "Account Services are Offline at the moment");
+	// 				}
+	// 				const { data } = err.response;
+	// 			});
+	// 	}
+	// }
+
 	render() {
 		const { customer: isCus, developer: isDev, admin: isAd } = this.state.accountDetails;
 		const isCusOrDev = isCus || isDev;
@@ -100,14 +140,15 @@ class App extends React.Component {
 				<main>
 					<Header {...this.state} />
 					<Switch>
-						<Route exact path="/" component={Home} />
+						<Route exact path="/" render={() => (<Home appState={this.state} />)} />
 						<Redirect from="/home" to="/" />
-						<PrivateRoute path="/client" accessCheck={isCus} component={Client} />
+						<PrivateRoute path="/client" accessCheck={isCus} render={() => (<Client appState={this.state} />)} />
 						<PrivateRoute path="/developer" accessCheck={true} render={() => (<Developer appState={this.state} />)} />
-						<PrivateRoute path="/admin" accessCheck={isAd} component={Admin}  />
+						<PrivateRoute path="/admin" accessCheck={isAd} render={() => (<Admin appState={this.state} />)}  />
 						<PrivateRoute path="/accountsettings" accessCheck={isCus} render={() => (<AccountSettings appState={this.state} />)} />
 						<Route component={NotFound} />
 					</Switch>
+					<Footer/>
 				</main>
 			</Router>
 		);

@@ -4,6 +4,8 @@ import axios from 'axios';
 import ButtonMakiti from './ButtonMakiti';
 import Modal from './Modal';
 
+import { account_service } from './AxiosHandler';
+
 class AccountSettingsDelete extends React.Component {
 	constructor(props) {
 		super(props);
@@ -22,17 +24,14 @@ class AccountSettingsDelete extends React.Component {
 		let { id } = this.props.appState.accountDetails;
 		let { clearAccountDetails } = this.props.appState;
 
-		axios.delete(`${ACCOUNT_SERVICE}/account/${id}`)
-			.then(response => {
-				const { data } = response.data;
-				console.log("Account deleted: ", data);
+		account_service.delete(`${ACCOUNT_SERVICE}/account/${id}`)
+			.then(data => {
 				// perform logout - should redirect to top level
 				clearAccountDetails();
 			})
 			.catch(err => {
-				console.log("FAILURE");
-				const { data } = err.response;
-				this.setState(() => ({ errorText: data.message }));
+				const { data } = err;
+				this.setState(() => ({ errorText: data || err }));
 			});
 	}
 
@@ -42,7 +41,7 @@ class AccountSettingsDelete extends React.Component {
 		return (
 			<div className="center">
 				<ButtonMakiti onClick={this.toggleDeleteAccountModal}>
-					Delete Account!
+					Delete Account
 				</ButtonMakiti>
 				<Modal
 					show={showDeleteModal}

@@ -1,29 +1,23 @@
+import os
 import json, requests
 import subprocess
-from flask import request
+from flask import request, send_file
 from flask_restful import Resource
 from api.app import app, db
 from api.models import AppRequest, apprequest_schema, apprequests_schema
 from api.response import Response as res
 import api.serviceUtilities as ServUtil
 
-#   apprequest table 'status' 
-#   status = 1 (pending)
-#   status = 2 (test successful, pending approval)
-#   status = 3 (test unsuccesful)
-#   status = 4 (approved)
-
 #   /api/apprequest/developer
 class apiDeveloperAppReviewRequest(Resource):
-    #   Request body should contain developerid, appid, requesttype
-    #   Example: {"accountid": 14, "appid": 3, "requesttype" : 1}
-    #   For requesttype: 1 = Create, 2 = Update
+    #   Request body should contain developerid, appversionId, requesttype
+    #   Example: {"accountId": 14, "appversionId": 3, "requestType" : 1}
     def post(self):
-        data = request.form
+        data = request.get_json()
         #print(data)
-        if not data or not data.get("accountid") or not data.get("appid") or not data.get("requesttype"):
+        if not data or not data.get("accountId") or not data.get("appversionId") or not data.get("requestType"):
             return res.badRequestError("Missing data to create app request")
-        requestDetails = {"developer" : data.get("developer"), "application": data.get("application"), "requesttype": data.get("requesttype")}
+        requestDetails = {"developer": data.get("accountId"), "appversion": data.get("appversionId"), "requesttype": data.get("requestType")}
         apprequest, error = apprequest_schema.load(requestDetails)
         print(apprequest)
         if error:
@@ -42,27 +36,41 @@ class apiDeveloperAppReviewRequest(Resource):
         data = request.form
         print(data["requestId"])
         queryAppRequest = AppRequest.query.filter_by(id=data["requestId"]).first()
+        queryAppRequest.status = data["status"]
         #if not queryAppRequest:
             #return res.badRequestError("Request {} does not exist.".format(data))
-        AppServiceReq = requests.get(app.config['APPLICATION_SERVICE'] + "2").json() #tmp 2, real queryAppRequest.application
+        AppServiceReq = requests.get(app.config['APPLICATION_SERVICE'] + "{}/appversion".format(queryAppRequest.appversion)).json() #tmp 2, real queryAppRequest.application
         appData = AppServiceReq["data"]
-        saved, msg = ServUtil.saveLoginServer(app, request.files["logfile"], appData)
+        print(appData)
+        saved, msg =  ServUtil.saveLoginServer(app, request.files["logfile"], appData["appDetails"]["appname"], appData["version"])
         if not saved:
             return res.internalServiceError(msg)
         queryAppRequest.status = 2
         db.session.commit()
         return res.putSuccess(data=apprequest_schema.dump(queryAppRequest).data)
 
-#   /api/apprequest/application/:appId
+#   /api/apprequest/application/:appversionId
 class apiAppRequests(Resource):
-    def get(self, appId):
-        query = AppRequest.query.filter_by(application=appId).all()
-        if not query:
+    def get(self, appversionId):
+        queryRequests = AppRequest.query.filter_by(appversion=appversionId).all()
+        if not queryRequests:
             return res.getSuccess(data=None)
-        apprequests, error = apprequests_schema.dump(query)
+        apprequests, error = apprequests_schema.dump(queryRequests)
         if error:
             return res.internalServiceError(error)
-        return res.getSuccess("Requests for app {} retrieved".format(appId), apprequests)
+        return res.getSuccess("Requests for app {} retrieved".format(appversionId), apprequests)
+
+#   /apprequest/logfile/:logPath
+class apiAppRequestLogFile(Resource):
+    def get(self, logPath):
+        print(logPath)
+        logPath = logPath.replace('__', '/')
+        print(logPath)
+        fullLogPath = os.path.join(app.config['UPLOAD_FOLDER'], os.path.join(logPath, "blah.json"))
+        print(fullLogPath)
+        if (os.path.exists(fullLogPath) == False):
+            return res.badRequestError("Unable to retrieve log file information.")
+        return send_file(fullLogPath, attachment_filename="blah.json")
 
 #   /api/apprequest/developer/:developerId
 class apiDeveloperRequests(Resource):
@@ -97,16 +105,3 @@ class apiAppRequest(Resource):
         apprequest = AppRequest.query.filter_by(id=requestId).first()
         apprequest.status = data.get("action")
         return res.putSuccess("Succesfully submitted action for request {}.".format(requestId))
-    
-    #   Handles submit app to app store
-    #   Requires accountid in request body
-    #   Example: {'accountId': 57}
-    def post(self, requestId):
-        # Call application service
-        queryAppRequest = AppRequest.query.filter_by(id=requestId).first()
-        if not queryAppRequest:
-            return res.resourceMissing("App Request {} does not exist.".format(requestId))
-        if queryAppRequest.status is not 2:
-            return res.badRequestError("App is ")
-        applicationData = requests.get("http://localhost:9923/application/{}".format(queryAppRequest.application)).content
-        return res.badRequestError("Not finished!!!!!!!!!!")
