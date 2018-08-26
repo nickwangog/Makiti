@@ -59,6 +59,13 @@ class apiApplication(Resource):
 
         return  res.postSuccess("Succesfully created application {}.".format(newApp.appname), application_schema.dump(newApp).data)
 
+# #   /application/:accountId/customer
+# class apiCustomerApplications(Resource):
+#     def get(self, accountId):
+#         appRequestServ = 
+        
+
+
 #   /application/icon/:appId
 class apiApplicationIcon(Resource):
     def get(self, appId):
