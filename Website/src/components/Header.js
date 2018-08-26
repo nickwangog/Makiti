@@ -93,7 +93,7 @@ class Header extends React.Component {
 						src={BannerImg}
 						alt="BannerImg"
 					/>
-					<h3 className="h3">{firstname ? `Hi, ${firstname}` : null}</h3>
+					<h3 className="h3">{firstname ? `Welcome, ${firstname}.` : null}</h3>
 				</div>
 				<div className="flex flex-wrap justify-around bg-mediumgray">
 					<LogInModalButton show={!(isC || isD || isA)} toggleLoginModal={this.toggleLoginModal} />
