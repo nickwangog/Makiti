@@ -10,6 +10,13 @@ import api.serviceUtilities as ServUtil
 
 #   /api/apprequest/developer
 class apiDeveloperAppReviewRequest(Resource):
+    #   Retrieves pending developer app requests
+    def get(self):
+        queryAppRequests = AppRequest.query.filter(AppRequest.customer == 0).filter(AppRequest.status==1 or AppRequest.status==2).all()
+        if not queryAppRequests:
+            return res.resourceMissing("No app requests penging found.")
+        return res.getSuccess(apprequests_schema.dump(queryAppRequests).data)
+
     #   Request body should contain accountId, appversionId, appName, requesttype
     #   Example: {"versionNumber": "736.9", accountId": 14, "appversionId": 3, "requestType" : 1, appName: "whatever", "checksum": "872365"}
     def post(self):
