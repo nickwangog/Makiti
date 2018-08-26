@@ -36,6 +36,15 @@ const AppDetail = (props) => {
 
 	const { active, applicationversion, appname, datecreated, datelastupdate, description } = app;
 
+	console.log(app);
+	let temp = Date.parse(datecreated)
+	let date = new Date(temp);
+	let formattedCreate = date.toLocaleString()
+	// let temp = Date.parse(datelastupdate)
+	// let date = new Date(temp);
+	// let formattedUpdate = date.toLocaleString()
+	//replace datelastupdate with formattedUpdate
+
 	// Handle regular state
 	return (
 		<div style={style} className={classNames('rounded', className)}>
@@ -44,7 +53,7 @@ const AppDetail = (props) => {
 			</h3>
 			<img className="icon-image" src={iconImage} alt="icon"/>
 			<div>
-				<span>Created: {datecreated}</span>
+				<span>Created: {formattedCreate}</span>
 				<span>Last Updated: {datelastupdate}</span>
 				<span>Version: {applicationversion}</span>
 				<span className="underline">App Description: {applicationversion}</span>
