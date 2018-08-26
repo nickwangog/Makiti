@@ -248,18 +248,19 @@ class apiVersion(Resource):
     def put(self, appversionId):
         data = request.get_json()
         print (data)
+        print(data["status"])
+        print(data.get("status"))
         #   Validates request data
-        if not data or not data.get("status"):
+        if not data or not data["status"]:
             return res.badRequestError("Missing data to proccess request.")
-        if int(data.get("status")) < 1 and int(data.get("status")) > 5:
-            return res.badRequestError("Invalid status code {}.".format(data.get("status")))
+        if int(data["status"]) < 1 and int(data["status"]) > 5:
+            return res.badRequestError("Invalid status code {}.".format(data["status"]))
 
         #   Verifies app version exists
         queryAppVersion = ApplicationVersion.query.filter_by(id=appversionId).first()
         if not queryAppVersion:
             return res.resourceMissing("No version record {} exists.".format(appversionId))
 
-        queryAppVersion.status = data.get("status")
+        queryAppVersion.status = data["status"]
         db.session.commit()
-        return res.putSuccess("Update version {} status to {}.".format(appversionId, data.get("status")))
-        
+        return res.putSuccess("Update version {} status to {}.".format(appversionId, data["status"]))
