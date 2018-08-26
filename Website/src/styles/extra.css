@@ -139,6 +139,20 @@
     width: 150px;
 }
 
+.registered-car-list {
+	position: relative;
+	text-align: left;
+	padding-bottom: 15px;
+	right: 20px;
+	
+}
+
+.registered-car-item {
+	color: whitesmoke;
+	font-family: 'Montserrat';
+	font-weight: bold;
+}
+
 /* BACKGROUND */
 
 .bg-mediumgray {
