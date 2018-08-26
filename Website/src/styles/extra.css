@@ -109,7 +109,7 @@
 }
 
 .app-list-body {
-	list-style: none;
+	align-content: center;
 }
 
 .app-list-item {
@@ -121,6 +121,7 @@
 
 .app-list-item-name {
 	color: #ffffff;
+	/* float: left; */
 }
 
 .icon-image {
@@ -198,6 +199,34 @@
 	font-weight: bold;
 	color: black;
 	background-color: red;
+}
+
+.admin-app-reject-button
+{
+	position: relative;; 
+	left: 55px;
+	font-weight: bold;
+	color: black;
+	background-color: red;
+}
+
+.admin-app-approve-button
+{
+	position: relative;; 
+	left: 55px;
+	font-weight: bold;
+	color: black;
+	background-color: limegreen;
+}
+
+.admin-viewlog-button
+{
+	position: relative;; 
+	left: 55px;
+	margin-top: 10%;
+	font-weight: bold;
+	color: black;
+	background-color: yellow;
 }
 
 /* BACKGROUND */
