@@ -143,5 +143,5 @@ RUN apk update \
   && apk add --virtual build-deps gcc python3-dev musl-dev \
   && apk add postgresql-dev &&\
   pip install -r requirements.txt
-
+EXPOSE 9923
 CMD ["python3"]

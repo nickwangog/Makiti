@@ -20,6 +20,9 @@ else
         echo "$(date) : $2 hash file validattion [KO]" >$log
         exit 1
 fi
+echo
+echo $1
+echo
 docker build -t makiti/pytest --build-arg package=$1 --build-arg appname=$2 --build-arg requestId=$4 .
-docker run -it --rm --name "$2" -v "$(pwd)":/Validation makiti/pytest && \
-docker container stop $4
+docker run -it --rm --name "$2" -v "$(pwd)":/Validation makiti/pytest
+#docker container stop $4
