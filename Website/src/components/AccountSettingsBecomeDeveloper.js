@@ -76,8 +76,8 @@ class AccountSettingsBecomeDeveloper extends React.Component {
 		if (isDeveloper) {
 			return (
 				this.renderStuff(
-					"Delete Developer Account?",
-					"Permanently Delete Developer Account!",
+					"Delete Developer Account",
+					"Permanently Delete Developer Account?",
 					"bg-red",
 					this.deleteDeveloper
 				)
