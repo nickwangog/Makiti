@@ -54,9 +54,10 @@ class RegisterCarModalButton extends React.Component {
 					this.props.parentFuncs.setErrorText("");
 				})
 				.catch(err => {
-					const error = err.data;
-					this.setErrorText(error ? error.message : err);
-					this.props.parentFuncs.setErrorText(error ? error.message : err);
+					let error = err.data;
+					error = error ? error.message : err;
+					this.setErrorText(error);
+					this.props.parentFuncs.setErrorText(error);
 				});
 		});
 	}

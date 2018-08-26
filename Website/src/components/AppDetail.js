@@ -45,8 +45,8 @@ const AppDetail = (props) => {
 				<span className={classNames('app-description', className)}>{description}</span>
 			</div>
 			<div className="flex flex-center">
-				<RemoveAppButton show={appButtonConfig.remove} app={app} parentFuncs={parentFuncs}/>
-				<InstallAppButton show={appButtonConfig.install} app={app} appState={appState} />
+				<RemoveAppButton show={appButtonConfig.remove} app={app} parentFuncs={parentFuncs} />
+				<InstallAppButton show={appButtonConfig.install} app={app} appState={appState} parentFuncs={parentFuncs} />
 				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} logFile={logFile} />
 			</div>
 		</div>

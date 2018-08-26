@@ -43,7 +43,7 @@ class Developer extends React.Component {
 			.catch(err => {
 				// APPLICATION SERVICE UNREACHABLE
 				this.clearAppList();
-				this.setDevErrText("App service unreachable");
+				this.setErrorText("App service unreachable");
 			});
 	}
 
@@ -52,12 +52,12 @@ class Developer extends React.Component {
 		this.getAppList(id);
 	}
 
-	setDevSuccessText = (text) => {
-		this.setState({ devSuccessText: text });
+	setSuccessText = (text) => {
+		this.setState({ devSuccessText: text, devErrText: '' });
 	}
 
-	setDevErrText = (text) => {
-		this.setState({ devErrText: text });
+	setErrorText = (text) => {
+		this.setState({ devErrText: text, devSuccessText: '' });
 	}
 
 	refreshDeveloper = () => {
@@ -84,7 +84,7 @@ class Developer extends React.Component {
 	}
 
 	render() {
-		const { appList, currentApp, logFile } = this.state;
+		const { appList, currentApp, logFile, devSuccessText, devErrText } = this.state;
 		const { appState } = this.props;
 		const appButtonConfig = {
 			remove: this.state.remove,
@@ -94,14 +94,16 @@ class Developer extends React.Component {
 		}
 		const parentFuncs = {
 			refreshDeveloper: this.refreshDeveloper,
-			setDevSuccessText: this.setDevSuccessText,
-			setDevErrText: this.setDevErrText,
+			setSuccessText: this.setSuccessText,
+			setErrorText: this.setErrorText,
 		}
 
 		return (
 			<div>
 				<h1 className="page-header">Developer</h1>
 				<div className="flex flex-column">
+					<span className="text-error-red">{devErrText}</span>
+					<span className="text-success-green">{devSuccessText}</span>
 					<div className="flex-none flex justify-around">
 						<DeveloperNewAppButton {...this.props} parentFuncs={parentFuncs}/>
 					</div>

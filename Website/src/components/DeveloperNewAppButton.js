@@ -70,7 +70,8 @@ class DeveloperNewAppButton extends React.Component {
 		// Validate Form and submit application
 		this.validateFormData(() => {
 			const { file, icon, appName, versionNumber, appDescription, programmingLanguage } = this.state;
-			let { id, firstname } = this.props.appState.accountDetails;
+			const { id, firstname } = this.props.appState.accountDetails;
+			const { parentFuncs } = this.props;
 
 			// Request for a new App
 			application_service.post(`/application/`, {
@@ -106,7 +107,6 @@ class DeveloperNewAppButton extends React.Component {
 						// Send request for first version of new app using the App ID received as response
 						application_service.post(`/application/version/${appId}`, formData, config)
 							.then(data => {
-								// Successful creation of first app version
 								data = data.data;
 								// Creates a request to review the app.
 								app_request_service.post('/apprequest/developer', {
@@ -115,14 +115,18 @@ class DeveloperNewAppButton extends React.Component {
 										requestType: 1, // 1 is create app, 2 is update app
 										appName: appName, // Application Name
 										checksum: checksum,
+										versionNumber: versionNumber,
 									})
 									.then(data => {
 										this.toggleModal();
-										this.props.parentFuncs.refreshDeveloper();
+										parentFuncs.refreshDeveloper();
+										parentFuncs.setSuccessText("You have successfully submitted an app for review");
 									})
 									.catch(err => {
-										data = err.data;
-										this.setErrorText(data.message);
+										let error = err.data;
+										error = error ? error.message : err;
+										this.setErrorText(error);
+										parentFuncs.setErrorText(error);
 									});
 							})
 							.catch(err => {
@@ -213,11 +217,12 @@ class DeveloperNewAppButton extends React.Component {
 							<h5 className="h5">Add your Zip File</h5>
 							<input className="h5 white" type="file" onChange={this.onFileChange}/>
 						</div>
-						<div>
-							<span className="text-error-red">{iconErr}</span>
-							<h5 className="h5">Add an app Icon</h5>
-							<input className="h5 white" type="file" onChange={this.onIconChange}/>
-						</div>
+						{//<div>
+							//<span className="text-error-red">{iconErr}</span>
+							//<h5 className="h5">Add an app Icon</h5>
+							//<input className="h5 white" type="file" onChange={this.onIconChange}/>
+						//</div>
+						}
 						<div>
 							<span className="text-error-red">{appDescriptionErr}</span>
 							<h5 className="h5">Application Description</h5>

@@ -60,25 +60,6 @@ class LoginForm extends React.Component {
 					this.setSingleError("serverResponse", error ? error.message : err)
 				});
 
-			// axios.post(`${ACCOUNT_SERVICE}/account/login`, {
-			// 		username: username,
-			// 		password: password,
-			// 	})
-			// 	.then(response => {
-			// 		const { data } = response.data;
-			// 		// close the parent modal
-			// 		closeParentModal();
-			// 		// sets the main Apps current account details
-			// 		setAccountDetails(data);
-			// 	})
-			// 	.catch(err => {
-			// 		// On failure, type out what went wrong
-			// 		if (!err.response) {
-			// 			return this.setSingleError("serverResponse", "Account Services are Offline at the moment");
-			// 		}
-			// 		const { data } = err.response;
-			// 		this.setSingleError("serverResponse", data.message);
-			// 	});
 		}));
 	}
 

@@ -11,7 +11,17 @@ class Home extends React.Component {
 		this.state = {
 			appList: [],
 			currentApp: null,
+			successText: '',
+			errorText: '',
 		};
+	}
+
+	setSuccessText = (text) => {
+		this.setState({ successText: text, errorText: '' });
+	}
+
+	setErrorText = (text) => {
+		this.setState({ errorText: text, successText: '' });
 	}
 
 	// Get a list of Apps in the App store
@@ -48,9 +58,14 @@ class Home extends React.Component {
 		// only allow install if user is logged in
 		const appButtonConfig = {
 			remove: false, //
-			install: true, //
+			install: true, // install if 
 			launch: false, //
 		};
+
+		const parentFuncs = {
+			setSuccessText: this.setSuccessText,
+			setErrorText: this.setErrorText,
+		}
 
 		return (
 			<div>
@@ -70,6 +85,7 @@ class Home extends React.Component {
 							app={currentApp}
 							appState={appState}
 							appButtonConfig={appButtonConfig}
+							parentFuncs={parentFuncs}
 						/>
 					</div>
 				</main>
