@@ -29,15 +29,13 @@ class apiDeveloperAppReviewRequest(Resource):
         appandversion = data.get("appName") + "-" + data.get("appversionId")
         cmdRunTestScript = "sh run.sh App.zip {} {} {}".format(appandversion, data.get("checksum"), appRequest.id)
         subprocess.call(cmdRunTestScript)
-        
-        #   Request Lamines test script
-        #   subprocess.check_call(['./run.sh'])
+
         return res.postSuccess("Request succesfully created.", apprequest_schema.dump(appRequest).data)
     
     #   Request body should contain requestId, status, appDetail
     #   Example {"requestId" : 4, "status": 2, appDetail: "test-1"}
-    #   2 = 'success'
-    #   3 = 'fail'
+    #   status = 2 = 'success'
+    #   status = 3 = 'fail'
     def put(self):
         #print(request.files)
         data = request.form
