@@ -110,6 +110,7 @@
 
 .app-list-body {
 	align-content: center;
+	list-style: none;
 }
 
 .app-list-item {
@@ -117,11 +118,12 @@
 	border-bottom: 2px solid firebrick;
 	font-family: 'Montserrat';
 	font-size: 1.3rem;
+	padding-bottom: 10px;
+	padding-top: 10px;
 }
 
 .app-list-item-name {
 	color: #ffffff;
-	/* float: left; */
 }
 
 .icon-image {

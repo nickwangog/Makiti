@@ -15,10 +15,10 @@ class AppListItem extends React.Component {
 
 		return (
 			<li className="app-list-item">
+				<img className="icon-image" src={iconImage} alt="icon"/>
 				<div className="app-list-body">
 					<span className="app-list-item-name">{appname}</span>
 				</div>
-				<img className="icon-image" src={iconImage} alt="icon"/>
 				<div>
 					{children}
 				</div>
