@@ -8,6 +8,8 @@ import ButtonMakiti from './ButtonMakiti';
 import Modal from './Modal';
 import { RemoveAppButton } from './AppButtons';
 
+import { application_service } from './AxiosHandler';
+
 class Admin extends React.Component {
 	constructor(props) {
 		super(props);
@@ -16,7 +18,9 @@ class Admin extends React.Component {
 			currentApp: null,
 			showAppModal: false,
 			showAccountModal: false,
-			accountList: []
+			accountList: [],
+			errorText: '',
+			successText: '',
 		};
 	}
 
@@ -24,19 +28,27 @@ class Admin extends React.Component {
 		this.setState(() => ({ showAppModal: !this.state.showAppModal }));
 	}
 
+	setErrorText = (text) => {
+		this.setState({ errorText: text, successText: '' });
+	}
+
+	setSuccessText = (text) => {
+		this.setState({ successText: text, errorText: '' });
+	}
+
 	appModal = () => {
 		
-	axios.get(`${APPLICATION_SERVICE}/application/`)
-		.then(response => {
-			const { data } = response.data;
-			console.log(data);
-			this.setState({ appList: data });
-		})
-		.catch(err => {
-			// APPLICATION SERVICE UNREACHABLE
-			this.setState({ appList: [], currentApp: null });
-		});
-	this.toggleAppModal();
+		application_service.get(`/application/`)
+			.then(data => {
+				this.setState({ appList: data.data });
+			})
+			.catch(err => {
+				// APPLICATION SERVICE UNREACHABLE
+				let error = err.data;
+				error = error ? error.message : err;
+				this.setState({ appList: [], currentApp: null, errorText: error });
+			});
+		this.toggleAppModal();
 	}
 
 	toggleAccountModal = () => {
@@ -45,15 +57,15 @@ class Admin extends React.Component {
 
 	accountModal = () => {
 		
-		axios.get(`${ACCOUNT_SERVICE}/account/`)
-			.then(response => {
-				const { data } = response.data;
-				console.log(data);
-				this.setState({ accountList: data });
+		account_service.get(`/account/`)
+			.then(data => {
+				this.setState({ accountList: data.data });
 			})
 			.catch(err => {
 				// APPLICATION SERVICE UNREACHABLE
-				this.setState({ accountList: [], currentApp: null });
+				let error = err.data;
+				error = error ? error.message : err;
+				this.setState({ accountList: [], currentApp: null, errorText: error, successText: '' });
 			});
 		this.toggleAccountModal();
 	}

@@ -56,7 +56,7 @@ const AppDetail = (props) => {
 			<div className="flex flex-center">
 				<RemoveAppButton show={appButtonConfig.remove} app={app} parentFuncs={parentFuncs} />
 				<InstallAppButton show={appButtonConfig.install} app={app} appState={appState} parentFuncs={parentFuncs} />
-				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} logFile={logFile} />
+				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} logFile={logFile} parentFuncs={parentFuncs} />
 			</div>
 		</div>
 	);

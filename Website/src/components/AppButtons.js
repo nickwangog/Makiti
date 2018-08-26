@@ -113,7 +113,7 @@ class LaunchAppVersionButton extends React.Component {
 	}
 
 	render() {
-		const { show, app, className, logFile } = this.props;
+		const { show, app, className, logFile, parentFuncs } = this.props;
 		const { showModal } = this.state;
 
 		if (!show) {
@@ -128,7 +128,7 @@ class LaunchAppVersionButton extends React.Component {
 				>
 					Launch App!
 				</ButtonMakiti>
-				<LaunchAppModal show={showModal} toggle={this.toggleModal} app={app} logFile={logFile} />
+				<LaunchAppModal show={showModal} toggle={this.toggleModal} app={app} logFile={logFile} parentFuncs={parentFuncs}/>
 			</div>
 		);
 	}

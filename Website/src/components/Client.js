@@ -35,7 +35,9 @@ class Client extends React.Component {
 				this.setState({ appList: data.data })
 			})
 			.catch(err => {
-				this.setState({ errorText: "Please Download Apps from 'Home'" })
+				let error = err.data;
+				error = error ? error.message : err
+				this.setState({ errorText: error })
 			});
 	}
 

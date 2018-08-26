@@ -56,8 +56,9 @@ class LoginForm extends React.Component {
 					setAccountDetails(data.data);
 				})
 				.catch(err => {
-					const error = err.data;
-					this.setSingleError("serverResponse", error ? error.message : err)
+					let error = err.data;
+					error = error ? error.message : err;
+					this.setSingleError("serverResponse", error)
 				});
 
 		}));
@@ -74,22 +75,23 @@ class LoginForm extends React.Component {
 					clearErrors = this.clearErrors,
 					closeParentModal = this.props.onSuccess;
 
-				axios.post(`${ACCOUNT_SERVICE}/account/`, {
+				account_service.post(`/account/`, {
 						username: username,
 						password: password,
 						firstname: firstname,
 						lastname: lastname,
 					})
-					.then(response => {
-						const { data } = response.data;
+					.then(data => {
 						// close modal window
 						closeParentModal();
 						// sets the main Apps current account details
-						setAccountDetails(data);
+						setAccountDetails(data.data);
 					})
 					.catch(err => {
-						const { data } = err.response;
-						this.setSingleError("serverResponse", data.message);
+						console.log(err);
+						let error = err.data;
+						error = error ? error.message : err 
+						this.setSingleError("serverResponse", error );
 					});
 				}));
 		});

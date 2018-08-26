@@ -6,6 +6,8 @@ import Modal from './Modal';
 import RegisteredVehiclesList from './RegisteredVehiclesList';
 import RegisterCarModalButton from './RegisterCarModalButton';
 
+import { app_request_service } from './AxiosHandler';
+
 class InstallAppModal extends React.Component {
 	constructor(props) {
 		super(props);
@@ -27,22 +29,26 @@ class InstallAppModal extends React.Component {
 		}
  
  		const appDetails = { ...this.props.app };
-		axios.post(`${APP_REQUEST_SERVICE}/apprequest/customer/${customerId}`, {
+		app_request_service.post(`/apprequest/customer/${customerId}`, {
 			...selectedVehicle,
 			appDetails: appDetails,
 			...this.props.appState,
 		})
 		.then(data => {
-			data = data.data;
 			this.props.parentFuncs.setSuccessText("Successfully Installed App!");
-
+			this.props.parentFuncs.showAppDetail(this.props.app.id);
+			this.props.toggle();
 		})
 		.catch(err => {
-			this.props.parentFuncs.setErrorText("Error occurred installing App");
+			let error = err.data;
+			error = error ? error.message : err;
+			this.props.parentFuncs.setErrorText(error);
+			this.setErrorText(error);
 		});
 	}
 
 	setSelectedVehicle = (v) => {
+		console.log(v);
 		this.setState({
 			selectedVehicle: v,
 		})

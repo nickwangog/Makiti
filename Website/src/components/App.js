@@ -100,9 +100,11 @@ class App extends React.Component {
 
 	// Check if user is logged in and log them in automatically
 	componentWillMount() {
+
 		const username = sessionStorage.getItem('username');
 		const password = sessionStorage.getItem('password');
 
+		// Log in user automatically
 		if (username && password) {
 			account_service.post('/account/login', {
 					username: username,
@@ -119,11 +121,20 @@ class App extends React.Component {
 		} else {
 			sessionStorage.clear();
 		}
+		// FAKE AUTHENTICATION FOR NOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// this.setAccountDetails({
+		// 	id: 3,
+		// 	username: 'bpierce',
+		// 	firstname: 'FAKE AUTH',
+		// 	lastname: 'FAKER AUTHER',
+		// 	customer: true,
+		// 	developer: true,
+		// 	admin: true,
+		// })
 	}
 
 	render() {
 		const { customer: isCus, developer: isDev, admin: isAd } = this.state.accountDetails;
-		const isCusOrDev = isCus || isDev;
 
 		return (
 			<Router>

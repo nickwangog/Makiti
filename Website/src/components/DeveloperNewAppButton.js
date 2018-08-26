@@ -217,7 +217,8 @@ class DeveloperNewAppButton extends React.Component {
 							<h5 className="h5">Add your Zip File</h5>
 							<input className="h5 white" type="file" onChange={this.onFileChange}/>
 						</div>
-						{//<div>
+						{
+						//<div>
 							//<span className="text-error-red">{iconErr}</span>
 							//<h5 className="h5">Add an app Icon</h5>
 							//<input className="h5 white" type="file" onChange={this.onIconChange}/>

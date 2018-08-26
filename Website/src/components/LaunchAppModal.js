@@ -4,7 +4,7 @@ import axios from 'axios';
 import ButtonMakiti from './ButtonMakiti';
 import Modal from './Modal';
 
-import { app_request_service } from './AxiosHandler';
+import { application_service } from './AxiosHandler';
 
 class LaunchAppModal extends React.Component {
 	constructor(props) {
@@ -15,13 +15,35 @@ class LaunchAppModal extends React.Component {
 	}
 
 	launchApp = (appVersionId) => {
-		axios.put(`${APPLICATION_SERVICE}/application/${appVersionId}/launch`)
-			.then(response => {
-				return ;
+		const { parentFuncs, toggle, app } = this.props;
+
+		application_service.put(`/application/${appVersionId}/launch`)
+			.then(data => {
+				parentFuncs.setSuccessText(data.data.message);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				console.log("APPPPP", app, app.id);
+				parentFuncs.refreshDeveloper(app.id);
+				toggle();
 			})
 			.catch(err => {
-				const error = err.data;
-				this.setState({ errorText: error ? error.message : err } );
+				let error = err.data;
+				error = error ? error.message : err;
+				this.setState({ errorText: error } );
 			});
 	}
 
