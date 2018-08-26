@@ -1,5 +1,7 @@
 from api.app import db, ma
 
+#requesttype: 1 = Create, 2 = Update
+
 class RequestType(db.Model):
     __tablename__ = "requesttypes"
     
