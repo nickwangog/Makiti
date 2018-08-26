@@ -11,9 +11,12 @@ class Developer extends React.Component {
 		this.state = {
 			appList: [],
 			currentApp: null,
+			devSuccessText: '',
+			devErrText: '',
 			launch: false,
 			install: false,
 			remove: false,
+			update: false,
 		}
 	}
 
@@ -37,6 +40,14 @@ class Developer extends React.Component {
 			});
 	}
 
+	setDevSuccessText = (text) => {
+		this.setState({ devSuccessText: text });
+	}
+
+	setDevErrText = (text) => {
+		this.setState({ devErrText: text });
+	}
+
 	refreshDeveloper = () => {
 		this.componentWillMount();
 	}
@@ -49,6 +60,7 @@ class Developer extends React.Component {
 			currentApp: chosenApp[0],
 			remove: true, // chosenApp[0].active,
 			launch: true, // chosenApp[0].appversionDetails.status == 4,
+			update: true, // chosenApp[0].active && currentApp[0].runningversion != 0,
 		});
 	}
 
@@ -63,25 +75,29 @@ class Developer extends React.Component {
 			remove: this.state.remove,
 			install: this.state.install,
 			launch: this.state.launch,
+			update: this.state.update,
+		}
+		const parentFuncs = {
+			refreshDeveloper: this.refreshDeveloper,
+			setDevSuccessText: this.setDevSuccessText,
+			setDevErrText: this.setDevErrText,
 		}
 
 		return (
 			<div>
 				<h1 className="page-header">Developer</h1>
 				<div className="flex flex-column">
-					<div className="flex-auto">
-						<DeveloperNewAppButton {...this.props} refreshDeveloper={this.refreshDeveloper}/>
+					<div className="flex-none flex justify-around">
+						<DeveloperNewAppButton {...this.props} parentFuncs={parentFuncs}/>
 					</div>
 					<div className="flex-none flex">
 						<AppList
-							className="flex-auto"
 							style={{ flex: 2 }}
 							title="My Creations"
 							appList={appList}
 							onClick={this.showAppDetail}
 						/>
 						<AppDetail
-							className="flex-auto"
 							style={{ flex: 3 }}
 							app={currentApp}
 							appButtonConfig={appButtonConfig}

@@ -183,3 +183,9 @@
 	color: red;
 	font-family: 'Montserrat';
 }
+
+.text-success-green {
+	font-weight: bold;
+	color: forestgreen;
+	font-family: 'Montserrat';
+}

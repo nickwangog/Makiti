@@ -22,8 +22,6 @@ class AppList extends React.Component {
 		// 	version: '1.4',
 		// }
 
-		console.log("APP_LIST", appList);
-
 		return (
 			<div className={classNames(className)} style={style}>
 				<ul className="p1 flex-column app-list-body">
