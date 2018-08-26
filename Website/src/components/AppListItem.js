@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import iconImage from '../static/images/app_icon.png';
 
 class AppListItem extends React.Component {
 	constructor(props) {
@@ -13,10 +14,11 @@ class AppListItem extends React.Component {
 		// console.log("APP_LIST_ITEM", app);
 
 		return (
-			<li className="flex flex-column py2 app-list-item">
-				<div>
+			<li className="app-list-item">
+				<div className="app-list-body">
 					<span className="app-list-item-name">{appname}</span>
 				</div>
+				<img className="icon-image" src={iconImage} alt="icon"/>
 				<div>
 					{children}
 				</div>

@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import AppListItem from './AppListItem';
 import { RemoveAppButton, InstallAppButton }  from './AppButtons'
 
-
 // The list of apps can be sent through props
 class AppList extends React.Component {
 	constructor(props) {
@@ -24,7 +23,7 @@ class AppList extends React.Component {
 
 		return (
 			<div className={classNames(className)} style={style}>
-				<ul className="p1 flex-column app-list-body">
+				<ul>
 					{appList.map((app) => (
 						<div key={app.id} onClick={() => (onClick(app.id))}>
 							<AppListItem app={app} />
