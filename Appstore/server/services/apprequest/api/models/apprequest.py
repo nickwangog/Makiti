@@ -7,6 +7,7 @@ import sqlalchemy as sa
 #   status = 2 (test successful, pending approval)
 #   status = 3 (test unsuccesful)
 #   status = 4 (approved)
+#   status = 5 (app download)
 
 class AppRequest(db.Model):
     __tablename__ = "apprequests"

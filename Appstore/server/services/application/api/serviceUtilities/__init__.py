@@ -72,3 +72,16 @@ def checksum_sha256(file, block_size=65536):
     for block in iter(lambda: file.read(block_size), b''):
         sha256.update(block)
     return sha256.hexdigest()
+
+def createAppDir(dirPath):
+    if os.path.exists(dirPath):
+        return False, "Directory already in use."
+    os.makedirs(dirPath)
+    if not os.path.exists(dirPath):
+        return False, "Unable to create directory in {}.".format(dirPath)
+    iconPath = os.path.join(dirPath, "Icon")
+    imagesPath =  os.path.join(dirPath, "Images")
+    os.makedirs(iconPath)
+    os.makedirs(imagesPath)
+    return True, "success"
+    

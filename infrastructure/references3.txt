@@ -10,6 +10,7 @@ Regenerating TLS certificates
 
 3#######################to delete docker images and purge the system
 https://www.digitalocean.com/community/tutorials/how-to-remove-docker-images-containers-and-volumes
+SHA256:1q9krVehVYile9f1jMKnSHVgA7O9by00b5yRDR8xp4w lkaba@e1z3r4p20.42.us.org
 
 4_################## to check the logs of the containers & 
 
@@ -48,25 +49,7 @@ docker volume inspect mysql-db
 9- bind mounting #############mounting the host folder inside the container 
 
 docker run --name webserver -p 8080:80 -v $(PWD):/usr/share/ngnix/html ngnix
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ssh-keygen -t rsa
+    ssh-copy-id pi@makitipi.local
 https://runnable.com/docker/python/dockerize-your-python-application
 https://nitinbhojwani-tech-talk.blogspot.com/2017/12/run-python-script-in-docker-container.html

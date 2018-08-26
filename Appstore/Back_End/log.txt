@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 solitaire.zip is validated.
 Restricted code found in line 34
 import getopt
@@ -7,3 +9,4 @@ Restricted code found in line 53
     except getopt.GetoptError:\n
 SAMPLE1.zip is invalid.
 SAMPLE2.zip is validated.
+>>>>>>> master
