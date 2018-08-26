@@ -3,8 +3,16 @@ import axios from 'axios';
 
 const VehicleItem = (props) => {
 	return (
-		<div onClick={props.onClick}>
-			{props.vehicle.carDetails.carmodelDetails.cartype}
+		<div className="registered-car-list" onClick={props.onClick}>
+			<div className="underline registered-car-item h5">
+			{props.vehicle.carDetails.carmodelDetails.year} {props.vehicle.carDetails.carmodelDetails.model}
+			</div>
+			<div className="registered-car-item h6">
+			Type: {props.vehicle.carDetails.carmodelDetails.cartype}
+			</div>
+			<div className="registered-car-item h6">
+			{props.vehicle.carDetails.carmodelDetails.description}
+			</div>
 		</div>
 	)
 }
@@ -40,7 +48,7 @@ class RegisteredVehiclesList extends React.Component {
 		const { onClick } = this.props;
 
 		return (
-			<ul className="p1 flex-column app-list-body">
+			<ul>
 				{vehicleList.map((v) => (
 					<div key={v.id}>
 						<VehicleItem vehicle={v} onClick={() => onClick(v)}/>
