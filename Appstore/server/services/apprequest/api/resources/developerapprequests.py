@@ -10,6 +10,13 @@ import api.serviceUtilities as ServUtil
 
 #   /api/apprequest/developer
 class apiDeveloperAppReviewRequest(Resource):
+    #   Retrieves pending developer app requests
+    def get(self):
+        queryAppRequests = AppRequest.query.filter(AppRequest.customer == 0).filter(AppRequest.status==1 or AppRequest.status==2).all()
+        if not queryAppRequests:
+            return res.resourceMissing("No app requests penging found.")
+        return res.getSuccess(apprequests_schema.dump(queryAppRequests).data)
+
     #   Request body should contain accountId, appversionId, appName, requesttype
     #   Example: {"versionNumber": "736.9", accountId": 14, "appversionId": 3, "requestType" : 1, appName: "whatever", "checksum": "872365"}
     def post(self):
@@ -24,7 +31,7 @@ class apiDeveloperAppReviewRequest(Resource):
             return res.internalServiceError(error)
         db.session.add(appRequest)
         db.session.commit()
-        kabascript = "/nfs/2017/d/dmontoya/42/fordappstore/infrastructure/containers/raspbian/run.sh"
+        kabascript = "/nfs/2017/d/dmontoya/42/fordappstore/infrastructure/containers/raspbian/kabascriptest.sh" # using test kaba for nows
         #   sh run.sh App.zip ya-ya b7709364cb0e7a86416f17fa3ff35b903077e8fa9e94c7e580ad7d57d5a6d509 1
         appName = data.get("appName")
         appName = appName.replace(' ', '\ ')
@@ -66,7 +73,7 @@ class apiDeveloperAppReviewRequest(Resource):
         else:
             status = 3
         AppServiceReq = requests.put(app.config['APPLICATION_SERVICE'] + "{}/appversion".format(queryAppRequest.appversion), json={"status": status}).json()
-        if ("succss" not in AppServiceReq["status"]):
+        if ("success" not in AppServiceReq["status"]):
             return res.internalServiceError("Error in application service. Is it running?")
 
         #   Saves log file

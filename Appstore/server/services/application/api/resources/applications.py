@@ -59,6 +59,13 @@ class apiApplication(Resource):
 
         return  res.postSuccess("Succesfully created application {}.".format(newApp.appname), application_schema.dump(newApp).data)
 
+# #   /application/:accountId/customer
+# class apiCustomerApplications(Resource):
+#     def get(self, accountId):
+#         appRequestServ = 
+        
+
+
 #   /application/icon/:appId
 class apiApplicationIcon(Resource):
     def get(self, appId):
@@ -219,7 +226,7 @@ class apiDeveloperApps(Resource):
         allapps = []
         for developerapp in developerapps:
             queryApplication = Application.query.filter_by(id=developerapp["appid"]).first()
-            queryAppVersion = ApplicationVersion.query.filter(ApplicationVersion.app==queryApplication.id, ApplicationVersion.status > 3).first()
+            queryAppVersion = ApplicationVersion.query.filter(ApplicationVersion.app==queryApplication.id).first()
             developerapp["appDetails"] = application_schema.dump(queryApplication).data
             if queryAppVersion:
                 developerapp["appDetails"]["appversionDetails"] = applicationversion_schema.dump(queryAppVersion).data
@@ -247,20 +254,22 @@ class apiVersion(Resource):
     #   Example {"status" : 2}
     def put(self, appversionId):
         data = request.get_json()
-        print (data)
-        print(data["status"])
+        #print (data)
+        #print(data["status"])
         print(data.get("status"))
         #   Validates request data
         if not data or not data["status"]:
             return res.badRequestError("Missing data to proccess request.")
-        if int(data["status"]) < 1 and int(data["status"]) > 5:
+        if (int(data.get("status")) < 1 or int(data.get("status")) > 5):
             return res.badRequestError("Invalid status code {}.".format(data["status"]))
-
+        print("passed error")
         #   Verifies app version exists
         queryAppVersion = ApplicationVersion.query.filter_by(id=appversionId).first()
         if not queryAppVersion:
             return res.resourceMissing("No version record {} exists.".format(appversionId))
 
-        queryAppVersion.status = data["status"]
+        queryAppVersion.status = data.get("status")
+        queryAppVersion.approved = True
+        print(queryAppVersion.status)
         db.session.commit()
-        return res.putSuccess("Update version {} status to {}.".format(appversionId, data["status"]))
+        return res.putSuccess("Update version {} status to {}.".format(appversionId, data.get("status")))

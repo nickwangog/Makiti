@@ -41,6 +41,15 @@ class apiCustomerAppRequest(Resource):
         if os.path.exists(appReqDownloadPath) == False:
             print("wrong path")
             return res.badRequestError("App executable files not found.")
+        
+        #   Saves customer download request
+        apprequestDetails = {"requesttype": 3, "appversion": dataAppVersionDetails["id"], "customer": accountId, "car": dataCarDetails["id"]}
+        customerAppRequest, error = apprequest_schema.load(apprequestDetails)
+        if error:
+            return res.internalServiceError(error)
+        customerAppRequest.status = 5   # sets status as download request
+        db.session.add(customerAppRequest)
+        db.session.commit()
 
         #   Connect to client vehicle device
         remoteAppDirectory =  os.path.join(app.config["PI_REMOTE_DIR"], dataAppDetails["appname"])
@@ -54,15 +63,6 @@ class apiCustomerAppRequest(Resource):
         ssh.sendFile(sshI, appReqDownloadPath, os.path.join(remoteAppDirectory, "App.zip"))
         ssh.installApp(sshI, os.path.join(remoteAppDirectory, "App.zip"), "HelloWorld.py")
         print (sshI)
-
-        #   Saves customer download request
-        apprequestDetails = {"requesttype": 3, "appversion": dataAppVersionDetails["id"], "customer": accountId, "car": dataCarDetails["id"]}
-        customerAppRequest, error = apprequest_schema.load(apprequestDetails)
-        if error:
-            return res.internalServiceError(error)
-        customerAppRequest.status = 5   # sets status as download request
-        db.session.add(apprequestDetails)
-        db.session.commit()
 
         return res.postSuccess("App installation successful.")
 
