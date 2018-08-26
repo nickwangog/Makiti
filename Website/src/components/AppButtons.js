@@ -4,6 +4,8 @@ import axios from 'axios';
 
 import ButtonMakiti from './ButtonMakiti';
 import LaunchAppModal from './LaunchAppModal';
+import InstallAppModal from './InstallAppModal';
+
 
 const RemoveAppButton = ({ ...props }) => {
 	const { show, app, className } = { ...props };
@@ -41,7 +43,7 @@ class LaunchAppVersionButton extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			showModal: false
+			showModal: false,
 		}
 	}
 
@@ -71,14 +73,49 @@ class LaunchAppVersionButton extends React.Component {
 	}
 }
 
-const InstallAppButton = ({ ...props }) => {
+class InstallAppButton extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			showModal: false,
+		}
+	}
+
+	toggleModal = () => {
+		this.setState({ showModal: !this.state.showModal });
+	}
+
+	render() {
+		console.log("INSTALLAPPBUTTON", this.props);
+		const { show, app, className, appState } = this.props;
+		const { showModal } = this.state;
+
+		if (!show) {
+			return null;
+		}
+
+		return (
+			<div>
+				<ButtonMakiti
+					className={classNames("text-bold-black bg-green", className)}
+					onClick={this.toggleModal}
+				>
+					Install
+				</ButtonMakiti>
+				<InstallAppModal show={showModal} toggle={this.toggleModal} app={app} appState={appState} />
+			</div>
+		);
+	}
+}
+
+const UninstallAppButton = ({ ...props }) => {
 	const { show, app, className } = { ...props };
 
 	if (!show) {
 		return null;
 	}
 
-	const installApp = (customerId) => {
+	const uninstallApp = (customerId) => {
 		axios.post(`${APP_REQUEST_SERVICE}/apprequest/customer/${customerId}`)
 		.then(response => {
 			const { data } = response.data;
@@ -94,18 +131,18 @@ const InstallAppButton = ({ ...props }) => {
 	return (
 		<div>
 			<ButtonMakiti
-			className={classNames("text-bold-black bg-green", className)}
-			onClick={() => (installApp("akldsfjaklsdfjaksdlfjkladsjflkadsjflkadsjfklajklfdjdlkjs"))}
+				className={classNames("text-bold-black bg-red", className)}
+				onClick={() => (uninstallApp("akldsfjaklsdfjaksdlfjkladsjflkadsjflkadsjfklajklfdjdlkjs"))}
 			>
-				Install
+				unInstall
 			</ButtonMakiti>
 		</div>
 	);
 }
 
-
 export {
 	RemoveAppButton,
 	InstallAppButton,
+	UninstallAppButton,
 	LaunchAppVersionButton,
 }

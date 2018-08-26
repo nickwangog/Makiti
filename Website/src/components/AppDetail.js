@@ -14,7 +14,7 @@ import iconImage from '../static/images/app_icon.png'; // TEMPORARY
 
 const AppDetail = (props) => {
 	// Handle zero-state
-	const { className, style, app, appButtonConfig } = props;
+	const { className, style, app, appButtonConfig, appState } = props;
 
 	if (!app) {
 		return (
@@ -61,7 +61,7 @@ const AppDetail = (props) => {
 			</div>
 			<div className="flex flex-center">
 				<RemoveAppButton show={appButtonConfig.remove} app={app} />
-				<InstallAppButton show={appButtonConfig.install} app={app} />
+				<InstallAppButton show={appButtonConfig.install} app={app} appState={appState}/>
 				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} />
 			</div>
 		</div>

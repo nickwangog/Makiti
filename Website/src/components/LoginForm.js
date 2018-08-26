@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Whirlpool } from 'whirlpool-hash';
 
 import InputMakiti from './InputMakiti';
+import { account_service } from './AxiosHandler';
 
 
 //	Basic login form accepts a username and password
@@ -44,25 +45,39 @@ class LoginForm extends React.Component {
 				clearErrors = this.clearErrors,
 				closeParentModal = this.props.onSuccess;
 
-			axios.post(`${ACCOUNT_SERVICE}/account/login`, {
+			account_service.post('/account/login', {
 					username: username,
 					password: password,
 				})
-				.then(response => {
-					const { data } = response.data;
-					// close the parent modal
+				.then(data => {
+					data = data.data;
 					closeParentModal();
-					// sets the main Apps current account details
 					setAccountDetails(data);
 				})
 				.catch(err => {
-					// On failure, type out what went wrong
-					if (!err.response) {
-						return this.setSingleError("serverResponse", "Account Services are Offline at the moment");
-					}
-					const { data } = err.response;
-					this.setSingleError("serverResponse", data.message);
+					const { data } = err;
+					this.setSingleError("serverResponse", data.message)
 				});
+
+			// axios.post(`${ACCOUNT_SERVICE}/account/login`, {
+			// 		username: username,
+			// 		password: password,
+			// 	})
+			// 	.then(response => {
+			// 		const { data } = response.data;
+			// 		// close the parent modal
+			// 		closeParentModal();
+			// 		// sets the main Apps current account details
+			// 		setAccountDetails(data);
+			// 	})
+			// 	.catch(err => {
+			// 		// On failure, type out what went wrong
+			// 		if (!err.response) {
+			// 			return this.setSingleError("serverResponse", "Account Services are Offline at the moment");
+			// 		}
+			// 		const { data } = err.response;
+			// 		this.setSingleError("serverResponse", data.message);
+			// 	});
 		}));
 	}
 
