@@ -1,3 +1,19 @@
+FROM buildpack-deps:jessie
+
+# ensure local python is preferred over distribution python
+ENV PATH /usr/local/bin:$PATH
+
+# http://bugs.python.org/issue19846
+# > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
+ENV LANG C.UTF-8
+
+# extra dependencies (over what buildpack-deps already includes)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		tk-dev \
+	&& rm -rf /var/lib/apt/lists/*
+
+ENV GPG_KEY 0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
+
 ENV PYTHON_VERSION 3.6.6
 
 LABEL maintainer="Lamine kaba laminekaba@outlook.com"
@@ -66,15 +82,27 @@ RUN set -ex; \
 			\( -type f -a \( -name '*.pyc' -o -name '*.pyo' \) \) \
 		\) -exec rm -rf '{}' +; \
 		rm -f get-pip.py
-
 RUN apt update && \
 		apt-get install unzip && \
 		pip install flask && \
 		pip3 install pyinstaller
+RUN date "+%H:%M:%S   %d/%m/%y"
 RUN mkdir -p /appfolder
+ARG requestId
 ARG package
+ARG appname
+ADD ./AppChecker /AppCheckerNingi
 ADD $package /appfolder
+COPY test.json /appfolder
 RUN unzip appfolder/App.zip -d /appfolder && \
-	rm -rf ../*.zip
+	rm -rf ../*.zip 
+WORKDIR /AppCheckerNingi
+RUN python zip_checker.py $appname && \
+cat /appfolder/log.json >> /appfolder/test.json && \
+curl -X PUT \
+ -F "requestId=$requestId" \
+ -F "status=2" \
+ -F "appDetail=$appname" \
+ -F "logfile=@/appfolder/test.json" 10.113.4.18:9924/apprequest/developer
 WORKDIR /appfolder/App
 CMD ["bash"]
