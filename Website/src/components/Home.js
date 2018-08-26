@@ -14,6 +14,7 @@ class Home extends React.Component {
 		};
 	}
 
+	// Get a list of Apps in the App store
 	componentDidMount() {
 		axios.get(`${APPLICATION_SERVICE}/application/`)
 			.then(response => {
@@ -46,9 +47,9 @@ class Home extends React.Component {
 		// From home, don't show remove button
 		// only allow install if user is logged in
 		const appButtonConfig = {
-			remove: false,
-			install: true,
-			launch: false,
+			remove: false, //
+			install: true, //
+			launch: false, //
 		};
 
 		return (
@@ -67,6 +68,7 @@ class Home extends React.Component {
 							className="flex-auto"
 							style={{ flex: 2 }}
 							app={currentApp}
+							appState={appState}
 							appButtonConfig={appButtonConfig}
 						/>
 					</div>

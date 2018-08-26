@@ -117,7 +117,7 @@ class DeveloperNewAppButton extends React.Component {
 									.then(response => {
 										console.log("app review SUCCESS");
 										this.toggleModal();
-										this.props.refreshDeveloper();
+										this.props.parentFuncs.refreshDeveloper();
 									})
 									.catch(err => {
 										console.log("app review FAILURE");
