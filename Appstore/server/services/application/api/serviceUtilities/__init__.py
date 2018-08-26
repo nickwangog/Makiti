@@ -44,10 +44,10 @@ def saveinAppVersion(app, file, data):
         return False, "File not supported. Only {} extensions are supported.".format(ALLOWED_EXTENSIONS)
     filename = secure_filename(file.filename)
 
+
     #   Checks if app has a directory created already.
     appPath = os.path.join(app.config['UPLOAD_FOLDER'], data.get('appName'))
-    if os.path.exists(appPath):
-        return False, "An app with name {} already exists.".format(data.get('appName'))
+    print(appPath)
     appversionPath = os.path.join(appPath, data.get('versionNumber'))
     if os.path.exists(appversionPath):
         return False, "App version {} already exists.".format(data.get('versionNumber'))
@@ -72,3 +72,16 @@ def checksum_sha256(file, block_size=65536):
     for block in iter(lambda: file.read(block_size), b''):
         sha256.update(block)
     return sha256.hexdigest()
+
+def createAppDir(dirPath):
+    if os.path.exists(dirPath):
+        return False, "Directory already in use."
+    os.makedirs(dirPath)
+    if not os.path.exists(dirPath):
+        return False, "Unable to create directory in {}.".format(dirPath)
+    iconPath = os.path.join(dirPath, "Icon")
+    imagesPath =  os.path.join(dirPath, "Images")
+    os.makedirs(iconPath)
+    os.makedirs(imagesPath)
+    return True, "success"
+    
