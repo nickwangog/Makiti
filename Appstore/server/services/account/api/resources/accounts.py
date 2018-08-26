@@ -4,12 +4,18 @@ from api.app import db
 from api.models import Account, account_schema, accounts_schema
 from api.response import Response as res
 
-
 #   /account/
-#   Account creation [POST]
-#   Requires in request body: first name, last name, username, password
-#   Example {"firstname":"Dago", "lastname":"Burrito", "username": "dagoburrito", "password": "473689gjfdfs"}
 class apiAccount(Resource):
+    #   Retrieves all active accounts
+    def get(self):
+        queryAccounts = Account.query.filter_by(active=True).all()
+        if not queryAccounts:
+            return res.resourceMissing("No accounts found.")
+        return res.getSuccess(accounts_schema.dump(queryAccounts).data)
+
+    #   Account creation [POST]
+    #   Requires in request body: first name, last name, username, password
+    #   Example {"firstname":"Dago", "lastname":"Burrito", "username": "dagoburrito", "password": "473689gjfdfs"}
     def post(self):
         data = request.get_json()
         if not data or not data.get("firstname") or not data.get("lastname") or not data.get("username") or not data.get("password"):

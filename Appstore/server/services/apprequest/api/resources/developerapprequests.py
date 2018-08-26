@@ -10,12 +10,19 @@ import api.serviceUtilities as ServUtil
 
 #   /api/apprequest/developer
 class apiDeveloperAppReviewRequest(Resource):
+    #   Retrieves pending developer app requests
+    def get(self):
+        queryAppRequests = AppRequest.query.filter(AppRequest.customer == 0).filter(AppRequest.status==1 or AppRequest.status==2).all()
+        if not queryAppRequests:
+            return res.resourceMissing("No app requests penging found.")
+        return res.getSuccess(apprequests_schema.dump(queryAppRequests).data)
+
     #   Request body should contain accountId, appversionId, appName, requesttype
-    #   Example: {"accountId": 14, "appversionId": 3, "requestType" : 1, appName: "whatever", "checksum": "872365"}
+    #   Example: {"versionNumber": "736.9", accountId": 14, "appversionId": 3, "requestType" : 1, appName: "whatever", "checksum": "872365"}
     def post(self):
         data = request.get_json()
         #print(data)
-        if not data or not data.get("checksum") or not data.get("accountId") or not data.get("appversionId") or not data.get("requestType") or not data.get("appName"):
+        if not data or not data.get("versionNumber") or not data.get("checksum") or not data.get("accountId") or not data.get("appversionId") or not data.get("requestType") or not data.get("appName"):
             return res.badRequestError("Missing data to create app request")
         requestDetails = {"developer": data.get("accountId"), "appversion": data.get("appversionId"), "requesttype": data.get("requestType")}
         appRequest, error = apprequest_schema.load(requestDetails)
@@ -24,12 +31,18 @@ class apiDeveloperAppReviewRequest(Resource):
             return res.internalServiceError(error)
         db.session.add(appRequest)
         db.session.commit()
-        
+        kabascript = "/nfs/2017/d/dmontoya/42/fordappstore/infrastructure/containers/raspbian/kabascriptest.sh" # using test kaba for nows
         #   sh run.sh App.zip ya-ya b7709364cb0e7a86416f17fa3ff35b903077e8fa9e94c7e580ad7d57d5a6d509 1
-        appandversion = data.get("appName") + "-" + data.get("appversionId")
-        cmdRunTestScript = "sh run.sh App.zip {} {} {}".format(appandversion, data.get("checksum"), appRequest.id)
-        subprocess.call(cmdRunTestScript)
-
+        appName = data.get("appName")
+        appName = appName.replace(' ', '\ ')
+        appZipPath = os.path.join(app.config["UPLOAD_FOLDER"], appName, data.get("versionNumber"), "App.zip")
+        appandversion = "{}-{}".format(data.get("appName"), data.get("versionNumber"))
+        print(data.get("checksum"))
+        print(kabascript)
+        print(appandversion)
+        print(appZipPath)
+        print(str(appRequest.id))
+        subprocess.call(["sh", kabascript, appZipPath, appandversion, data.get("checksum"), str(appRequest.id)])
         return res.postSuccess("Request succesfully created.", apprequest_schema.dump(appRequest).data)
     
     #   Request body should contain requestId, status, appDetail
@@ -55,12 +68,12 @@ class apiDeveloperAppReviewRequest(Resource):
             return res.badRequestError("Request {} does not exist.".format(data["requestId"]))
 
         #   Call application service to update application version status
-        if (data.get("status") == "2"):
+        if (int(data.get("status")) == 2):
             status = 4
         else:
             status = 3
         AppServiceReq = requests.put(app.config['APPLICATION_SERVICE'] + "{}/appversion".format(queryAppRequest.appversion), json={"status": status}).json()
-        if ("succss" not in AppServiceReq["status"]):
+        if ("success" not in AppServiceReq["status"]):
             return res.internalServiceError("Error in application service. Is it running?")
 
         #   Saves log file

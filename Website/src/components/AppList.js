@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import AppListItem from './AppListItem';
 import { RemoveAppButton, InstallAppButton }  from './AppButtons'
 
-
 // The list of apps can be sent through props
 class AppList extends React.Component {
 	constructor(props) {

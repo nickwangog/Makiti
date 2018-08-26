@@ -16,17 +16,15 @@ class Admin extends React.Component {
 		this.state = {
 			appList: [],
 			currentApp: null,
-			showAppModal: false,
+			showDelAppModal: false,
 			showAccountModal: false,
 			accountList: [],
 			errorText: '',
 			successText: '',
+			showAprAppModal: false,
 		};
 	}
 
-	toggleAppModal = () => {
-		this.setState(() => ({ showAppModal: !this.state.showAppModal }));
-	}
 
 	setErrorText = (text) => {
 		this.setState({ errorText: text, successText: '' });
@@ -36,23 +34,16 @@ class Admin extends React.Component {
 		this.setState({ successText: text, errorText: '' });
 	}
 
-	appModal = () => {
-		
-		application_service.get(`/application/`)
-			.then(data => {
-				this.setState({ appList: data.data });
-			})
-			.catch(err => {
-				// APPLICATION SERVICE UNREACHABLE
-				let error = err.data;
-				error = error ? error.message : err;
-				this.setState({ appList: [], currentApp: null, errorText: error });
-			});
-		this.toggleAppModal();
+	toggleDelAppModal = () => {
+		this.setState(() => ({ showDelAppModal: !this.state.showDelAppModal }));
 	}
 
 	toggleAccountModal = () => {
 		this.setState(() => ({ showAccountModal: !this.state.showAccountModal }));
+	}
+	
+	toggleAprAppModal = () => {
+		this.setState(() => ({ showAprAppModal: !this.state.showAprAppModal }));
 	}
 
 	accountModal = () => {
@@ -70,8 +61,36 @@ class Admin extends React.Component {
 		this.toggleAccountModal();
 	}
 
+	delAppModal = () => {
+		axios.get(`${APPLICATION_SERVICE}/application/`)
+			.then(response => {
+				const { data } = response.data;
+				console.log(data);
+				this.setState({ appList: data });
+			})
+			.catch(err => {
+				// APPLICATION SERVICE UNREACHABLE
+				this.setState({ appList: [], currentApp: null });
+			});
+		this.toggleDelAppModal();
+	}
+
+	aprAppModal = () => {	
+		axios.get(`${APPLICATION_SERVICE}/application/`)
+			.then(response => {
+				const { data } = response.data;
+				console.log(data);
+				this.setState({ appList: data });
+			})
+			.catch(err => {
+				// APPLICATION SERVICE UNREACHABLE
+				this.setState({ appList: [], currentApp: null });
+			});
+		this.toggleAprAppModal();
+	}
+
 	render() {
-		const { appList, currentApp, showAppModal, showAccountModal, removeApp, accountList } = this.state;
+		const { appList, currentApp, showDelAppModal, showAprAppModal, showAccountModal, removeApp, accountList } = this.state;
 		const { appState } = this.props;
 		const appButtonConfig = {
 			remove: false, //
@@ -79,74 +98,112 @@ class Admin extends React.Component {
 			launch: false, //
 		};
 
-		appList[0] = {
-			id: 134,
-			appname: 'poo',
-			description: 'cool',
-			version: '1.4',
-			active: 'No',
-		}
-		appList[1] = {
-			id: 144,
-			appname: 'KAKA',
-			description: 'cool',
-			version: '1.4',
-			active: 'Yes',
-		}
-		appList[2] = {
-			id: 145,
-			appname: 'Asslover',
-			description: 'cool',
-			version: '1.4',
-			datecreated: 'Monday',
-			active: 'Yes',
-		}
+		// appList[0] = {
+		// 	id: 134,
+		// 	appname: 'poo',
+		// 	description: 'cool',
+		// 	version: '1.4',
+		// 	active: 'true',
+		// }
+		// appList[1] = {
+		// 	id: 144,
+		// 	appname: 'KAKA',
+		// 	description: 'cool',
+		// 	version: '1.4',
+		// 	active: false
+		// }
+		// appList[2] = {
+		// 	id: 145,
+		// 	appname: 'Asslover',
+		// 	description: 'cool',
+		// 	version: '1.4',
+		// 	datecreated: 'Monday',
+		// 	active: false
+		// }
 
-		accountList[0] = {
-			username: "Buttfucker69",
-			firstname: "Dago",
-			lastname: "Gaylord",
-			customer: "false",
-			developer: "true",
-			admin: "false"
-		}
+		// accountList[0] = {
+		// 	username: "Buttfucker69",
+		// 	firstname: "Dago",
+		// 	lastname: "Gaylord",
+		// 	customer: "false",
+		// 	developer: "true",
+		// 	admin: "false"
+		// }
 
-		accountList[1] = {
-			username: "Nick",
-			firstname: "Nick",
-			lastname: "Wang",
-			customer: "true",
-			developer: "true",
-			admin: "false"
-		}
+		// accountList[1] = {
+		// 	username: "Nick",
+		// 	firstname: "Nick",
+		// 	lastname: "Wang",
+		// 	customer: "true",
+		// 	developer: "true",
+		// 	admin: "false"
+		// }
 
-		accountList[2] = {
-			username: "dorfnox",
-			firstname: "Brendan",
-			lastname: "Pierce",
-			customer: "true",
-			developer: "true",
-			admin: "false"
-		}
+		// accountList[2] = {
+		// 	username: "dorfnox",
+		// 	firstname: "Brendan",
+		// 	lastname: "Pierce",
+		// 	customer: "true",
+		// 	developer: "true",
+		// 	admin: "false"
+		// }
 
 		return (
 			<div>
 				<main className="flex flex-column">
 					<h1 className="page-header">Admin Home</h1>
 					<div className="center">
-						<ButtonMakiti onClick={this.appModal}>
+						<ButtonMakiti onClick={this.aprAppModal}>
+							Approve Applications
+						</ButtonMakiti>
+						<Modal
+							show={showAprAppModal}
+							onClose={this.toggleAprAppModal}
+							style={{width: 300}}
+						>
+							<div>
+								{appList.map((app) => {if (app.active == false)
+									return(
+										<div className="admin-app-list" key={app.id}> 
+										<div className="admin-app-list-item h5">App Name: {app.appname}<br/>
+										Date Created: {Date(Date.parse(app.datecreated)).toLocaleString()}<br/>
+										Version: {app.version}<br/>
+										<p className="orange">Pending Approval</p>
+										</div>
+										<div>
+										<ButtonMakiti className="admin-viewlog-button" onClick={this.deleteAccount}>
+											View Validation Log
+										</ButtonMakiti>
+										<ButtonMakiti className="admin-app-approve-button" onClick={this.deleteAccount}>
+											Approve Application
+										</ButtonMakiti>
+										<ButtonMakiti className="admin-app-reject-button" onClick={this.deleteAccount}>
+											Reject Application
+										</ButtonMakiti>
+										</div>
+									</div>
+									);
+									else
+										return(null);
+								}
+								)}
+							</div>
+						</Modal>
+					</div>
+					<div className="center">
+						<ButtonMakiti onClick={this.delAppModal}>
 							Manage Applications
 						</ButtonMakiti>
 						<Modal
-							show={showAppModal}
-							onClose={this.toggleAppModal}
+							show={showDelAppModal}
+							onClose={this.toggleDelAppModal}
 							style={{width: 300}}
 						>
 							<div>
 								{appList.map((app) => (
 									<div className="admin-app-list" key={app.id}> 
 										<div className="admin-app-list-item h5">App Name: {app.appname}<br/>
-										Date Created: {app.datecreated}<br/>
+										Date Created: {Date(Date.parse(app.datecreated)).toLocaleString()}<br/>
 										Version: {app.version}<br/>
 										Active Status: {app.active}
 										</div>
@@ -169,7 +226,7 @@ class Admin extends React.Component {
 						>
 							<div>
 								{accountList.map((login) => (
-									<div className="admin-app-list" key={login.username}> 
+									<div className="admin-app-list" key={login.id}> 
 										<div className="admin-app-list-item h5">Login: {login.username}<br/>
 										Full Name: {login.firstname} {login.lastname}<br/>
 										Customer Status: {login.customer}<br/>

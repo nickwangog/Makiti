@@ -1,5 +1,11 @@
-FROM buildpack-deps:jessie
+#
+# NOTE: THIS DOCKERFILE IS GENERATED VIA "update.sh"
+#
+# PLEASE DO NOT EDIT IT DIRECTLY.
+#
 
+FROM alpine:3.8
+LABEL maintainer="Lamine kaba laminekaba@outlook.com"
 # ensure local python is preferred over distribution python
 ENV PATH /usr/local/bin:$PATH
 
@@ -7,18 +13,18 @@ ENV PATH /usr/local/bin:$PATH
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG C.UTF-8
 
-# extra dependencies (over what buildpack-deps already includes)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		tk-dev \
-	&& rm -rf /var/lib/apt/lists/*
+# install ca-certificates so that HTTPS works consistently
+# other runtime dependencies for Python are installed later
+RUN apk add --no-cache ca-certificates
 
 ENV GPG_KEY 0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
-
-ENV PYTHON_VERSION 3.6.6
-
-LABEL maintainer="Lamine kaba laminekaba@outlook.com"
+ENV PYTHON_VERSION 3.7.0
 
 RUN set -ex \
+	&& apk add --no-cache --virtual .fetch-deps \
+		gnupg \
+		tar \
+		xz \
 	\
 	&& wget -O python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz" \
 	&& wget -O python.tar.xz.asc "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc" \
@@ -31,6 +37,34 @@ RUN set -ex \
 	&& tar -xJC /usr/src/python --strip-components=1 -f python.tar.xz \
 	&& rm python.tar.xz \
 	\
+	&& apk add --no-cache --virtual .build-deps  \
+		bzip2-dev \
+		coreutils \
+		dpkg-dev dpkg \
+		expat-dev \
+		findutils \
+		gcc \
+		gdbm-dev \
+		libc-dev \
+		libffi-dev \
+		libnsl-dev \
+		libressl-dev \
+		libtirpc-dev \
+		linux-headers \
+		make \
+		ncurses-dev \
+		pax-utils \
+		readline-dev \
+		sqlite-dev \
+		tcl-dev \
+		tk \
+		tk-dev \
+		util-linux-dev \
+		xz-dev \
+		zlib-dev \
+# add build deps before removing fetch deps in case there's overlap
+	&& apk del .fetch-deps \
+	\
 	&& cd /usr/src/python \
 	&& gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
 	&& ./configure \
@@ -41,8 +75,17 @@ RUN set -ex \
 		--with-system-ffi \
 		--without-ensurepip \
 	&& make -j "$(nproc)" \
+# set thread stack size to 1MB so we don't segfault before we hit sys.getrecursionlimit()
+# https://github.com/alpinelinux/aports/commit/2026e1259422d4e0cf92391ca2d3844356c649d0
+		EXTRA_CFLAGS="-DTHREAD_STACK_SIZE=0x100000" \
 	&& make install \
-	&& ldconfig \
+	\
+	&& find /usr/local -type f -executable -not \( -name '*tkinter*' \) -exec scanelf --needed --nobanner --format '%n#p' '{}' ';' \
+		| tr ',' '\n' \
+		| sort -u \
+		| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
+		| xargs -rt apk add --virtual .python-rundeps \
+	&& apk del .build-deps \
 	\
 	&& find /usr/local -depth \
 		\( \
@@ -81,33 +124,24 @@ RUN set -ex; \
 			-o \
 			\( -type f -a \( -name '*.pyc' -o -name '*.pyo' \) \) \
 		\) -exec rm -rf '{}' +; \
-		rm -f get-pip.py
-RUN apt update && \
-		apt-get install unzip && \
-		pip install flask && \
-		pip3 install pyinstaller
-RUN date "+%H:%M:%S   %d/%m/%y"
-RUN mkdir -p /appfolder
-ARG requestId
-ARG package
-ARG appname
-ADD ./AppChecker /AppCheckerNingi
-ADD $package /appfolder
-COPY test.json /appfolder
-COPY ./script1.sh /appfolder
-WORKDIR /appfolder
-RUN unzip App.zip || echo "$(date) : File unziped fail check file [KO]" && curl -X PUT \
-  -F "requestId=$requestId" \
-  -F "status=3" \
-  -F "appDetail=$appname" \
-  -F "logfile=@/appfolder/test.json" 10.113.4.18:9924/apprequest/developer
-RUN rm -rf App.zip
-WORKDIR /AppCheckerNingi
-RUN python zip_checker.py $appname && \
-curl -X PUT \
- -F "requestId=$requestId" \
- -F "status=2" \
- -F "appDetail=$appname" \
- -F "logfile=@/appfolder/test.json" 10.113.4.18:9924/apprequest/developer
-WORKDIR /appfolder/App
-CMD ["bash"]
+	rm -f get-pip.py
+
+RUN apk update; \
+	apk upgrade; \
+	apk add build-base; \
+	ln -s /usr/include/locale.h /usr/include/xlocale.h;\
+	apk add git
+	
+RUN apk add --update \
+      vim \
+    && rm -fr /var/cache/apk/*
+
+WORKDIR /${PWD}
+ADD . /${PWD}
+
+RUN apk update \
+  && apk add --virtual build-deps gcc python3-dev musl-dev \
+  && apk add postgresql-dev &&\
+  pip install -r requirements.txt
+EXPOSE 9922
+CMD ["python3"]
