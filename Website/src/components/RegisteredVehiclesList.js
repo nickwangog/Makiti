@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const VehicleItem = (props) => {
 	return (
-		<div className="registered-car-list" onClick={props.onClick}>
+		<div className="registered-car-list pointer" onClick={props.onClick}>
 			<div className="underline registered-car-item h5">
 			{props.vehicle.carDetails.carmodelDetails.year} {props.vehicle.carDetails.carmodelDetails.model}
 			</div>
@@ -13,6 +13,7 @@ const VehicleItem = (props) => {
 			<div className="registered-car-item h6">
 			{props.vehicle.carDetails.carmodelDetails.description}
 			</div>
+			<div className="car-divider"/>
 		</div>
 	)
 }
