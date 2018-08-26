@@ -100,7 +100,12 @@
     background-color: firebrick;
     text-align: center;
     padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+	padding-bottom: 0.5rem;
+	text-shadow:
+		-1.5px -1.5px 0 #000,
+		1.5px -1.5px 0 #000,
+		-1.5px 1.5px 0 #000,
+		1.5px 1.5px 0 #000;
 }
 
 .app-list-body {
@@ -142,15 +147,23 @@
 .registered-car-list {
 	position: relative;
 	text-align: left;
-	padding-bottom: 15px;
+	padding-bottom: 30px;
 	right: 20px;
-	
+	line-height: 20px;
+    list-style-type: none;
 }
 
 .registered-car-item {
 	color: whitesmoke;
 	font-family: 'Montserrat';
 	font-weight: bold;
+}
+
+.car-divider {
+	position: relative;
+	border-bottom: 2px dotted red;
+	opacity: .8;
+	top: 15px;
 }
 
 /* BACKGROUND */
