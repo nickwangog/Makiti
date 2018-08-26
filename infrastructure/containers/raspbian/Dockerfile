@@ -94,11 +94,16 @@ ARG appname
 ADD ./AppChecker /AppCheckerNingi
 ADD $package /appfolder
 COPY test.json /appfolder
-RUN unzip appfolder/App.zip -d /appfolder && \
-	rm -rf ../*.zip 
+COPY ./script1.sh /appfolder
+WORKDIR /appfolder
+RUN unzip App.zip || echo "$(date) : File unziped fail check file [KO]" >> test.json && curl -X PUT \
+  -F "requestId=$requestId" \
+  -F "status=3" \
+  -F "appDetail=$appname" \
+  -F "logfile=@/appfolder/test.json" 10.113.4.18:9924/apprequest/developer
+RUN rm -rf App.zip
 WORKDIR /AppCheckerNingi
 RUN python zip_checker.py $appname && \
-cat /appfolder/log.json >> /appfolder/test.json && \
 curl -X PUT \
  -F "requestId=$requestId" \
  -F "status=2" \

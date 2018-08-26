@@ -1,5 +1,6 @@
 from keywords import keywords
 import time
+path ='/appfolder'
 checked = []
 def checkFile(s, path):
     global checked
@@ -11,7 +12,7 @@ def checkFile(s, path):
         for i in range(len(s)):
             if s[i].find(key) != -1:
                 if s[i] not in checked:
-                    with open('log.txt', 'a') as log:
+                    with open('{}/{}'.format(path, 'test.json'), 'a') as log:
                         log.write("Restricted code found in line %s\n" % i)
                         log.write("%s\n" % s[i])
                         checked.append(s[i])
