@@ -166,6 +166,40 @@
 	top: 15px;
 }
 
+.car-divider {
+	position: relative;
+	border-bottom: 2px dotted red;
+	opacity: .8;
+	top: 15px;
+}
+
+.admin-app-list {
+	width: 100%;
+	margin: auto;
+	padding-bottom: 50px;
+}
+
+.admin-app-list-item {
+	position: relative;
+	float: left;
+	height: 50%;
+	width: 80%;
+	color: white;
+	font-family: 'Montserrat';
+	font-weight: bold;
+	text-align: left;
+}
+
+.admin-app-delete-button
+{
+	position: relative;; 
+	left: 55px;
+	margin-top: 10%;
+	font-weight: bold;
+	color: black;
+	background-color: red;
+}
+
 /* BACKGROUND */
 
 .bg-mediumgray {
