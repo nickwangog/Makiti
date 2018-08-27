@@ -58,9 +58,28 @@ def sendFile(ssh, source, target):
         sftp.close()
 
 def installApp(ssh, apppackagePath, executableName):
+    ssh.invoke_shell()
+    homePath = os.path.join("/home", "dago")
     zipPath = os.path.join(apppackagePath, "App.zip")
-    cmdUnzip = "unzip {} -d {}".format(zipPath, apppackagePath)
-    ssh.exec_command(cmdUnzip)
+    apppackagePath += "/"
+    print(apppackagePath)
+    cmdUnzip = "unzip {} -d {}".format(os.path.join(homePath, zipPath), os.path.join(homePath, apppackagePath))
+    print(cmdUnzip)
+    stdin, stdout, stderr = ssh.exec_command(cmdUnzip)
     executablePath = os.path.join(apppackagePath, "App", executableName)
+    print(executablePath)
     cmdPyInstall = "pyinstaller --onefile {}".format(executablePath)
-    ssh.exec_command(cmdPyInstall)
+    exit_status = stdout.channel.recv_exit_status()
+    if exit_status == 0:
+        stdin, stdout, stderr = ssh.exec_command(cmdPyInstall)
+    else:
+        print(stderr.read())
+        print("Error", exit_status)
+    pydistPath = os.path.join(homePath, "dist", "helloworld")
+    exit_status = stdout.channel.recv_exit_status()
+    if exit_status == 0:
+        stdin, stdout, stderr = ssh.exec_command("mv {} {}".format(pydistPath, os.path.join(homePath, apppackagePath)))
+    else:
+        print(stderr.read())
+        print("Error", exit_status)
+    print(stdout.read())

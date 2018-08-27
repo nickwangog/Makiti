@@ -36,8 +36,7 @@ class apiCustomerAppRequest(Resource):
             return res.badRequestError("Missing data to process request.")
 
         #   Finding requested app package in server
-        appReqDownloadPath = os.path.join(app.config["UPLOAD_FOLDER"], os.path.join(dataAppDetails["appname"], dataAppVersionDetails["version"])
-        print("download path!! {}".format(appReqDownloadPath))
+        appReqDownloadPath = os.path.join(app.config["UPLOAD_FOLDER"], os.path.join(dataAppDetails["appname"], dataAppVersionDetails["version"]))
         if os.path.exists(appReqDownloadPath) == False:
             print("wrong path")
             return res.badRequestError("App executable files not found.")
@@ -60,7 +59,7 @@ class apiCustomerAppRequest(Resource):
         #   Download and Install app in remote device
         ssh.createAppDirectory(sshI, remoteAppDirectory)
         ssh.sendFile(sshI, appReqDownloadPath, os.path.join(remoteAppDirectory, "App.zip"))
-        ssh.installApp(sshI, os.path.join(remoteAppDirectory, "App.zip"), "HelloWorld.py")
+        ssh.installApp(sshI, remoteAppDirectory, "helloworld.py")
         print (sshI)
 
         return res.postSuccess("App installation successful.")
