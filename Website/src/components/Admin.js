@@ -147,8 +147,8 @@ class Admin extends React.Component {
 									<div className="admin-app-list" key={app.id}> 
 										<div className="admin-app-list-item h5">App Name: {app.appname}<br/>
 										Date Created: {Date(Date.parse(app.datecreated)).toLocaleString()}<br/>
-										Version: {app.version}<br/>
-										Active Status: {app.active}
+										Version: {app.runningversion}<br/>
+										Active Status: {app.active ? "True" : "False"}
 										</div>
 										<RemoveAppButton
 											className="admin-app-delete-button"
