@@ -233,6 +233,7 @@ class apiAppLaunch(Resource):
     #   Makes the app available in the AppStore (if approved)
     #   'Approved' implies it passed all the validation tests performed when app version was submitted by the developer
     def put(self, appversionId):
+        print(appversionId)
         queryAppVersion = ApplicationVersion.query.filter_by(id=appversionId).first()
         queryApp = Application.query.filter_by(id=queryAppVersion.app).first()
         #   Ensures app exists in database
