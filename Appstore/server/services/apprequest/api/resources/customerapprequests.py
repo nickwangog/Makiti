@@ -36,7 +36,7 @@ class apiCustomerAppRequest(Resource):
             return res.badRequestError("Missing data to process request.")
 
         #   Finding requested app package in server
-        appReqDownloadPath = os.path.join(app.config["UPLOAD_FOLDER"], os.path.join(dataAppDetails["appname"], dataAppVersionDetails["version"], "App.zip"))
+        appReqDownloadPath = os.path.join(app.config["UPLOAD_FOLDER"], os.path.join(dataAppDetails["appname"], dataAppVersionDetails["version"])
         print("download path!! {}".format(appReqDownloadPath))
         if os.path.exists(appReqDownloadPath) == False:
             print("wrong path")
