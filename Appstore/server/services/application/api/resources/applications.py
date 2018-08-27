@@ -1,8 +1,12 @@
-import os, requests, json
+import os, requests
+import json
+import urllib
+import base64
+from io import StringIO
 from os import listdir
 from os.path import isfile, join
 from api.app import app
-from flask import request, send_file
+from flask import request
 from flask_restful import Resource
 from api.app import db
 from api.models import Application, application_schema, applications_schema
@@ -33,6 +37,7 @@ class apiApplication(Resource):
     #   Example {"accountId": 5, "appName": "Makiti", appDesciption: "afgkajfgha"}
     def post(self):
         data = request.get_json()
+        print(request.files)
         print(data)
         if not data or not data.get("accountId") or not data.get("author") or not data.get("appName"):
             return res.badRequestError("Missing data to process request")
@@ -79,17 +84,26 @@ class apiCustomerApplications(Resource):
         return res.getSuccess(data=applications)
 
 
-#   /application/icon/:appId
+#   /application/appicon/:appId
 class apiApplicationIcon(Resource):
     def get(self, appId):
+        print("innnnnnnnnnnnnn")
+        # png_output = StringIO()
+        # data = png_output.getvalue().encode('base64')
+        # data_url = 'data:image/png;base64,{}'.format(urllib.parse.quote(data.rstrip('\n')))
         queryApp = Application.query.filter_by(id=appId).first()
         if not queryApp:
             return res.resourceMissing("App {} does not exist.")
         iconPath = os.path.join(app.config["UPLOAD_FOLDER"], queryApp.appname, "Icon")
         print(iconPath)
         onlyfiles = [f for f in listdir(iconPath) if isfile(join(iconPath, f))]
+        if len(onlyfiles) == 0:
+            return res.badRequestError("No icons for app {}.".format(appId))
         iconfilePath = os.path.join(iconPath, onlyfiles[0])
-        return send_file(iconfilePath, mimetype='image/gif')
+        print(iconfilePath)
+        with open(iconfilePath, "rb") as imageFile:
+            stri = base64.b64encode(imageFile.read())
+        return res.getSuccess(data=json.dumps(stri.decode('utf-8')))
 
 
 #   /application/version/:appId
@@ -115,6 +129,8 @@ class apiApplicationVersion(Resource):
     def post(self, appId):
         data = request.form
         print(data)
+        print(request.files)
+        
         #   Verifies data required was sent in request
         if not data or not data.get("appName") or not data.get("versionNumber") or not data.get("checksum") or not data.get("versionDescription"):
             return res.badRequestError("Missing data to process request.")
@@ -123,6 +139,15 @@ class apiApplicationVersion(Resource):
         if 'file' not in request.files:
             return res.badRequestError("Missing app file.")
         file = request.files['file']
+
+        if "icon" not in request.files:
+            return res.badRequestError("Send me an icon.")
+        icon = request.files['icon']
+        iconPath = os.path.join(app.config["UPLOAD_FOLDER"], data.get("appName"), "Icon")
+        print(iconPath)
+        saved, msg = ServUtil.saveIcon(icon, iconPath)
+        if not saved:
+            return res.internalServiceError(msg)
 
         checksum = ServUtil.checksum_sha256(file)
         
