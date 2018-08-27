@@ -20,6 +20,7 @@ class Developer extends React.Component {
 			install: false,
 			remove: false,
 			update: false,
+			log: false,
 		}
 	}
 
@@ -30,19 +31,45 @@ class Developer extends React.Component {
 				this.setState({ logFile: data, errorText: ''});
 			})
 			.catch(err => {
-				this.setState({ devErrorText: err.data || err });
+				let error = err.data;
+				error = error ? error.message : err
+				this.setState({ errorText: error });
 			});
 	}
 
 	getAppList = (id, onSuccess) => {
 		application_service.get(`/application/developer/${id}`)
 			.then(data => {
-				let newData = data.data.map(app => (app.appDetails));
-				this.setState(() => ({ appList: newData }), () => {
-					if (onSuccess) {
-						onSuccess()
-					}
+
+				let newData = data.data.map(app => {
+					let appDets = app.appDetails;
+					console.log(appDets);
+					return application_service.get(`/application/appicon/${app.id}`)
+						.then(icondata => {
+							icondata = icondata.data.slice(1, -1);
+							appDets.src = `data:image/png;base64,${icondata}`;
+							return appDets;
+						})
+						.catch(err => {
+							appDets.src = "";
+							return appDets;
+						});
+					});
+
+				Promise.all(newData).then(completed => {
+					console.log(completed);
+					console.log(completed);
+					console.log(completed);
+					console.log(completed);
+					console.log(completed);
+					console.log(completed);
+					this.setState(() => ({ appList: completed, errorText: '' }), () => {
+						if (onSuccess) {
+							onSuccess()
+						}
+					});
 				});
+
 			})
 			.catch(err => {
 				// APPLICATION SERVICE UNREACHABLE
@@ -86,6 +113,8 @@ class Developer extends React.Component {
 			remove: true, // chosenApp.active,
 			launch: chosenApp.appversionDetails.status == 4,
 			update: chosenApp.active && chosenApp.runningversion != 0,
+			log: chosenApp.appversionDetails.status == 3 || chosenApp.appversionDetails.status == 4,
+			errorText: '',
 		});
 		const { appname } = chosenApp;
 		const { version } = chosenApp.appversionDetails;
@@ -104,6 +133,7 @@ class Developer extends React.Component {
 			install: this.state.install,
 			launch: this.state.launch,
 			update: this.state.update,
+			log: this.state.log,
 		}
 		const parentFuncs = {
 			refreshDeveloper: this.refreshDeveloper,
@@ -111,8 +141,6 @@ class Developer extends React.Component {
 			setSuccessText: this.setSuccessText,
 			setErrorText: this.setErrorText,
 		}
-
-		console.log("CURRENTAPP", currentApp);
 
 		return (
 			<div>

@@ -6,12 +6,13 @@ import ButtonMakiti from './ButtonMakiti';
 import LaunchAppModal from './LaunchAppModal';
 import InstallAppModal from './InstallAppModal';
 import RegisterCarModalButton from './RegisterCarModalButton';
+import ViewLogModal from './ViewLogModal';
 
-import { app_request_service, application_service } from './AxiosHandler';
+import { app_request_service, application_service, account_service } from './AxiosHandler';
 
 
 const RemoveAppButton = ({ ...props }) => {
-	const { show, app, className, parentFuncs } = { ...props };
+	const { show, app, className, parentFuncs, onSuccess, onFail } = { ...props };
 
 	if (!show) {
 		return null;
@@ -21,9 +22,15 @@ const RemoveAppButton = ({ ...props }) => {
 		application_service.delete(`/application/${appId}`)
 		.then(response => {
 			parentFuncs.setSuccessText(`Successfully removed app ${app.appname}`);
+			if (onSuccess) {
+				onSuccess();
+			}
 		})
 		.catch(err => {
 			parentFuncs.setErrorText(`Was unable to remove app ${app.appname}`);
+			if (onFail) {
+				onFail();
+			}
 		});
 	}
 
@@ -176,25 +183,97 @@ const UninstallAppButton = ({ ...props }) => {
 	}
 
 	const uninstallApp = (customerId) => {
-		app_request_service.post(`/apprequest/customer/${customerId}`)
-		.then(data => {
-			data = data.data;
-		})
-		.catch(err => {
-			return ;
-		});
+		// app_request_service.post(`/apprequest/customer/${customerId}`)
+		// .then(data => {
+		// 	data = data.data;
+		// })
+		// .catch(err => {
+		// 	return ;
+		// });
+		// THIS UNINSTALLS THE APP
 	}
 
 	return (
 		<div>
 			<ButtonMakiti
 				className={classNames("text-bold-black bg-red", className)}
-				onClick={() => (uninstallApp("akldsfjaklsdfjaksdlfjkladsjflkadsjflkadsjfklajklfdjdlkjs"))}
+				onClick={() => (uninstallApp(""))}
 			>
-				unInstall
+				Uninstall
 			</ButtonMakiti>
 		</div>
 	);
+}
+
+const DeleteAccountButton = ({ ...props }) => {
+	
+	const { show, className, parentFuncs, onSuccess, onFail, accountId } = { ...props };
+
+	const deleteAccount = () => {
+		account_service.delete(`/account/${accountId}`)
+			.then(data => {
+				parentFuncs.setSuccessText('Successfully removed Account');
+				if (onSuccess) {
+					onSuccess();
+				}
+			})
+			.catch(err => {
+				parentFuncs.setErrorText('Unable to Delete Account');
+				if (onFail) {
+					onFail();
+				}
+			});
+	}
+
+	if (!show) {
+		return null;
+	}
+
+	return (
+		<div>
+			<ButtonMakiti
+				className={classNames("text-bold-black bg-red", className)}
+				onClick={deleteAccount}
+			>
+				Delete Account
+			</ButtonMakiti>
+		</div>
+	);
+}
+
+
+class ViewLogButton extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			showModal: false,
+		}
+	}
+
+	toggleModal = () => {
+		this.setState({ showModal: !this.state.showModal });
+	}
+
+	render() {
+		const { show, app, className, logFile, parentFuncs } = this.props;
+		const { showModal } = this.state;
+
+		if (!show) {
+			return null;
+		}
+
+		return (
+			<div>
+				<ButtonMakiti 
+					className={classNames("text-bold-black bg-yellow", className)}
+					onClick={this.toggleModal}
+				>
+					Corrective Actions Log
+				</ButtonMakiti>
+				<ViewLogModal show={showModal} toggle={this.toggleModal} app={app} logFile={logFile} parentFuncs={parentFuncs}/>
+			</div>
+		);
+	}
 }
 
 export {
@@ -202,4 +281,6 @@ export {
 	InstallAppButton,
 	UninstallAppButton,
 	LaunchAppVersionButton,
+	DeleteAccountButton,
+	ViewLogButton,
 }

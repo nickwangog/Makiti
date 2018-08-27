@@ -9,11 +9,11 @@ class AppListItem extends React.Component {
 
 	render() {
 		const { app, children } = this.props;
-		const { appname } = app;
+		const { appname, src } = app;
 
 		return (
 			<li className="app-list-item">
-				<img className="icon-image" src={iconImage} alt="icon"/>
+				<img className="icon-image" src={src} alt="icon"/>
 				<div className="app-list-body">
 					<span className="app-list-item-name">{appname}</span>
 				</div>

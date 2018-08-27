@@ -41,7 +41,7 @@ const AxiosHandler = function() {
 	}
 
 	this._delete = function(endpoint, data, headers) {
-		return axios.put(endpoint, data, headers)
+		return axios.delete(endpoint, data, headers)
 			.then(this._onSuccess)
 			.catch(this._onError);
 	}

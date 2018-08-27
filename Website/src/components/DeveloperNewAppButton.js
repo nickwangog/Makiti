@@ -80,6 +80,7 @@ class DeveloperNewAppButton extends React.Component {
 					'appDescription': appDescription,
 					'programmingLanguage': programmingLanguage,
 					'author': firstname,
+					'icon': icon,
 				})
 				.then(data => {
 					// Successful creation of a new App
@@ -98,6 +99,7 @@ class DeveloperNewAppButton extends React.Component {
 						let checksum = sha256(event.target.result);
 						// Append to form data
 						formData.append('file', file);
+						formData.append('icon', icon);
 						// formData.append('image', icon);
 						formData.append('versionNumber', versionNumber);
 						formData.append('versionDescription', "Check out our new App!");
@@ -151,7 +153,7 @@ class DeveloperNewAppButton extends React.Component {
 
 		// Successful validation
 		if (file &&
-			// icon &&
+			icon &&
 			appName.length &&
 			versionNumber.length &&
 			appDescription.length &&
@@ -171,7 +173,7 @@ class DeveloperNewAppButton extends React.Component {
 		// Validation Failure
 		this.setState(() => ({
 			fileErr: !file ? "required" : '',
-			// iconErr: !icon ? "required" : '',
+			iconErr: !icon ? "required" : '',
 			appNameErr: !appName.length ? "required" : '',
 			versionNumberErr: !versionNumber.length ? "required" : '',
 			appDescriptionErr: !appDescription.length ? "required" : '',
@@ -217,13 +219,11 @@ class DeveloperNewAppButton extends React.Component {
 							<h5 className="h5">Add your Zip File</h5>
 							<input className="h5 white" type="file" onChange={this.onFileChange}/>
 						</div>
-						{
-						//<div>
-							//<span className="text-error-red">{iconErr}</span>
-							//<h5 className="h5">Add an app Icon</h5>
-							//<input className="h5 white" type="file" onChange={this.onIconChange}/>
-						//</div>
-						}
+						<div>
+							<span className="text-error-red">{iconErr}</span>
+							<h5 className="h5">Add an app Icon</h5>
+							<input className="h5 white" type="file" onChange={this.onIconChange}/>
+						</div>
 						<div>
 							<span className="text-error-red">{appDescriptionErr}</span>
 							<h5 className="h5">Application Description</h5>

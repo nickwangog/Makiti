@@ -116,7 +116,6 @@ class App extends React.Component {
 				})
 				.catch(err => {
 					// On failure, type out what went wrong
-					this.setSingleError("serverResponse", "Account Services are Offline at the moment");
 				});
 		} else {
 			sessionStorage.clear();
@@ -145,7 +144,7 @@ class App extends React.Component {
 						<Redirect from="/home" to="/" />
 						<PrivateRoute path="/client" accessCheck={isCus} render={() => (<Client appState={this.state} />)} />
 						<PrivateRoute path="/developer" accessCheck={isDev} render={() => (<Developer appState={this.state} />)} />
-						<PrivateRoute path="/admin" accessCheck={isAd} render={() => (<Admin appState={this.state} />)}  />
+						<PrivateRoute path="/admin" accessCheck={true} render={() => (<Admin appState={this.state} />)}  />
 						<PrivateRoute path="/accountsettings" accessCheck={isCus} render={() => (<AccountSettings appState={this.state} />)} />
 						<Route component={NotFound} />
 					</Switch>

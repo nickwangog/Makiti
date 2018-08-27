@@ -6,9 +6,9 @@ import AppDetail from './AppDetail';
 import LoginForm from './LoginForm';
 import ButtonMakiti from './ButtonMakiti';
 import Modal from './Modal';
-import { RemoveAppButton } from './AppButtons';
+import { RemoveAppButton, DeleteAccountButton } from './AppButtons';
 
-import { application_service } from './AxiosHandler';
+import { application_service, account_service } from './AxiosHandler';
 
 class Admin extends React.Component {
 	constructor(props) {
@@ -46,10 +46,25 @@ class Admin extends React.Component {
 		this.setState(() => ({ showAprAppModal: !this.state.showAprAppModal }));
 	}
 
-	accountModal = () => {
-		
+	refreshApps = () => {
+		application_service.get(`/application/`)
+			.then(data => {
+				this.setState({ appList: data.data });
+			})
+			.catch(err => {
+				this.setState({ appList: [], currentApp: null });
+			});
+	}
+
+	refreshAccounts = () => {
 		account_service.get(`/account/`)
 			.then(data => {
+				console.log(data.data);
+				console.log(data.data);
+				console.log(data.data);
+				console.log(data.data);
+				console.log(data.data);
+				console.log(data.data);
 				this.setState({ accountList: data.data });
 			})
 			.catch(err => {
@@ -58,95 +73,30 @@ class Admin extends React.Component {
 				error = error ? error.message : err;
 				this.setState({ accountList: [], currentApp: null, errorText: error, successText: '' });
 			});
-		this.toggleAccountModal();
-	}
-
-	delAppModal = () => {
-		axios.get(`${APPLICATION_SERVICE}/application/`)
-			.then(response => {
-				const { data } = response.data;
-				console.log(data);
-				this.setState({ appList: data });
-			})
-			.catch(err => {
-				// APPLICATION SERVICE UNREACHABLE
-				this.setState({ appList: [], currentApp: null });
-			});
-		this.toggleDelAppModal();
 	}
 
 	aprAppModal = () => {	
-		axios.get(`${APPLICATION_SERVICE}/application/`)
-			.then(response => {
-				const { data } = response.data;
-				console.log(data);
-				this.setState({ appList: data });
-			})
-			.catch(err => {
-				// APPLICATION SERVICE UNREACHABLE
-				this.setState({ appList: [], currentApp: null });
-			});
+		this.refreshApps();
 		this.toggleAprAppModal();
+	}
+
+	delAppModal = () => {
+		this.refreshApps();
+		this.toggleDelAppModal();
+	}
+
+	accountModal = () => {
+		this.refreshAccounts();
+		this.toggleAccountModal();
 	}
 
 	render() {
 		const { appList, currentApp, showDelAppModal, showAprAppModal, showAccountModal, removeApp, accountList } = this.state;
 		const { appState } = this.props;
-		const appButtonConfig = {
-			remove: false, //
-			install: true, //
-			launch: false, //
-		};
-
-		// appList[0] = {
-		// 	id: 134,
-		// 	appname: 'poo',
-		// 	description: 'cool',
-		// 	version: '1.4',
-		// 	active: 'true',
-		// }
-		// appList[1] = {
-		// 	id: 144,
-		// 	appname: 'KAKA',
-		// 	description: 'cool',
-		// 	version: '1.4',
-		// 	active: false
-		// }
-		// appList[2] = {
-		// 	id: 145,
-		// 	appname: 'Asslover',
-		// 	description: 'cool',
-		// 	version: '1.4',
-		// 	datecreated: 'Monday',
-		// 	active: false
-		// }
-
-		// accountList[0] = {
-		// 	username: "Buttfucker69",
-		// 	firstname: "Dago",
-		// 	lastname: "Gaylord",
-		// 	customer: "false",
-		// 	developer: "true",
-		// 	admin: "false"
-		// }
-
-		// accountList[1] = {
-		// 	username: "Nick",
-		// 	firstname: "Nick",
-		// 	lastname: "Wang",
-		// 	customer: "true",
-		// 	developer: "true",
-		// 	admin: "false"
-		// }
-
-		// accountList[2] = {
-		// 	username: "dorfnox",
-		// 	firstname: "Brendan",
-		// 	lastname: "Pierce",
-		// 	customer: "true",
-		// 	developer: "true",
-		// 	admin: "false"
-		// }
+		const parentFuncs = {
+			setSuccessText: this.setSuccessText,
+			setErrorText: this.setErrorText,
+		}
 
 		return (
 			<div>
@@ -162,31 +112,29 @@ class Admin extends React.Component {
 							style={{width: 300}}
 						>
 							<div>
-								{appList.map((app) => {if (app.active == false)
-									return(
+								{appList.map((app) => (app.active == false ?
 										<div className="admin-app-list" key={app.id}> 
-										<div className="admin-app-list-item h5">App Name: {app.appname}<br/>
-										Date Created: {Date(Date.parse(app.datecreated)).toLocaleString()}<br/>
-										Version: {app.version}<br/>
-										<p className="orange">Pending Approval</p>
+											<div className="admin-app-list-item h5">
+												App Name: {app.appname}<br/>
+												Date Created: {Date(Date.parse(app.datecreated)).toLocaleString()}<br/>
+												Version: {app.version}<br/>
+												<p className="orange">Pending Approval</p>
+											</div>
+											<div>
+												<ButtonMakiti className="admin-viewlog-button" onClick={this.deleteAccount}>
+													View Validation Log
+												</ButtonMakiti>
+												<ButtonMakiti className="admin-app-approve-button" onClick={this.deleteAccount}>
+													Approve Application
+												</ButtonMakiti>
+												<ButtonMakiti className="admin-app-reject-button" onClick={this.deleteAccount}>
+													Reject Application
+												</ButtonMakiti>
+											</div>
 										</div>
-										<div>
-										<ButtonMakiti className="admin-viewlog-button" onClick={this.deleteAccount}>
-											View Validation Log
-										</ButtonMakiti>
-										<ButtonMakiti className="admin-app-approve-button" onClick={this.deleteAccount}>
-											Approve Application
-										</ButtonMakiti>
-										<ButtonMakiti className="admin-app-reject-button" onClick={this.deleteAccount}>
-											Reject Application
-										</ButtonMakiti>
-										</div>
-									</div>
-									);
-									else
-										return(null);
-								}
-								)}
+										:
+										null
+								))}
 							</div>
 						</Modal>
 					</div>
@@ -200,16 +148,22 @@ class Admin extends React.Component {
 							style={{width: 300}}
 						>
 							<div>
-								{appList.map((app) => (
+								{
+									appList.map((app) => (
 									<div className="admin-app-list" key={app.id}> 
 										<div className="admin-app-list-item h5">App Name: {app.appname}<br/>
 										Date Created: {Date(Date.parse(app.datecreated)).toLocaleString()}<br/>
 										Version: {app.version}<br/>
 										Active Status: {app.active}
 										</div>
-										<ButtonMakiti className="admin-app-delete-button" onClick={this.deleteAccount}>
-											Remove Application
-										</ButtonMakiti>
+										<RemoveAppButton
+											className="admin-app-delete-button"
+											app={app}
+											show={true}
+											parentFuncs={parentFuncs}
+											onSuccess={this.refreshApps}
+											onFail={() => {this.setErrorText("Failed to Remove App")}}
+										/>
 									</div>
 								))}
 							</div>
@@ -225,17 +179,23 @@ class Admin extends React.Component {
 							style={{width: 300}}
 						>
 							<div>
-								{accountList.map((login) => (
+								{
+									accountList.map((login) => (
 									<div className="admin-app-list" key={login.id}> 
 										<div className="admin-app-list-item h5">Login: {login.username}<br/>
 										Full Name: {login.firstname} {login.lastname}<br/>
-										Customer Status: {login.customer}<br/>
-										Developer Status: {login.developer}<br/>
-										Admin Status: {login.admin}
+										Customer Status: {login.customer ? 'True' : 'False'}<br/>
+										Developer Status: {login.developer ? 'True' : 'False'}<br/>
+										Admin Status: {login.admin ? 'True' : 'False'}
 										</div>
-										<ButtonMakiti className="admin-app-delete-button" onClick={this.deleteAccount}>
-											Delete Account
-										</ButtonMakiti>
+										<DeleteAccountButton
+											className="admin-app-delete-button"
+											show={true}
+											parentFuncs={parentFuncs}
+											accountId={login.id}
+											onSuccess={this.refreshAccounts}
+											onFail={() => {this.setErrorText("Failed to Remove Account")}}
+										/>
 									</div>
 								))}
 							</div>

@@ -5,7 +5,7 @@ import RegisterCarModalButton from './RegisterCarModalButton';
 import AppList from './AppList';
 import AppDetail from './AppDetail';
 
-import { app_request_service } from './AxiosHandler';
+import { application_service } from './AxiosHandler';
 
 class Client extends React.Component {
 	constructor(props) {
@@ -26,19 +26,54 @@ class Client extends React.Component {
 		this.setState({ errorText: text });
 	}
 
-	// Grab list of customer's apps
-	componentWillMount() {
+	getCustomerApps = () => {
 		const { id } = this.props.appState.accountDetails;
 
-		app_request_service.get(`/apprequest/customer/${id}`)
+		application_service.get(`/application/customer/${id}`)
 			.then(data => {
-				this.setState({ appList: data.data })
+
+				let newData = data.data.map(app => {
+					// Just get the app Details
+					let appDets = app;
+
+					// Get the Icon
+					return application_service.get(`/application/appicon/${app.id}`)
+						.then(icondata => {
+							icondata = icondata.data.slice(1, -1);
+							appDets.src = `data:image/png;base64,${icondata}`;
+							return appDets;
+						})
+						.catch(err => {
+							appDets.src = "";
+							return appDets;
+						});
+					});
+
+				// Wait for all icon requests to finish, then set the state
+				Promise.all(newData).then(completed => {
+					this.setState({ appList: completed });
+				});
+
 			})
 			.catch(err => {
 				let error = err.data;
 				error = error ? error.message : err
 				this.setState({ errorText: error })
 			});
+	}
+
+	showAppDetail = (appId) => {
+		const { appList } = this.state;
+
+		let chosenApp = appList.filter(app => app.id == appId)[0];
+		this.setState({
+			currentApp: chosenApp,
+		});
+	}
+
+	// Grab list of customer's apps
+	componentWillMount() {
+		this.getCustomerApps();
 	}
 
 	render () {
@@ -48,7 +83,7 @@ class Client extends React.Component {
 			setErrorText: this.setErrorText,
 		};
 		const appButtonConfig = {
-			uninstall: true, // Always allow uninstall
+			uninstall: true,
 		};
 
 		return (
@@ -56,7 +91,7 @@ class Client extends React.Component {
 				<h1 className="page-header">My Apps</h1>
 				<div className="flex flex-column">
 					<div className="flex-none flex justify-around">
-						<RegisterCarModalButton { ...this.props } parentFuncs={parentFuncs}/>
+						<RegisterCarModalButton { ...this.props } parentFuncs={parentFuncs} />
 					</div>
 					<span className="text-error-red center">{errorText}</span>
 					<span className="text-success-green center">{successText}</span>
@@ -71,6 +106,7 @@ class Client extends React.Component {
 							style={{ flex: 3 }}
 							app={currentApp}
 							appButtonConfig={appButtonConfig}
+							parentFuncs={parentFuncs}
 						/>
 					</div>
 				</div>

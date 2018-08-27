@@ -31,7 +31,30 @@ class Home extends React.Component {
 		application_service.get(`/application/`)
 			.then(data => {
 				let activeApps = data.data.filter(app => app.active == true && app.runningversion > 0);
-				this.setState({ appList: activeApps, successText: '', errorText: '', currentApp: null });
+
+
+				let newData = activeApps.map(app => {
+					// Just get the app Details
+					let appDets = app;
+
+					// Get the Icon
+					return application_service.get(`/application/appicon/${app.id}`)
+						.then(icondata => {
+							icondata = icondata.data.slice(1, -1);
+							appDets.src = `data:image/png;base64,${icondata}`;
+							return appDets;
+						})
+						.catch(err => {
+							appDets.src = "";
+							return appDets;
+						});
+					});
+
+				// Wait for all icon requests to finish, then set the state
+				Promise.all(newData).then(completed => {
+					this.setState({ appList: completed, successText: '', errorText: '', currentApp: null });
+				});
+
 			})
 			.catch(err => {
 				let error = err.data;
@@ -46,14 +69,18 @@ class Home extends React.Component {
 	}
 
 	getCustomerApps = (id, onSuccess, onFail) => {
-		app_request_service.get(`/apprequest/customer/${id}`)
+		application_service.get(`/application/customer/${id}`)
 			.then(data => {
-				onSuccess(data);
+				if (onSuccess) {
+					onSuccess(data);
+				}
 			})
 			.catch(err => {
 				let error = err.data;
 				error = error ? error.message : err;
-				onFail(error);
+				if (onFail) {
+					onFail(error);					
+				}
 			})
 	}
 
@@ -63,7 +90,8 @@ class Home extends React.Component {
 		let chosenApp = this.state.appList.filter(app => app.id == appId)[0];
 
 		this.getCustomerApps(id, (data) => {
-			let customerApp = data.data.filter(app => app.appversion == appId);
+			let customerApp = data.data.filter(app => app.appversionDetails.app == appId);
+
 			this.setState({
 				currentApp: chosenApp,
 				install: customerApp.length == 0,
