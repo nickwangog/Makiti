@@ -7,6 +7,8 @@ import LoginForm from './LoginForm';
 
 import { application_service, app_request_service } from './AxiosHandler';
 
+import makiti_icon from '../static/images/makiti_icon.png';
+
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
@@ -45,7 +47,7 @@ class Home extends React.Component {
 							return appDets;
 						})
 						.catch(err => {
-							appDets.src = "";
+							appDets.src = makiti_icon;
 							return appDets;
 						});
 					});

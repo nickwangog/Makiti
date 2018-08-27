@@ -5,6 +5,8 @@ import AppList from './AppList';
 import AppDetail from './AppDetail';
 import DeveloperNewAppButton from './DeveloperNewAppButton';
 
+import makiti_icon from '../static/images/makiti_icon.png';
+
 import { application_service, app_request_service } from './AxiosHandler';
 
 class Developer extends React.Component {
@@ -43,7 +45,6 @@ class Developer extends React.Component {
 
 				let newData = data.data.map(app => {
 					let appDets = app.appDetails;
-					console.log(appDets);
 					return application_service.get(`/application/appicon/${app.id}`)
 						.then(icondata => {
 							icondata = icondata.data.slice(1, -1);
@@ -51,18 +52,12 @@ class Developer extends React.Component {
 							return appDets;
 						})
 						.catch(err => {
-							appDets.src = "";
+							appDets.src = makiti_icon;
 							return appDets;
 						});
 					});
 
 				Promise.all(newData).then(completed => {
-					console.log(completed);
-					console.log(completed);
-					console.log(completed);
-					console.log(completed);
-					console.log(completed);
-					console.log(completed);
 					this.setState(() => ({ appList: completed, errorText: '' }), () => {
 						if (onSuccess) {
 							onSuccess()

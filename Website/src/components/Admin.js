@@ -59,12 +59,6 @@ class Admin extends React.Component {
 	refreshAccounts = () => {
 		account_service.get(`/account/`)
 			.then(data => {
-				console.log(data.data);
-				console.log(data.data);
-				console.log(data.data);
-				console.log(data.data);
-				console.log(data.data);
-				console.log(data.data);
 				this.setState({ accountList: data.data });
 			})
 			.catch(err => {

@@ -7,6 +7,9 @@ import AppDetail from './AppDetail';
 
 import { application_service } from './AxiosHandler';
 
+import makiti_icon from '../static/images/makiti_icon.png';
+
+
 class Client extends React.Component {
 	constructor(props) {
 		super(props);
@@ -44,7 +47,7 @@ class Client extends React.Component {
 							return appDets;
 						})
 						.catch(err => {
-							appDets.src = "";
+							appDets.src = makiti_icon;
 							return appDets;
 						});
 					});
