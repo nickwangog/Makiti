@@ -15,7 +15,7 @@ import api.serviceUtilities as ServUtil
 class apiApplication(Resource):
     #   Retrieves all applications approved and ready for download.
     def get(self):
-        queryApps = Application.query.filter_by().all() #active=True
+        queryApps = Application.query.filter_by(active=True).all()
         print(queryApps)
         if not queryApps:
             return res.resourceMissing("No apps in AppStore yet. Brah!")
@@ -112,11 +112,12 @@ class apiApplicationVersion(Resource):
         file = request.files['file']
 
         checksum = ServUtil.checksum_sha256(file)
+        
         if data.get("checksum") == checksum:
             print("good checksum")
         else:
             return res.badRequestError("File corrupted.")
-
+        file.seek(0)
         #   Verifies app exists
         queryApp = Application.query.filter_by(id=appId).first()
         if not queryApp:
@@ -180,6 +181,7 @@ class apiApplicationbyId(Resource):
     
     def delete(self, appId):
         queryApp = Application.query.filter_by(id=appId).first()
+
         #   Checks application exists in database
         if not queryApp:
             return res.resourceMissing("No application found.")
@@ -225,12 +227,13 @@ class apiDeveloperApps(Resource):
             return res.internalServiceError(error)
         allapps = []
         for developerapp in developerapps:
-            queryApplication = Application.query.filter_by(id=developerapp["appid"]).first()
-            queryAppVersion = ApplicationVersion.query.filter(ApplicationVersion.app==queryApplication.id).first()
-            developerapp["appDetails"] = application_schema.dump(queryApplication).data
-            if queryAppVersion:
-                developerapp["appDetails"]["appversionDetails"] = applicationversion_schema.dump(queryAppVersion).data
-            allapps.append(developerapp)
+            queryApplication = Application.query.filter(Application.id==developerapp["appid"]).filter(Application.active==True or (Application.active == False and Application.runningversion == 0)).first()
+            if queryApplication:
+                queryAppVersion = ApplicationVersion.query.filter(ApplicationVersion.app==queryApplication.id).first()
+                developerapp["appDetails"] = application_schema.dump(queryApplication).data
+                if queryAppVersion:
+                    developerapp["appDetails"]["appversionDetails"] = applicationversion_schema.dump(queryAppVersion).data
+                allapps.append(developerapp)
         return res.getSuccess(data=allapps)
 
 #   api/application/:appversionId/appversion

@@ -11,7 +11,7 @@ class apiAccount(Resource):
         queryAccounts = Account.query.filter_by(active=True).all()
         if not queryAccounts:
             return res.resourceMissing("No accounts found.")
-        return res.getSuccess(accounts_schema.dump(queryAccounts).data)
+        return res.getSuccess(data=accounts_schema.dump(queryAccounts).data)
 
     #   Account creation [POST]
     #   Requires in request body: first name, last name, username, password
@@ -46,6 +46,8 @@ class apiLogin(Resource):
         query = Account.query.filter_by(username=data.get("username")).first()
         if not query:
             return res.badRequestError("Incorrect login information.")
+        if query.active == False:
+            return res.badRequestError("This account is deactivated.")
         if query.password != data.get("password"):
             return res.resourceMissing("Incorrect password for user {}.".format(query.username))
         return res.postSuccess(data=account_schema.dump(query).data)
