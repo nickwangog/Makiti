@@ -34,7 +34,7 @@ const AppDetail = (props) => {
 		// description: "asdf"
 		// id: 2
 
-	const { active, applicationversion, appname, datecreated, datelastupdate, description } = app;
+	const { active, runningversion, appname, datecreated, datelastupdate, description } = app;
 
 	console.log(app);
 	let temp = Date.parse(datecreated)
@@ -55,8 +55,8 @@ const AppDetail = (props) => {
 			<div>
 				<span>Created: {formattedCreate}</span>
 				<span>Last Updated: {datelastupdate}</span>
-				<span>Version: {applicationversion}</span>
-				<span className="underline">App Description: {applicationversion}</span>
+				<span>Version: {runningversion}</span>
+				<span className="underline">App Description:</span>
 				<span className={classNames('app-description', className)}>{description}</span>
 			</div>
 			<div className="flex flex-center">
