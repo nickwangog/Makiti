@@ -10,6 +10,7 @@ from api.models import ApplicationDeveloper, applicationdeveloper_schema, applic
 from api.models import ApplicationVersion, applicationversion_schema, applicationversions_schema
 from api.response import Response as res
 import api.serviceUtilities as ServUtil
+from sqlalchemy import or_, and_
 
 #   /api/application
 class apiApplication(Resource):
@@ -59,11 +60,23 @@ class apiApplication(Resource):
 
         return  res.postSuccess("Succesfully created application {}.".format(newApp.appname), application_schema.dump(newApp).data)
 
-# #   /application/:accountId/customer
-# class apiCustomerApplications(Resource):
-#     def get(self, accountId):
-#         appRequestServ = 
-        
+#   /application/customer/:accountId
+class apiCustomerApplications(Resource):
+    def get(self, accountId):
+        appRequestServ = requests.get(app.config['APPREQUEST_SERVICE'] + "customer/{}".format(accountId)).json()
+        print(json.dumps(appRequestServ))
+        if "success" not in appRequestServ["status"]:
+            return res.internalServiceError("Sorry :(")
+        allRequests = appRequestServ["data"]
+        applications = []
+        for req in allRequests:
+            queryAppVersion = ApplicationVersion.query.filter_by(id=req["appversion"]).first()
+            queryApp = Application.query.filter_by(id=queryAppVersion.app).first()
+            thisapp = application_schema.dump(queryApp).data
+            thisapp["appversionDetails"] = applicationversion_schema.dump(queryAppVersion).data
+            applications.append(thisapp)
+
+        return res.getSuccess(data=applications)
 
 
 #   /application/icon/:appId
@@ -227,7 +240,7 @@ class apiDeveloperApps(Resource):
             return res.internalServiceError(error)
         allapps = []
         for developerapp in developerapps:
-            queryApplication = Application.query.filter(Application.id==developerapp["appid"]).filter(Application.active==True or (Application.active == False and Application.runningversion == 0)).first()
+            queryApplication = Application.query.filter(Application.id==developerapp["appid"]).filter(or_(Application.active==True, and_(Application.active == False, Application.runningversion == 0))).first()
             if queryApplication:
                 queryAppVersion = ApplicationVersion.query.filter(ApplicationVersion.app==queryApplication.id).first()
                 developerapp["appDetails"] = application_schema.dump(queryApplication).data
