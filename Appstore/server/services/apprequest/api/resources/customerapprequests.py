@@ -16,7 +16,7 @@ class apiCustomerAppRequest(Resource):
         queryCustomerApps = AppRequest.query.filter_by(customer=accountId).all()
         if not queryCustomerApps:
             return res.resourceMissing("No apps downloaded by customer {}.".format(accountId))
-        return res.getSuccess(apprequests_schema.dump(queryCustomerApps).data)
+        return res.getSuccess(data=apprequests_schema.dump(queryCustomerApps).data)
     
     #   Downloads the specified application on the specified customer car
     #   Requires in request body applicationId and caruserId
@@ -36,7 +36,7 @@ class apiCustomerAppRequest(Resource):
             return res.badRequestError("Missing data to process request.")
 
         #   Finding requested app package in server
-        appReqDownloadPath = os.path.join(app.config["UPLOAD_FOLDER"], os.path.join(dataAppDetails["appname"], dataAppVersionDetails["version"], "App.zip"))
+        appReqDownloadPath = os.path.join(app.config["UPLOAD_FOLDER"], os.path.join(dataAppDetails["appname"], dataAppVersionDetails["version"])
         print("download path!! {}".format(appReqDownloadPath))
         if os.path.exists(appReqDownloadPath) == False:
             print("wrong path")
@@ -57,7 +57,6 @@ class apiCustomerAppRequest(Resource):
         if error < 0:
             return res.internalServiceError(sshI)
         
-        print(os.path.exists(remoteAppDirectory))
         #   Download and Install app in remote device
         ssh.createAppDirectory(sshI, remoteAppDirectory)
         ssh.sendFile(sshI, appReqDownloadPath, os.path.join(remoteAppDirectory, "App.zip"))

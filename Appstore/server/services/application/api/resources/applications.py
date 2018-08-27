@@ -1,8 +1,12 @@
-import os, requests, json
+import os, requests
+import json
+import urllib
+import base64
+from io import StringIO
 from os import listdir
 from os.path import isfile, join
 from api.app import app
-from flask import request, send_file
+from flask import request
 from flask_restful import Resource
 from api.app import db
 from api.models import Application, application_schema, applications_schema
@@ -10,12 +14,13 @@ from api.models import ApplicationDeveloper, applicationdeveloper_schema, applic
 from api.models import ApplicationVersion, applicationversion_schema, applicationversions_schema
 from api.response import Response as res
 import api.serviceUtilities as ServUtil
+from sqlalchemy import or_, and_
 
 #   /api/application
 class apiApplication(Resource):
     #   Retrieves all applications approved and ready for download.
     def get(self):
-        queryApps = Application.query.filter_by().all() #active=True
+        queryApps = Application.query.filter_by(active=True).all()
         print(queryApps)
         if not queryApps:
             return res.resourceMissing("No apps in AppStore yet. Brah!")
@@ -32,6 +37,7 @@ class apiApplication(Resource):
     #   Example {"accountId": 5, "appName": "Makiti", appDesciption: "afgkajfgha"}
     def post(self):
         data = request.get_json()
+        print(request.files)
         print(data)
         if not data or not data.get("accountId") or not data.get("author") or not data.get("appName"):
             return res.badRequestError("Missing data to process request")
@@ -59,24 +65,45 @@ class apiApplication(Resource):
 
         return  res.postSuccess("Succesfully created application {}.".format(newApp.appname), application_schema.dump(newApp).data)
 
-# #   /application/:accountId/customer
-# class apiCustomerApplications(Resource):
-#     def get(self, accountId):
-#         appRequestServ = 
-        
+#   /application/customer/:accountId
+class apiCustomerApplications(Resource):
+    def get(self, accountId):
+        appRequestServ = requests.get(app.config['APPREQUEST_SERVICE'] + "customer/{}".format(accountId)).json()
+        print(json.dumps(appRequestServ))
+        if "success" not in appRequestServ["status"]:
+            return res.internalServiceError("Sorry :(")
+        allRequests = appRequestServ["data"]
+        applications = []
+        for req in allRequests:
+            queryAppVersion = ApplicationVersion.query.filter_by(id=req["appversion"]).first()
+            queryApp = Application.query.filter_by(id=queryAppVersion.app).first()
+            thisapp = application_schema.dump(queryApp).data
+            thisapp["appversionDetails"] = applicationversion_schema.dump(queryAppVersion).data
+            applications.append(thisapp)
+
+        return res.getSuccess(data=applications)
 
 
-#   /application/icon/:appId
+#   /application/appicon/:appId
 class apiApplicationIcon(Resource):
     def get(self, appId):
+        print("innnnnnnnnnnnnn")
+        # png_output = StringIO()
+        # data = png_output.getvalue().encode('base64')
+        # data_url = 'data:image/png;base64,{}'.format(urllib.parse.quote(data.rstrip('\n')))
         queryApp = Application.query.filter_by(id=appId).first()
         if not queryApp:
             return res.resourceMissing("App {} does not exist.")
         iconPath = os.path.join(app.config["UPLOAD_FOLDER"], queryApp.appname, "Icon")
         print(iconPath)
         onlyfiles = [f for f in listdir(iconPath) if isfile(join(iconPath, f))]
+        if len(onlyfiles) == 0:
+            return res.badRequestError("No icons for app {}.".format(appId))
         iconfilePath = os.path.join(iconPath, onlyfiles[0])
-        return send_file(iconfilePath, mimetype='image/gif')
+        print(iconfilePath)
+        with open(iconfilePath, "rb") as imageFile:
+            stri = base64.b64encode(imageFile.read())
+        return res.getSuccess(data=json.dumps(stri.decode('utf-8')))
 
 
 #   /application/version/:appId
@@ -102,6 +129,8 @@ class apiApplicationVersion(Resource):
     def post(self, appId):
         data = request.form
         print(data)
+        print(request.files)
+        
         #   Verifies data required was sent in request
         if not data or not data.get("appName") or not data.get("versionNumber") or not data.get("checksum") or not data.get("versionDescription"):
             return res.badRequestError("Missing data to process request.")
@@ -111,12 +140,22 @@ class apiApplicationVersion(Resource):
             return res.badRequestError("Missing app file.")
         file = request.files['file']
 
+        if "icon" not in request.files:
+            return res.badRequestError("Send me an icon.")
+        icon = request.files['icon']
+        iconPath = os.path.join(app.config["UPLOAD_FOLDER"], data.get("appName"), "Icon")
+        print(iconPath)
+        saved, msg = ServUtil.saveIcon(icon, iconPath)
+        if not saved:
+            return res.internalServiceError(msg)
+
         checksum = ServUtil.checksum_sha256(file)
+        
         if data.get("checksum") == checksum:
             print("good checksum")
         else:
             return res.badRequestError("File corrupted.")
-
+        file.seek(0)
         #   Verifies app exists
         queryApp = Application.query.filter_by(id=appId).first()
         if not queryApp:
@@ -180,6 +219,7 @@ class apiApplicationbyId(Resource):
     
     def delete(self, appId):
         queryApp = Application.query.filter_by(id=appId).first()
+
         #   Checks application exists in database
         if not queryApp:
             return res.resourceMissing("No application found.")
@@ -225,12 +265,13 @@ class apiDeveloperApps(Resource):
             return res.internalServiceError(error)
         allapps = []
         for developerapp in developerapps:
-            queryApplication = Application.query.filter_by(id=developerapp["appid"]).first()
-            queryAppVersion = ApplicationVersion.query.filter(ApplicationVersion.app==queryApplication.id).first()
-            developerapp["appDetails"] = application_schema.dump(queryApplication).data
-            if queryAppVersion:
-                developerapp["appDetails"]["appversionDetails"] = applicationversion_schema.dump(queryAppVersion).data
-            allapps.append(developerapp)
+            queryApplication = Application.query.filter(Application.id==developerapp["appid"]).filter(or_(Application.active==True, and_(Application.active == False, Application.runningversion == 0))).first()
+            if queryApplication:
+                queryAppVersion = ApplicationVersion.query.filter(ApplicationVersion.app==queryApplication.id).first()
+                developerapp["appDetails"] = application_schema.dump(queryApplication).data
+                if queryAppVersion:
+                    developerapp["appDetails"]["appversionDetails"] = applicationversion_schema.dump(queryAppVersion).data
+                allapps.append(developerapp)
         return res.getSuccess(data=allapps)
 
 #   api/application/:appversionId/appversion

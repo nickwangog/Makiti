@@ -58,7 +58,9 @@ def sendFile(ssh, source, target):
         sftp.close()
 
 def installApp(ssh, apppackagePath, executableName):
-    cmdUnzip = "unzip " + apppackagePath + " -d ."
+    zipPath = os.path.join(apppackagePath, "App.zip")
+    cmdUnzip = "unzip {} -d {}".format(zipPath, apppackagePath)
     ssh.exec_command(cmdUnzip)
-    cmdPyInstall = "pyinstaller --onefile " + executableName 
+    executablePath = os.path.join(apppackagePath, "App", executableName)
+    cmdPyInstall = "pyinstaller --onefile {}".format(executablePath)
     ssh.exec_command(cmdPyInstall)

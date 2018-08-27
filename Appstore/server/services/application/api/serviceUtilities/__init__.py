@@ -84,4 +84,9 @@ def createAppDir(dirPath):
     os.makedirs(iconPath)
     os.makedirs(imagesPath)
     return True, "success"
-    
+
+def saveIcon(icon, IconStoragePath):
+    if os.path.exists(IconStoragePath) == False:
+        return False, "Directory not found"
+    icon.save(os.path.join(IconStoragePath, icon.filename))
+    return True, "Icon saved"
