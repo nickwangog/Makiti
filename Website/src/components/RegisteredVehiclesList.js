@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 
+import { car_registration_service } from './AxiosHandler';
+
 const VehicleItem = (props) => {
 	return (
 		<div className="registered-car-list pointer" onClick={props.onClick}>
@@ -28,14 +30,12 @@ class RegisteredVehiclesList extends React.Component {
 	}
 
 	getList = (customerId) => {
-		axios.get(`${CAR_REGISTRATION_SERVICE}/carregistration/customer/${customerId}`)
-			.then(response => {
-				console.log("SUCCESS", response);
-				const { data } = response.data;
-				this.setState({ vehicleList: data });
+		car_registration_service.get(`/carregistration/customer/${customerId}`)
+			.then(data => {
+				this.setState({ vehicleList: data.data });
 			})
 			.catch(err => {
-				console.log("ERR", err);
+				return ;
 			});
 	}
 

@@ -5,74 +5,145 @@ import AppList from './AppList';
 import AppDetail from './AppDetail';
 import LoginForm from './LoginForm';
 
+import { application_service, app_request_service } from './AxiosHandler';
+
+import makiti_icon from '../static/images/makiti_icon.png';
+
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			appList: [],
 			currentApp: null,
+			successText: '',
+			errorText: '',
+			install: false,
 		};
+	}
+
+	setSuccessText = (text) => {
+		this.setState({ successText: text, errorText: '' });
+	}
+
+	setErrorText = (text) => {
+		this.setState({ errorText: text, successText: '' });
+	}
+
+	getAppList = () => {
+		application_service.get(`/application/`)
+			.then(data => {
+				let activeApps = data.data.filter(app => app.active == true && app.runningversion > 0);
+
+
+				let newData = activeApps.map(app => {
+					// Just get the app Details
+					let appDets = app;
+
+					// Get the Icon
+					return application_service.get(`/application/appicon/${app.id}`)
+						.then(icondata => {
+							icondata = icondata.data.slice(1, -1);
+							appDets.src = `data:image/png;base64,${icondata}`;
+							return appDets;
+						})
+						.catch(err => {
+							appDets.src = makiti_icon;
+							return appDets;
+						});
+					});
+
+				// Wait for all icon requests to finish, then set the state
+				Promise.all(newData).then(completed => {
+					this.setState({ appList: completed, successText: '', errorText: '', currentApp: null });
+				});
+
+			})
+			.catch(err => {
+				let error = err.data;
+				error = error ? err.message : err;
+				this.setState({ appList: [], currentApp: null, successText: '', errorText: error });
+			});
 	}
 
 	// Get a list of Apps in the App store
 	componentDidMount() {
-		axios.get(`${APPLICATION_SERVICE}/application/`)
-			.then(response => {
-				const { data } = response.data;
-				console.log(data);
-				this.setState({ appList: data });
+		this.getAppList();
+	}
+
+	getCustomerApps = (id, onSuccess, onFail) => {
+		application_service.get(`/application/customer/${id}`)
+			.then(data => {
+				if (onSuccess) {
+					onSuccess(data);
+				}
 			})
 			.catch(err => {
-				// APPLICATION SERVICE UNREACHABLE
-				this.setState({ appList: [], currentApp: null });
-				if (!err.response) {
-					console.log("no response from server");
-					return ;
+				let error = err.data;
+				error = error ? error.message : err;
+				if (onFail) {
+					onFail(error);					
 				}
-				const { data } = err.response;
-				console.log(data);
-			});
+			})
 	}
 
 	showAppDetail = (appId) => {
-		const { appList } = this.state;
+		const { id } = this.props.appState.accountDetails;
 
-		let chosenApp = appList.filter(app => app.id == appId);
-		this.setState({currentApp: chosenApp[0]});
+		let chosenApp = this.state.appList.filter(app => app.id == appId)[0];
+
+		this.getCustomerApps(id, (data) => {
+			let customerApp = data.data.filter(app => app.appversionDetails.app == appId);
+
+			this.setState({
+				currentApp: chosenApp,
+				install: customerApp.length == 0,
+			});
+			}, (error) => {
+				this.setState({
+					currentApp: chosenApp,
+					install: true,
+			});
+		});
 	}
 
 	render() {
-		const { appList, currentApp } = this.state;
+		const { appList, currentApp, errorText, successText } = this.state;
 		const { appState } = this.props;
-		// From home, don't show remove button
-		// only allow install if user is logged in
+
 		const appButtonConfig = {
-			remove: false, //
-			install: true, //
-			launch: false, //
+			install: this.state.install,
 		};
+
+		const parentFuncs = {
+			setSuccessText: this.setSuccessText,
+			setErrorText: this.setErrorText,
+			showAppDetail: this.showAppDetail,
+		}
 
 		return (
 			<div>
-				<main className="flex flex-column">
-					<h1 className="page-header">Home</h1>
+				<h1 className="page-header">Home</h1>
+				<div className="flex flex-column">
+					<span className="text-error-red">{errorText}</span>
+					<span className="text-success-green">{successText}</span>
 					<div className="flex-none flex">
 						<AppList
 							className="flex-auto"
-							style={{ flex: 2.5 }}
+							style={{ flex: 2 }}
 							title="App Store"
 							appList={appList}
 							onClick={this.showAppDetail}
 						/>
 						<AppDetail
 							className="flex-auto"
-							style={{ flex: 2 }}
+							style={{ flex: 3 }}
 							app={currentApp}
 							appState={appState}
 							appButtonConfig={appButtonConfig}
+							parentFuncs={parentFuncs}
 						/>
 					</div>
-				</main>
+				</div>
 			</div>
 		);
 	}

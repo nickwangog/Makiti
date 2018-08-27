@@ -48,6 +48,7 @@ class LogOutButton extends React.Component {
 
 	logOut = (e) => {
 		e.preventDefault();
+		sessionStorage.clear();
 		this.props.clearAccountDetails();
 	}
 

@@ -14,13 +14,6 @@ class AppList extends React.Component {
 	render() {
 		const { appList, title, className, onClick, style } = this.props;
 
-		// appList[0] = {
-		// 	id: 134,
-		// 	appname: 'poo',
-		// 	description: 'cool',
-		// 	version: '1.4',
-		// }
-
 		return (
 			<div className={classNames(className)} style={style}>
 				<ul className="p1 flex-column app-list-body">

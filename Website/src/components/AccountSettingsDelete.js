@@ -24,14 +24,14 @@ class AccountSettingsDelete extends React.Component {
 		let { id } = this.props.appState.accountDetails;
 		let { clearAccountDetails } = this.props.appState;
 
-		account_service.delete(`${ACCOUNT_SERVICE}/account/${id}`)
+		account_service.delete(`/account/${id}`)
 			.then(data => {
 				// perform logout - should redirect to top level
 				clearAccountDetails();
 			})
 			.catch(err => {
-				const { data } = err;
-				this.setState(() => ({ errorText: data || err }));
+				const error = err.data;
+				this.setState(() => ({ errorText: error ? error.data : err }));
 			});
 	}
 

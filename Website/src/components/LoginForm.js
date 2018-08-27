@@ -50,34 +50,17 @@ class LoginForm extends React.Component {
 					password: password,
 				})
 				.then(data => {
-					data = data.data;
+					sessionStorage.setItem('username', username);
+					sessionStorage.setItem('password', password);
 					closeParentModal();
-					setAccountDetails(data);
+					setAccountDetails(data.data);
 				})
 				.catch(err => {
-					const { data } = err;
-					this.setSingleError("serverResponse", data.message)
+					let error = err.data;
+					error = error ? error.message : err;
+					this.setSingleError("serverResponse", error)
 				});
 
-			// axios.post(`${ACCOUNT_SERVICE}/account/login`, {
-			// 		username: username,
-			// 		password: password,
-			// 	})
-			// 	.then(response => {
-			// 		const { data } = response.data;
-			// 		// close the parent modal
-			// 		closeParentModal();
-			// 		// sets the main Apps current account details
-			// 		setAccountDetails(data);
-			// 	})
-			// 	.catch(err => {
-			// 		// On failure, type out what went wrong
-			// 		if (!err.response) {
-			// 			return this.setSingleError("serverResponse", "Account Services are Offline at the moment");
-			// 		}
-			// 		const { data } = err.response;
-			// 		this.setSingleError("serverResponse", data.message);
-			// 	});
 		}));
 	}
 
@@ -92,25 +75,23 @@ class LoginForm extends React.Component {
 					clearErrors = this.clearErrors,
 					closeParentModal = this.props.onSuccess;
 
-				axios.post(`${ACCOUNT_SERVICE}/account/`, {
+				account_service.post(`/account/`, {
 						username: username,
 						password: password,
 						firstname: firstname,
 						lastname: lastname,
 					})
-					.then(response => {
-						const { data } = response.data;
+					.then(data => {
 						// close modal window
 						closeParentModal();
 						// sets the main Apps current account details
-						setAccountDetails(data);
+						setAccountDetails(data.data);
 					})
 					.catch(err => {
-						if (!err.response) {
-							return this.setSingleError("serverResponse", "Application Service is offline at the moment");
-						}
-						const { data } = err.response;
-						this.setSingleError("serverResponse", data.message);
+						console.log(err);
+						let error = err.data;
+						error = error ? error.message : err 
+						this.setSingleError("serverResponse", error );
 					});
 				}));
 		});

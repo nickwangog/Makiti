@@ -13,8 +13,8 @@ const AxiosHandler = function() {
 		if (error.response) {
 			// Request was made, but server responded with !2XX
 			console.error('Status:',	error.response.status);
-			console.error('Data:',	error.response.data);
-			console.error('Headers:', error.response.headers);
+			console.error('Data:',		error.response.data);
+			console.error('Headers:',	error.response.headers);
 		} else {
 			// Something else happened while setting up the request
 			console.error('Server Error:', error.message);
@@ -41,7 +41,7 @@ const AxiosHandler = function() {
 	}
 
 	this._delete = function(endpoint, data, headers) {
-		return axios.put(endpoint, data, headers)
+		return axios.delete(endpoint, data, headers)
 			.then(this._onSuccess)
 			.catch(this._onError);
 	}

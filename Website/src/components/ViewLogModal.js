@@ -6,7 +6,7 @@ import Modal from './Modal';
 
 import { application_service } from './AxiosHandler';
 
-class LaunchAppModal extends React.Component {
+class ViewLogModal extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -14,35 +14,15 @@ class LaunchAppModal extends React.Component {
 		}
 	}
 
-	launchApp = () => {
-		const { parentFuncs, toggle, app } = this.props;
-		const { id } = app.appversionDetails;
-
-		console.log(app);
-
-		application_service.put(`/application/${id}/launch`)
-			.then(data => {
-				parentFuncs.setSuccessText(data.data.message);
-				parentFuncs.refreshDeveloper(app.app);
-				toggle();
-			})
-			.catch(err => {
-				let error = err.data;
-				error = error ? error.message : err;
-				this.setState({ errorText: error } );
-			});
-	}
-
 	render() {
 		const { errorText } = this.state;
 		const { show, toggle, app, logFile } = this.props;
-
 		if (!app.appversionDetails) {
 			console.log("wont open");
 			return null;
 		}
 
-		const { app: id } = app.appversionDetails;
+		const { id } = app.appversionDetails;
 
 		return (
 			<div className="center">
@@ -64,12 +44,6 @@ class LaunchAppModal extends React.Component {
 							value={logFile}
 							readOnly={true}
 						/>
-						<ButtonMakiti
-							className="text-bold-black bg-green"
-							onClick={this.launchApp}
-						>
-							Launch to the App Store!
-						</ButtonMakiti>
 					</div>
 				</Modal>
 			</div>
@@ -77,4 +51,4 @@ class LaunchAppModal extends React.Component {
 	}
 }
 
-export default LaunchAppModal;
+export default ViewLogModal;

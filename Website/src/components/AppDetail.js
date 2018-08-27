@@ -2,8 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { RemoveAppButton, InstallAppButton, LaunchAppVersionButton } from './AppButtons';
-import iconImage from '../static/images/app_icon.png'; // TEMPORARY
+import { RemoveAppButton, InstallAppButton, UninstallAppButton, LaunchAppVersionButton, ViewLogButton } from './AppButtons';
 
 // import AppIcon from '../static/images/appicon.png';
 
@@ -14,8 +13,9 @@ import iconImage from '../static/images/app_icon.png'; // TEMPORARY
 
 const AppDetail = (props) => {
 	// Handle zero-state
-	const { className, style, app, appButtonConfig, appState } = props;
+	const { className, style, app, appButtonConfig, appState, logFile, parentFuncs } = props;
 
+	console.log(props);
 	if (!app) {
 		return (
 			<div
@@ -26,24 +26,12 @@ const AppDetail = (props) => {
 			</div>
 		);
 	}
-		// active: false
-		// applicationversion:	0
-		// appname: "adsfasdf"
-		// datecreated: "2018-08-25T00:05:27.968651+00:00"
-		// datelastupdate: null
-		// description: "asdf"
-		// id: 2
 
 	const { active, runningversion, appname, datecreated, datelastupdate, description } = app;
 
-	console.log(app);
 	let temp = Date.parse(datecreated)
 	let date = new Date(temp);
 	let formattedCreate = date.toLocaleString()
-	// let temp = Date.parse(datelastupdate)
-	// let date = new Date(temp);
-	// let formattedUpdate = date.toLocaleString()
-	//replace datelastupdate with formattedUpdate
 
 	// Handle regular state
 	return (
@@ -51,7 +39,7 @@ const AppDetail = (props) => {
 			<h3 className="h3 underline">
 				{appname}
 			</h3>
-			<img className="icon-image" src={iconImage} alt="icon"/>
+			<img className="icon-image" src={app.src} alt="icon"/>
 			<div>
 				<span>Created: {formattedCreate}</span>
 				<span>Last Updated: {datelastupdate}</span>
@@ -60,9 +48,11 @@ const AppDetail = (props) => {
 				<span className={classNames('app-description', className)}>{description}</span>
 			</div>
 			<div className="flex flex-center">
-				<RemoveAppButton show={appButtonConfig.remove} app={app} />
-				<InstallAppButton show={appButtonConfig.install} app={app} appState={appState}/>
-				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} />
+				<RemoveAppButton show={appButtonConfig.remove} app={app} parentFuncs={parentFuncs} />
+				<InstallAppButton show={appButtonConfig.install} app={app} appState={appState} parentFuncs={parentFuncs} />
+				<UninstallAppButton show={appButtonConfig.uninstall} app={app} appState={appState} parentFuncs={parentFuncs} />
+				<LaunchAppVersionButton show={appButtonConfig.launch} app={app} logFile={logFile} parentFuncs={parentFuncs} />
+				<ViewLogButton show={appButtonConfig.log} app={app} logFile={logFile} parentFuncs={parentFuncs} />
 			</div>
 		</div>
 	);

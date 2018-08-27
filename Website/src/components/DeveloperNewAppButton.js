@@ -8,6 +8,8 @@ import ButtonMakiti from './ButtonMakiti';
 import InputMakiti from './InputMakiti';
 import Modal from './Modal';
 
+import { application_service, app_request_service } from './AxiosHandler';
+
 class DeveloperNewAppButton extends React.Component {
 	constructor(props) {
 		super(props);
@@ -68,20 +70,21 @@ class DeveloperNewAppButton extends React.Component {
 		// Validate Form and submit application
 		this.validateFormData(() => {
 			const { file, icon, appName, versionNumber, appDescription, programmingLanguage } = this.state;
-			let { id } = this.props.appState.accountDetails;
+			const { id, firstname } = this.props.appState.accountDetails;
+			const { parentFuncs } = this.props;
 
 			// Request for a new App
-			console.log("Making request for new App");
-			axios.post(`${APPLICATION_SERVICE}/application/`, {
+			application_service.post(`/application/`, {
 					'accountId': id,
 					'appName': appName,
 					'appDescription': appDescription,
 					'programmingLanguage': programmingLanguage,
+					'author': firstname,
+					'icon': icon,
 				})
-				.then(response => {
+				.then(data => {
 					// Successful creation of a new App
-					console.log("Successful creation of new App", response);
-					const { data } = response.data;
+					data = data.data;
 					const config = {
 							headers: {
 								'content-type': 'multipart/form-data'
@@ -96,63 +99,57 @@ class DeveloperNewAppButton extends React.Component {
 						let checksum = sha256(event.target.result);
 						// Append to form data
 						formData.append('file', file);
+						formData.append('icon', icon);
+						// formData.append('image', icon);
 						formData.append('versionNumber', versionNumber);
 						formData.append('versionDescription', "Check out our new App!");
 						formData.append('checksum', checksum);
 						formData.append('appName', appName);
 
 						// Send request for first version of new app using the App ID received as response
-						console.log("Requesting new app version");
-						axios.post(`${APPLICATION_SERVICE}/application/version/${appId}`, formData, config)
-							.then(response => {
-								// Successful creation of first app version
-								console.log("Successfully created new App version", response);
-								const { data } = response.data;
-								console.log("Requesting app review");
-								axios.post(`${APP_REQUEST_SERVICE}/apprequest/developer`, {
+						application_service.post(`/application/version/${appId}`, formData, config)
+							.then(data => {
+								data = data.data;
+								// Creates a request to review the app.
+								app_request_service.post('/apprequest/developer', {
 										accountId: id, // account id
 										appversionId: data.id, // Version id
 										requestType: 1, // 1 is create app, 2 is update app
+										appName: appName, // Application Name
+										checksum: checksum,
+										versionNumber: versionNumber,
 									})
-									.then(response => {
-										console.log("app review SUCCESS");
+									.then(data => {
 										this.toggleModal();
-										this.props.parentFuncs.refreshDeveloper();
+										parentFuncs.refreshDeveloper();
+										parentFuncs.setSuccessText("You have successfully submitted an app for review");
 									})
 									.catch(err => {
-										console.log("app review FAILURE");
-										if (!err.response) {
-											return this.setErrorText("Application Service is offline at the moment")
-										}
-										const { data } = err.response
-										this.setErrorText(data.message);
+										let error = err.data;
+										error = error ? error.message : err;
+										this.setErrorText(error);
+										parentFuncs.setErrorText(error);
 									});
 							})
 							.catch(err => {
 								// Error in creation of first app version
-								console.log("Failure in creating new App version", err);
-								if (!err.response) {
-									return this.setErrorText("Application Service is offline at the moment")
-								}
-								const { data } = err.response
-								this.setErrorText(data.message);
+								const error = err.data;
+								this.setErrorText(error ? error.message : err);
 							});
 					}
 					reader.readAsArrayBuffer(file);
 				})
 				.catch(err => {
-					console.log("Failure in creating new App", err);
-					if (!err.response) {
-						return this.setErrorText("Application Service is offline at the moment")
-					}
-					const { data } = err.response
-					this.setErrorText(data.message);
+					const error = err.data;
+					this.setErrorText(error ? error.message : err);
 				});
 		});
 	}
 
 	validateFormData = (onSuccess) => {
 		const { file, icon, appName, versionNumber, appDescription, programmingLanguage } = this.state;
+
+		console.log(icon);
 
 		// Successful validation
 		if (file &&
