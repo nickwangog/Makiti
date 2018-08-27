@@ -42,7 +42,6 @@ const AppDetail = (props) => {
 			<img className="icon-image" src={app.src} alt="icon"/>
 			<div>
 				<span>Created: {formattedCreate}</span>
-				<span>Last Updated: {datelastupdate}</span>
 				<span>Version: {runningversion}</span>
 				<span className="underline">App Description:</span>
 				<span className={classNames('app-description', className)}>{description}</span>
