@@ -19,6 +19,7 @@ class Admin extends React.Component {
 			showDelAppModal: false,
 			showAccountModal: false,
 			accountList: [],
+			appApprovalList: [],
 			errorText: '',
 			successText: '',
 			showAprAppModal: false,
@@ -70,7 +71,7 @@ class Admin extends React.Component {
 	}
 
 	aprAppModal = () => {	
-		this.refreshApps();
+		// this.refreshApps();
 		this.toggleAprAppModal();
 	}
 
@@ -85,11 +86,24 @@ class Admin extends React.Component {
 	}
 
 	render() {
-		const { appList, currentApp, showDelAppModal, showAprAppModal, showAccountModal, removeApp, accountList } = this.state;
+		const { appList, currentApp, appApprovalList, showDelAppModal, showAprAppModal, showAccountModal, removeApp, accountList } = this.state;
 		const { appState } = this.props;
 		const parentFuncs = {
 			setSuccessText: this.setSuccessText,
 			setErrorText: this.setErrorText,
+		}
+
+		appApprovalList[0] =
+		{
+			appname: "Hello World",
+			active: false,
+			version: 1.2,
+		}
+		appApprovalList[1] =
+		{
+			appname: "Makiti",
+			active: false,
+			version: 2.4,
 		}
 
 		return (
@@ -106,7 +120,7 @@ class Admin extends React.Component {
 							style={{width: 300}}
 						>
 							<div>
-								{appList.map((app) => (app.active == false ?
+								{appApprovalList.map((app) => (app.active == false ?
 										<div className="admin-app-list" key={app.id}> 
 											<div className="admin-app-list-item h5">
 												App Name: {app.appname}<br/>
