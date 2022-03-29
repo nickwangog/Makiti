@@ -20,7 +20,7 @@ MarkupSafe==1.0
 marshmallow==2.15.4
 marshmallow-sqlalchemy==0.14.1
 mccabe==0.6.1
-paramiko==2.4.1
+paramiko==2.10.1
 psycopg2==2.7.5
 pyasn1==0.4.4
 pycparser==2.18
